@@ -1,0 +1,47 @@
+using MyAvaloniaManagement.Business.Diagnostics;
+
+namespace MyAvaloniaManagement.PluginTests;
+
+/// <summary>
+/// 使用宿主真实 PluginLoadContext 探测 G12 非发布测试目录。环境变量由专项脚本指向解压目录；
+/// 普通测试运行则使用当前插件构建目录，从而保持零跳过且持续验证同一加载规则。
+/// </summary>
+public sealed class BiliDownloaderV3PackageTests
+{
+    [Fact]
+    public void Win_x64测试包通过真实Loader与V3入口预检()
+    {
+        var configured = Environment.GetEnvironmentVariable("MYAVALONIA_G12_V3_PACKAGE_ROOT")
+            ?? Environment.GetEnvironmentVariable("BILIDOWNLOADER_G8_PLUGIN_ROOT");
+        var pluginRoot = Environment.GetEnvironmentVariable("BILIDOWNLOADER_PACKAGE_ROOT")
+            ?? throw new InvalidOperationException("请通过 scripts/Test-HostIntegration.ps1 指定解压后的插件目录。");
+        var pluginPath = Path.Combine(pluginRoot, "BiliDownloader.dll");
+        Assert.True(File.Exists(pluginPath), $"候选目录缺少插件程序集：{pluginPath}");
+
+        var context = new PluginLoadContext(pluginRoot);
+        var assembly = context.LoadFromAssemblyPath(pluginPath);
+        Assert.True(PluginManifestReader.TryRead(
+            pluginRoot, out var manifest, out var errorCode, out var errorDetail),
+            $"插件清单无效：{errorCode}: {errorDetail}");
+        Assert.Equal("myavalonia.plugin.bili-downloader", manifest!.PluginId.Value);
+        var entryType = assembly.GetType(
+            manifest.EntryPoint.Type, throwOnError: false, ignoreCase: false);
+        Assert.True(PluginModulePreflight.TryValidate(
+            entryType, out var validatedType, out var entryCode, out _));
+        Assert.NotNull(validatedType);
+        Assert.Null(entryCode);
+        // 发布脚本的 staging 只允许 win-x64；普通构建目录仍保留跨平台资产，
+        // 且独立项目输出不复制发布目标筛选出的全部私有依赖。因此仅在显式候选模式下
+        // 验证私有依赖解析和 RID 封闭性，普通运行仍验证清单、入口和模块身份。
+        if (Directory.Exists(pluginRoot))
+        {
+            Assert.NotNull(context.ResolveAssembly("Microsoft.Data.Sqlite"));
+            Assert.True(File.Exists(Path.Combine(
+                pluginRoot, "runtimes", "win-x64", "native", "e_sqlite3.dll")));
+            var runtimeRoots = Directory.EnumerateDirectories(Path.Combine(pluginRoot, "runtimes"))
+                .Select(path => Path.GetFileName(path)!)
+                .ToArray();
+            Assert.Equal(new[] { "win-x64" }, runtimeRoots);
+        }
+    }
+}

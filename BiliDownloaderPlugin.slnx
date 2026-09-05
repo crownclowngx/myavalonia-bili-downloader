@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BiliDownloaderPlugin.Plugin/BiliDownloaderPlugin.Plugin.csproj" />
+    <Project Path="src/BiliDownloaderPlugin.Standalone/BiliDownloaderPlugin.Standalone.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/BiliDownloader.ReleaseAcceptance/BiliDownloader.ReleaseAcceptance.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BiliDownloaderPlugin.UiTests/BiliDownloaderPlugin.UiTests.csproj" />
+    <Project Path="tests/BiliDownloaderPlugin.Tests/BiliDownloaderPlugin.Tests.csproj" />
+  </Folder>
+</Solution>

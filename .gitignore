@@ -1,0 +1,40 @@
+# .NET 编译、中间文件与 Managed Plugin 发布产物（匹配任意层级）
+[Bb]in/
+[Oo]bj/
+artifacts/
+*.binlog
+
+# Visual Studio / Rider 本地缓存及个人设置
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.iml
+
+# 自动生成的测试、覆盖率报告
+[Tt]est[Rr]esults/
+*.trx
+*.coverage
+*.coveragexml
+coverage.cobertura.xml
+coverage.opencover.xml
+
+# 根 TestResults 中只保留迁移前的 6 份 G8 历史资料。
+# 逐层开放父目录，其余报告、截图、联调解压包和旧编译备份继续忽略。
+!/TestResults/
+/TestResults/*
+!/TestResults/BiliDownloader/
+/TestResults/BiliDownloader/*
+!/TestResults/BiliDownloader/G8/
+/TestResults/BiliDownloader/G8/*
+!/TestResults/BiliDownloader/G8/README.md
+!/TestResults/BiliDownloader/G8/BiliDownloader-p0-win-x64-0b5dcf6a1ec4.acceptance.json
+!/TestResults/BiliDownloader/G8/BiliDownloader-p0-win-x64-0b5dcf6a1ec4.manifest.json
+!/TestResults/BiliDownloader/G8/g8-live.json
+!/TestResults/BiliDownloader/G8/g8-package.json
+!/TestResults/BiliDownloader/G8/g8-sensitive-scan.json
+
+# packages.lock.json、coverage-baseline.json、coverage.runsettings、源码和文档应提交。
+# 不全局忽略 DLL/EXE/ZIP，避免隐藏将来明确纳入版本控制的测试资产。

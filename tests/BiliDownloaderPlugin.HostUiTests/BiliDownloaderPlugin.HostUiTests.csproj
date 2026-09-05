@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup><IsTestProject>true</IsTestProject><IsPackable>false</IsPackable><AssemblyName>MyAvaloniaManagement.UiTests</AssemblyName><RootNamespace>MyAvaloniaManagement.UiTests</RootNamespace></PropertyGroup>
+<ItemGroup><ProjectReference Include="$(HostRepositoryRoot)/Host/MyAvaloniaManagement/MyAvaloniaManagement.csproj"/><ProjectReference Include="../../src/BiliDownloaderPlugin.Plugin/BiliDownloaderPlugin.Plugin.csproj"/><PackageReference Include="Avalonia.Headless.XUnit"/><PackageReference Include="Microsoft.NET.Test.Sdk"/><PackageReference Include="xunit.v3"/><PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all"/><PackageReference Include="Microsoft.Extensions.DependencyInjection"/></ItemGroup>
+<Target Name="RequireHostRepository" BeforeTargets="PrepareForBuild"><Error Condition="'$(HostRepositoryRoot)' == ''" Text="请显式传入 -p:HostRepositoryRoot=宿主源码根目录。"/></Target>
+</Project>

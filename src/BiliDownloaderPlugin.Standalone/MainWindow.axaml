@@ -1,0 +1,14 @@
+<Window x:Class="BiliDownloaderPlugin.Standalone.MainWindow"
+ xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Width="1440" Height="900" MinWidth="1000" MinHeight="640" Title="Bilibili 下载器 — 独立调试">
+ <Grid RowDefinitions="Auto,*">
+  <Border Padding="12,8" Background="{DynamicResource AppSubtlePanelBrush}">
+   <TextBlock x:Name="Status" Text="正在初始化 · 使用独立调试数据" TextWrapping="Wrap" />
+  </Border>
+  <Grid x:Name="Workspace" Grid.Row="1" ColumnDefinitions="3*,5,2*" IsEnabled="False">
+   <ContentControl x:Name="DocumentContent" Margin="8" />
+   <GridSplitter Grid.Column="1" ResizeDirection="Columns" HorizontalAlignment="Stretch" />
+   <ContentControl x:Name="ToolContent" Grid.Column="2" Margin="8" />
+  </Grid>
+ </Grid>
+</Window>

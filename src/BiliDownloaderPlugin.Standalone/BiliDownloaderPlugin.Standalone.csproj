@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BiliDownloaderPlugin.Plugin\BiliDownloaderPlugin.Plugin.csproj" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <InternalsVisibleTo Include="BiliDownloader.Tests" />
+    <InternalsVisibleTo Include="BiliDownloaderPlugin.UiTests" />
+  </ItemGroup>
+
+</Project>

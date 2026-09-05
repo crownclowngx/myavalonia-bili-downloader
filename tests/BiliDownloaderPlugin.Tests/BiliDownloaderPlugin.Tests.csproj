@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>BiliDownloader.Tests</AssemblyName>
+    <RootNamespace>BiliDownloader.Tests</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/BiliDownloaderPlugin.Plugin/BiliDownloaderPlugin.Plugin.csproj" />
+    <ProjectReference Include="../../src/BiliDownloaderPlugin.Standalone/BiliDownloaderPlugin.Standalone.csproj" />
+  </ItemGroup>
+
+  <!-- 历史发布设施测试保留源码事实，但 G12 的非发布测试入口不编译或执行发布验收。 -->
+  <ItemGroup>
+    <Compile Remove="G8ReleaseAcceptanceTests.cs" />
+  </ItemGroup>
+
+</Project>

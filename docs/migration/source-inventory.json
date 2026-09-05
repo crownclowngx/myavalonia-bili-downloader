@@ -1,0 +1,2358 @@
+{
+  "sourceRepository": "D:\\code\\bishe\\common\\avalonia_dock_simple_test",
+  "sourceRevision": "ca52a1faaf41854c535ff8528a58210c5a703a30",
+  "files": [
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.ReleaseAcceptance/AcceptanceDataPaths.cs",
+      "target": "tools/BiliDownloader.ReleaseAcceptance/AcceptanceDataPaths.cs",
+      "sourceSha256": "006674bbae0fad282a7a51aa4588c6407ae9a62e3b427bfadb8360c00ec9137a",
+      "targetSha256": "006674bbae0fad282a7a51aa4588c6407ae9a62e3b427bfadb8360c00ec9137a",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.ReleaseAcceptance/BandwidthLimitGate.cs",
+      "target": "tools/BiliDownloader.ReleaseAcceptance/BandwidthLimitGate.cs",
+      "sourceSha256": "91193bf45af14db318502808fef90859ebbdb3128422c5357345e625327fd715",
+      "targetSha256": "91193bf45af14db318502808fef90859ebbdb3128422c5357345e625327fd715",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.ReleaseAcceptance/BiliDownloader.ReleaseAcceptance.csproj",
+      "target": "tools/BiliDownloader.ReleaseAcceptance/BiliDownloader.ReleaseAcceptance.csproj",
+      "sourceSha256": "acb0b1c1988f6e6a6576b88da8bebe4a9851e584bc0301c03f3865ce8471db9b",
+      "targetSha256": "2186914ebdff10d89d6cd38077f4382822d0e9cbb712921e0298bd3c7cf4f53a",
+      "unchanged": false,
+      "changeReason": "独立项目/SDK/Build 引用适配"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.ReleaseAcceptance/LiveAcceptanceGates.cs",
+      "target": "tools/BiliDownloader.ReleaseAcceptance/LiveAcceptanceGates.cs",
+      "sourceSha256": "42e1434099dc0ba1cb8882c183ccb815a6e7682e0bf0c9716ccba75f676a893f",
+      "targetSha256": "42e1434099dc0ba1cb8882c183ccb815a6e7682e0bf0c9716ccba75f676a893f",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.ReleaseAcceptance/OfflineMediaOutputGate.cs",
+      "target": "tools/BiliDownloader.ReleaseAcceptance/OfflineMediaOutputGate.cs",
+      "sourceSha256": "3cbaae73330ee61b66065acff113d7608bb1e17bfd9553b22e8b5aa05c1ba053",
+      "targetSha256": "3cbaae73330ee61b66065acff113d7608bb1e17bfd9553b22e8b5aa05c1ba053",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.ReleaseAcceptance/PackageVerificationGate.cs",
+      "target": "tools/BiliDownloader.ReleaseAcceptance/PackageVerificationGate.cs",
+      "sourceSha256": "6f303888d0aa096257266ed4e9504288e2de6cff777171773cea2a9715036b6b",
+      "targetSha256": "6f303888d0aa096257266ed4e9504288e2de6cff777171773cea2a9715036b6b",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.ReleaseAcceptance/Program.cs",
+      "target": "tools/BiliDownloader.ReleaseAcceptance/Program.cs",
+      "sourceSha256": "2c2d2c86ab694397806ebc4e38a64987cf60c428245e4912ebb58e0b8b098f10",
+      "targetSha256": "2c2d2c86ab694397806ebc4e38a64987cf60c428245e4912ebb58e0b8b098f10",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.ReleaseAcceptance/ReleaseGateContracts.cs",
+      "target": "tools/BiliDownloader.ReleaseAcceptance/ReleaseGateContracts.cs",
+      "sourceSha256": "99fed9936ec84a323079e9619f34d0d428affa20fceee622e1b62ce91d8c8324",
+      "targetSha256": "99fed9936ec84a323079e9619f34d0d428affa20fceee622e1b62ce91d8c8324",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.ReleaseAcceptance/SensitiveEvidenceScanner.cs",
+      "target": "tools/BiliDownloader.ReleaseAcceptance/SensitiveEvidenceScanner.cs",
+      "sourceSha256": "51ac9887a6fe0e835d4e3e0c7d7b66137580b362341d49a3a993406b0c35a7b9",
+      "targetSha256": "51ac9887a6fe0e835d4e3e0c7d7b66137580b362341d49a3a993406b0c35a7b9",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.ReleaseAcceptance/packages.lock.json",
+      "target": "tools/BiliDownloader.ReleaseAcceptance/packages.lock.json",
+      "sourceSha256": "d9bc2ff1f1450e747774ab7ed7765aab73a530572632e247578a470b12e777ad",
+      "targetSha256": "1c5409b2a99e0a7e7ede4c10885b2f58ae4dcadd1a5754e0a7629416aa1f7544",
+      "unchanged": false,
+      "changeReason": "独立 NuGet 依赖图"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/AggressiveRefactorAcceptanceTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/AggressiveRefactorAcceptanceTests.cs",
+      "sourceSha256": "5da2d4a61df298ae509e48e9b90860798e390d62cda118604cd35380ee32b9a9",
+      "targetSha256": "5da2d4a61df298ae509e48e9b90860798e390d62cda118604cd35380ee32b9a9",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/AssemblyInfo.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/AssemblyInfo.cs",
+      "sourceSha256": "ca86647f4081372cb5fedd3ee3739c12bccd5e5e7b4f097949967d04d335e61c",
+      "targetSha256": "ca86647f4081372cb5fedd3ee3739c12bccd5e5e7b4f097949967d04d335e61c",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliApiServiceTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliApiServiceTests.cs",
+      "sourceSha256": "b75bb3f351aab8c0a83620fb0f84dce8d73d48e017e5f8e0c3c20477d59d06f5",
+      "targetSha256": "b75bb3f351aab8c0a83620fb0f84dce8d73d48e017e5f8e0c3c20477d59d06f5",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliDownloadCoordinatorG2Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliDownloadCoordinatorG2Tests.cs",
+      "sourceSha256": "63e1d9cb6ae8e0ce763a944a8187ec72e323aa09f2113507e23cc3a75926c973",
+      "targetSha256": "63e1d9cb6ae8e0ce763a944a8187ec72e323aa09f2113507e23cc3a75926c973",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliDownloadCoordinatorG3Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliDownloadCoordinatorG3Tests.cs",
+      "sourceSha256": "ff031791e743a38a9bbe9e8b66719b0c5dd1d425ded06f1d63eb9650a335bf68",
+      "targetSha256": "ff031791e743a38a9bbe9e8b66719b0c5dd1d425ded06f1d63eb9650a335bf68",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliDownloadCoordinatorTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliDownloadCoordinatorTests.cs",
+      "sourceSha256": "46b30573c2918b1fd32b3f94f37864fd2e8f9e162c35ab5836a7d125f4b689a3",
+      "targetSha256": "46b30573c2918b1fd32b3f94f37864fd2e8f9e162c35ab5836a7d125f4b689a3",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliDownloader.Tests.csproj",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliDownloaderPlugin.Tests.csproj",
+      "sourceSha256": "74393ca36169e3deaf798edffe3f8fc7ff81532ff0d763f5a80a35b89aacd3ac",
+      "targetSha256": "566220e605120b5fa189c367eb8209471214ce2d8a9911c6faf17ed9994bb445",
+      "unchanged": false,
+      "changeReason": "独立项目/SDK/Build 引用适配"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliDownloaderDocumentTestExtensions.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliDownloaderDocumentTestExtensions.cs",
+      "sourceSha256": "a3ef1e4fb2d943e733a6bc5043433603b9ff33cd408cbccc45bee3ad74aab994",
+      "targetSha256": "a3ef1e4fb2d943e733a6bc5043433603b9ff33cd408cbccc45bee3ad74aab994",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliDownloaderEventBusTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliDownloaderEventBusTests.cs",
+      "sourceSha256": "23a3a9ad521665cc52ff2f5bd5ed24cb28c68e6d75a25bb571641b362a404454",
+      "targetSha256": "23a3a9ad521665cc52ff2f5bd5ed24cb28c68e6d75a25bb571641b362a404454",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliDownloaderModuleTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliDownloaderModuleTests.cs",
+      "sourceSha256": "02be4631b51ab9af5439754538e5e83a52d9e4210c9a4eb4a634a28204041591",
+      "targetSha256": "02be4631b51ab9af5439754538e5e83a52d9e4210c9a4eb4a634a28204041591",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliDownloaderV3AcceptanceTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliDownloaderV3AcceptanceTests.cs",
+      "sourceSha256": "0f12f9d32efbaefb2785039b0d36e04b5852ec95f41628e1663dc4c8a827ad1c",
+      "targetSha256": "0f12f9d32efbaefb2785039b0d36e04b5852ec95f41628e1663dc4c8a827ad1c",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliLoginServiceTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliLoginServiceTests.cs",
+      "sourceSha256": "ee83bf39e15e383b402f6dee31677112c33f52d033d4291fa47c1478a0c8e7ec",
+      "targetSha256": "ee83bf39e15e383b402f6dee31677112c33f52d033d4291fa47c1478a0c8e7ec",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/BiliLoginStateServiceTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/BiliLoginStateServiceTests.cs",
+      "sourceSha256": "7bffb0937091791240def9a1c103cb8819f9790e38402108aefab877c9290fa3",
+      "targetSha256": "7bffb0937091791240def9a1c103cb8819f9790e38402108aefab877c9290fa3",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/ContentSourceG0Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/ContentSourceG0Tests.cs",
+      "sourceSha256": "694f26d587b4c0dfc7b456701a33f10fed03646f2cec4493519a01576f272915",
+      "targetSha256": "694f26d587b4c0dfc7b456701a33f10fed03646f2cec4493519a01576f272915",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/ContentSourceG3Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/ContentSourceG3Tests.cs",
+      "sourceSha256": "ac0d25eb9a9a21a12fdcb300012afbb05c1385c1cc374f33f00dc5b7eca289e0",
+      "targetSha256": "ac0d25eb9a9a21a12fdcb300012afbb05c1385c1cc374f33f00dc5b7eca289e0",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/CredentialEdgeCaseTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/CredentialEdgeCaseTests.cs",
+      "sourceSha256": "b77a299c0e99fe0ccac82e06d569202af073c76579ea5ba866cb790c90ab8096",
+      "targetSha256": "b77a299c0e99fe0ccac82e06d569202af073c76579ea5ba866cb790c90ab8096",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/CredentialSecurityTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/CredentialSecurityTests.cs",
+      "sourceSha256": "c2ccb22b8a868ac08b282c3869437172a3b25feec61d765d79681af455904ba7",
+      "targetSha256": "c2ccb22b8a868ac08b282c3869437172a3b25feec61d765d79681af455904ba7",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/DependencyCompatibilityTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/DependencyCompatibilityTests.cs",
+      "sourceSha256": "b15069dc03de01c8b94bc20ea74fda36ad7fd172cbf15c06fecaf7d0394406a1",
+      "targetSha256": "b15069dc03de01c8b94bc20ea74fda36ad7fd172cbf15c06fecaf7d0394406a1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/DocumentCloseCancellationTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/DocumentCloseCancellationTests.cs",
+      "sourceSha256": "700381cab8fbad35822f7de7ed80024ffdfe52c92620cee3e46bd8973eaebf14",
+      "targetSha256": "700381cab8fbad35822f7de7ed80024ffdfe52c92620cee3e46bd8973eaebf14",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/DocumentV2G5Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/DocumentV2G5Tests.cs",
+      "sourceSha256": "4d4ed3296d03873b1b35981fd546ad2483a12f76ee78645848cd79c17927a940",
+      "targetSha256": "4d4ed3296d03873b1b35981fd546ad2483a12f76ee78645848cd79c17927a940",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/DocumentV3G4Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/DocumentV3G4Tests.cs",
+      "sourceSha256": "24f90e13955af3f105870c752929a5bc37ef02269ed57381cf0d88ea276e392c",
+      "targetSha256": "24f90e13955af3f105870c752929a5bc37ef02269ed57381cf0d88ea276e392c",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/DownloadProtocolTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/DownloadProtocolTests.cs",
+      "sourceSha256": "41645ecdceccc2612c8fa6f2a073958b06ca12e92b5b72a426c1bba46d505e48",
+      "targetSha256": "41645ecdceccc2612c8fa6f2a073958b06ca12e92b5b72a426c1bba46d505e48",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/ExtrasAndProgressTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/ExtrasAndProgressTests.cs",
+      "sourceSha256": "11a3a60d352ca0ea8806d258113d667498bb2b8145fddaf3d67de1cd227df863",
+      "targetSha256": "11a3a60d352ca0ea8806d258113d667498bb2b8145fddaf3d67de1cd227df863",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/FileConflictG6Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/FileConflictG6Tests.cs",
+      "sourceSha256": "566bfa55221323a062162846bf635a44f6135183bc834e3c0dbf33bf5abaf904",
+      "targetSha256": "566bfa55221323a062162846bf635a44f6135183bc834e3c0dbf33bf5abaf904",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/G14CoverageDeterminismTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/G14CoverageDeterminismTests.cs",
+      "sourceSha256": "55c0cb288334d0a7a3c8a96b1e61298383d407be0231ee4162714605c7125861",
+      "targetSha256": "55c0cb288334d0a7a3c8a96b1e61298383d407be0231ee4162714605c7125861",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/G7FfmpegAndFailureActionTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/G7FfmpegAndFailureActionTests.cs",
+      "sourceSha256": "44b4a989856c2193c0050c899512f16ee065266af453128d1f88c84ff68f8813",
+      "targetSha256": "44b4a989856c2193c0050c899512f16ee065266af453128d1f88c84ff68f8813",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/G8ReleaseAcceptanceTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/G8ReleaseAcceptanceTests.cs",
+      "sourceSha256": "ee0928575e8fdd8aec4cd2c538ff248318cb479ac8d232eb0c11891d12b0049c",
+      "targetSha256": "ee0928575e8fdd8aec4cd2c538ff248318cb479ac8d232eb0c11891d12b0049c",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/GlobalUsings.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/GlobalUsings.cs",
+      "sourceSha256": "f006e57ed1a5b38955badb20c52802393287eb620debf7d34d4cd51969b6c0fb",
+      "targetSha256": "f006e57ed1a5b38955badb20c52802393287eb620debf7d34d4cd51969b6c0fb",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/IncrementalComparisonG5Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/IncrementalComparisonG5Tests.cs",
+      "sourceSha256": "6d8fe720f287235a6c35113c9b5f1c27a69568a7dac0d150dc03e7c3b9c3add1",
+      "targetSha256": "6d8fe720f287235a6c35113c9b5f1c27a69568a7dac0d150dc03e7c3b9c3add1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/KNOWN_DEFECTS.md",
+      "target": "tests/BiliDownloaderPlugin.Tests/KNOWN_DEFECTS.md",
+      "sourceSha256": "6d48df2165296e99d1a3807e7a9bba7ddce3007b5a3800d2ff597fd567ae1838",
+      "targetSha256": "6d48df2165296e99d1a3807e7a9bba7ddce3007b5a3800d2ff597fd567ae1838",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/LoopbackHttpServer.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/LoopbackHttpServer.cs",
+      "sourceSha256": "20a417d5376b3ad8f237dcf9d2e6bc22ca2b1672dd860b40e8932fa40f83830f",
+      "targetSha256": "20a417d5376b3ad8f237dcf9d2e6bc22ca2b1672dd860b40e8932fa40f83830f",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/NamingTemplateG5Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/NamingTemplateG5Tests.cs",
+      "sourceSha256": "796bc1b414960179ff18729a153ed70b37c059e9eb85093caf448f3a5e2a4edd",
+      "targetSha256": "796bc1b414960179ff18729a153ed70b37c059e9eb85093caf448f3a5e2a4edd",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/P1G10BandwidthLimitingTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/P1G10BandwidthLimitingTests.cs",
+      "sourceSha256": "a38c76e8297bda6c665735576966491f3edac5733ed091d23c6889b9c2ce667b",
+      "targetSha256": "a38c76e8297bda6c665735576966491f3edac5733ed091d23c6889b9c2ce667b",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/P1G7OutputModesTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/P1G7OutputModesTests.cs",
+      "sourceSha256": "f9f26621cb6e493f0bfae24c713a46548b88faf3c8a524913aa59ccd12ed6109",
+      "targetSha256": "f9f26621cb6e493f0bfae24c713a46548b88faf3c8a524913aa59ccd12ed6109",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/P1G8HighSpecificationMediaTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/P1G8HighSpecificationMediaTests.cs",
+      "sourceSha256": "46ecd66f416c5f615833f6c993e7e40b72c2f01c09ec6bf3a46e6e31de5ed7c9",
+      "targetSha256": "46ecd66f416c5f615833f6c993e7e40b72c2f01c09ec6bf3a46e6e31de5ed7c9",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/P1G9SubtitleDanmakuTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/P1G9SubtitleDanmakuTests.cs",
+      "sourceSha256": "2ee4a40673f2e45435f9cd67aa8dceb142f40831d95440c3e4c03ecb9c84e5e1",
+      "targetSha256": "2ee4a40673f2e45435f9cd67aa8dceb142f40831d95440c3e4c03ecb9c84e5e1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/PersistenceTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/PersistenceTests.cs",
+      "sourceSha256": "ddb69e69934595414325dad2aeb5eaaf6a8c0069d7de7bebb29a78ac840bdd08",
+      "targetSha256": "ddb69e69934595414325dad2aeb5eaaf6a8c0069d7de7bebb29a78ac840bdd08",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/PersonalContentSourceG1Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/PersonalContentSourceG1Tests.cs",
+      "sourceSha256": "da54d71e480e648d6724870530cdc6ea0d7ac84bbf0b7eb712e0dbec9d9561b1",
+      "targetSha256": "da54d71e480e648d6724870530cdc6ea0d7ac84bbf0b7eb712e0dbec9d9561b1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/PresentationLogicTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/PresentationLogicTests.cs",
+      "sourceSha256": "0d76cbe7b5c050cf7b925d525662aab1a6125f57b9cafcd716854a6fa0a0f4d4",
+      "targetSha256": "0d76cbe7b5c050cf7b925d525662aab1a6125f57b9cafcd716854a6fa0a0f4d4",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/Run-Tests.ps1",
+      "target": "tests/BiliDownloaderPlugin.Tests/Run-Tests.ps1",
+      "sourceSha256": "86c769a9b8e3c8c7dc00ede51b6dc9918f740f10d54f0a95a8c97a50846513b5",
+      "targetSha256": "12eadacaf16c37f42967b34c1fc2867015f0f770fa90d3fc93310f67048a724d",
+      "unchanged": false,
+      "changeReason": "新项目路径和覆盖率分组匹配"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/SchedulerViewModelTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/SchedulerViewModelTests.cs",
+      "sourceSha256": "4cc8f9e13f55b8fa3ba6b120b07dd12000b008bb178bb0773457718a1a7d83ef",
+      "targetSha256": "4cc8f9e13f55b8fa3ba6b120b07dd12000b008bb178bb0773457718a1a7d83ef",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/SensitiveDataSanitizerTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/SensitiveDataSanitizerTests.cs",
+      "sourceSha256": "09c07a5fced4898ded4e3ad4bc959cf3c111a4062343c16c18c70f4895a6f9e4",
+      "targetSha256": "09c07a5fced4898ded4e3ad4bc959cf3c111a4062343c16c18c70f4895a6f9e4",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/StaticStateScope.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/StaticStateScope.cs",
+      "sourceSha256": "f8648dbdadcf5fdf06bdd004cb439b0a302590cb2b157426fcd02cd7b3a1a137",
+      "targetSha256": "f8648dbdadcf5fdf06bdd004cb439b0a302590cb2b157426fcd02cd7b3a1a137",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/SubscriptionContentSourceG2Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/SubscriptionContentSourceG2Tests.cs",
+      "sourceSha256": "20d60607262b603ee5976e8abfca20cc88a8b3693729ea82d1c986494483c097",
+      "targetSha256": "20d60607262b603ee5976e8abfca20cc88a8b3693729ea82d1c986494483c097",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/TESTING.md",
+      "target": "tests/BiliDownloaderPlugin.Tests/TESTING.md",
+      "sourceSha256": "e380caff8f8609fba0180cf05a7dd58ec4427b709ff01b661becfbb6e2ef91a1",
+      "targetSha256": "91f95a04cd6afd803d6d9d5906a0637fa534cc748cbb6f6a21e34685fe5db3bb",
+      "unchanged": false,
+      "changeReason": "文档路径或当前入口适配"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/TaskCenterG4Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/TaskCenterG4Tests.cs",
+      "sourceSha256": "aee7089b6a1480495cf56ad943e126276bd65b4397068a37bd5d033f86063360",
+      "targetSha256": "aee7089b6a1480495cf56ad943e126276bd65b4397068a37bd5d033f86063360",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/TaskHistoryG6Tests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/TaskHistoryG6Tests.cs",
+      "sourceSha256": "3305ed5b1da6fb2f9c101979084d9c32c0732fd159fcd3c8bfbf372293e51b7e",
+      "targetSha256": "3305ed5b1da6fb2f9c101979084d9c32c0732fd159fcd3c8bfbf372293e51b7e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/TaskRuntimeContextTests.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/TaskRuntimeContextTests.cs",
+      "sourceSha256": "ce8fd6fee3b7dfc0e9bc4a4dbb572840e316dcdcc63fdba2b90d427d56a55590",
+      "targetSha256": "ce8fd6fee3b7dfc0e9bc4a4dbb572840e316dcdcc63fdba2b90d427d56a55590",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/TestDoubles.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/TestDoubles.cs",
+      "sourceSha256": "b5fbf1e5328fccda30a25d640b5ea06418561a336e60f91aabd713c4f7d34676",
+      "targetSha256": "b5fbf1e5328fccda30a25d640b5ea06418561a336e60f91aabd713c4f7d34676",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/TestPluginRegistrationContext.cs",
+      "target": "tests/BiliDownloaderPlugin.Tests/TestPluginRegistrationContext.cs",
+      "sourceSha256": "0f4e98b7311e5aab66fb012a6ba054948f1ca236ae82569eca212251fb20d36a",
+      "targetSha256": "0f4e98b7311e5aab66fb012a6ba054948f1ca236ae82569eca212251fb20d36a",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/coverage-baseline.json",
+      "target": "tests/BiliDownloaderPlugin.Tests/coverage-baseline.json",
+      "sourceSha256": "e11bcfff0c3669952f1b4414a4d289d74a73ea78f11cbc741c4130da0cab397b",
+      "targetSha256": "e11bcfff0c3669952f1b4414a4d289d74a73ea78f11cbc741c4130da0cab397b",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/coverage.runsettings",
+      "target": "tests/BiliDownloaderPlugin.Tests/coverage.runsettings",
+      "sourceSha256": "5ab6956258017643ccc4f1576730c2c6e66131b5ec1227706c4806ffe404f25b",
+      "targetSha256": "5ab6956258017643ccc4f1576730c2c6e66131b5ec1227706c4806ffe404f25b",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader.Tests/packages.lock.json",
+      "target": "tests/BiliDownloaderPlugin.Tests/packages.lock.json",
+      "sourceSha256": "55bb437139773ddfc03f1eeb5f680053d7a166d670a433dcede3789ee6f8c919",
+      "targetSha256": "49b977c8da574a9e8747ea27da3a105f72f278ebb5d1b74eb85c02caa1bcaa60",
+      "unchanged": false,
+      "changeReason": "独立 NuGet 依赖图"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/BiliDownloader.csproj",
+      "target": "src/BiliDownloaderPlugin.Plugin/BiliDownloaderPlugin.Plugin.csproj",
+      "sourceSha256": "10e7ff44669b019ebe39dea905f0703f3450f895b6dd55496689c9deb954d55f",
+      "targetSha256": "3c547380780fb4c7ea5cb2e37c5f385aba8ea8e1d44002d7846466aa66072e87",
+      "unchanged": false,
+      "changeReason": "独立项目/SDK/Build 引用适配"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Constants/BiliDownloaderContributionIds.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Constants/BiliDownloaderContributionIds.cs",
+      "sourceSha256": "d004bb5debdf1573cae3788cea6454e47527a4df04e2bf5d0dd9a3b2a1846373",
+      "targetSha256": "d004bb5debdf1573cae3788cea6454e47527a4df04e2bf5d0dd9a3b2a1846373",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Converters/ByteSizeConverter.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Converters/ByteSizeConverter.cs",
+      "sourceSha256": "39883a21ee1b65e7cba52ecdf364ec27e18ead69e1a82a755416104b86fa69e5",
+      "targetSha256": "39883a21ee1b65e7cba52ecdf364ec27e18ead69e1a82a755416104b86fa69e5",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Converters/IsDoneStatusConverter.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Converters/IsDoneStatusConverter.cs",
+      "sourceSha256": "45ed89b3ff55ef5f1791822eda68991d1d64d754762906b4a8e4decd61bcf3c9",
+      "targetSha256": "45ed89b3ff55ef5f1791822eda68991d1d64d754762906b4a8e4decd61bcf3c9",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Converters/IsFailedStatusConverter.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Converters/IsFailedStatusConverter.cs",
+      "sourceSha256": "462f5043140852223bec59ff333aca2d350a144fc2600a2d5fd609c9564e70a4",
+      "targetSha256": "462f5043140852223bec59ff333aca2d350a144fc2600a2d5fd609c9564e70a4",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Converters/RenameDisplayConverter.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Converters/RenameDisplayConverter.cs",
+      "sourceSha256": "7d238118e0dc1d97b6e600cf5e71b4429f9e334aae743a4ce2222a297aba8330",
+      "targetSha256": "7d238118e0dc1d97b6e600cf5e71b4429f9e334aae743a4ce2222a297aba8330",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Converters/StatusToColorConverter.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Converters/StatusToColorConverter.cs",
+      "sourceSha256": "95d362f8bf0cc21b41555ff8f6952e22331ea4eb8bacd1adb258e629ff78dda2",
+      "targetSha256": "95d362f8bf0cc21b41555ff8f6952e22331ea4eb8bacd1adb258e629ff78dda2",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Converters/TaskControlConverters.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Converters/TaskControlConverters.cs",
+      "sourceSha256": "a4b9b521277138d3639ab80d801e366c3595734590bba474820604c1ddae8ff5",
+      "targetSha256": "a4b9b521277138d3639ab80d801e366c3595734590bba474820604c1ddae8ff5",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Converters/TaskStatusDisplayConverter.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Converters/TaskStatusDisplayConverter.cs",
+      "sourceSha256": "842f0ac9a27ec0589851fb4f27e3534afebe4572b4a5c14eee9d4ee20aac6c01",
+      "targetSha256": "842f0ac9a27ec0589851fb4f27e3534afebe4572b4a5c14eee9d4ee20aac6c01",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Messages/DownloadTaskDeletedMessage.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Messages/DownloadTaskDeletedMessage.cs",
+      "sourceSha256": "cf0bec57d511d711ab2b2e10165f0d62a76f9f5ed244acddd987428314b5994e",
+      "targetSha256": "cf0bec57d511d711ab2b2e10165f0d62a76f9f5ed244acddd987428314b5994e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Messages/DownloadTaskProgressMessage.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Messages/DownloadTaskProgressMessage.cs",
+      "sourceSha256": "7b7eaaf98fac89cdc1a579ea0d3209d167a6a1d48b7238302d4c4e06f87c0e8f",
+      "targetSha256": "7b7eaaf98fac89cdc1a579ea0d3209d167a6a1d48b7238302d4c4e06f87c0e8f",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Messages/DownloadTaskStatusChangedMessage.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Messages/DownloadTaskStatusChangedMessage.cs",
+      "sourceSha256": "d84c263eb618e8ceea12634a72fda522e7b666d90b9486aedc16296f32981388",
+      "targetSha256": "d84c263eb618e8ceea12634a72fda522e7b666d90b9486aedc16296f32981388",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Messages/LoginStateChangedMessage.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Messages/LoginStateChangedMessage.cs",
+      "sourceSha256": "46fe4336fa79bfd00362ca7fd68018f8ddf23ba50b6e5f69d1d2494eabf5910d",
+      "targetSha256": "46fe4336fa79bfd00362ca7fd68018f8ddf23ba50b6e5f69d1d2494eabf5910d",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Messages/SubmitDownloadTaskMessage.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Messages/SubmitDownloadTaskMessage.cs",
+      "sourceSha256": "cacdde7058edefd6dca610f257f8557982ce322cdad69bb4adab3be16b3dc0df",
+      "targetSha256": "cacdde7058edefd6dca610f257f8557982ce322cdad69bb4adab3be16b3dc0df",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Messaging/BiliDownloaderEventBus.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Messaging/BiliDownloaderEventBus.cs",
+      "sourceSha256": "65f4f1d7472baae4ee2be552dabed2f3fc4b253856df3cb5e38c6305327ca996",
+      "targetSha256": "65f4f1d7472baae4ee2be552dabed2f3fc4b253856df3cb5e38c6305327ca996",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Messaging/IBiliDownloaderEventBus.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Messaging/IBiliDownloaderEventBus.cs",
+      "sourceSha256": "df3de3caef42da17d977e29e17bcb151eabf7be99eb13ef55939776535abf5fd",
+      "targetSha256": "df3de3caef42da17d977e29e17bcb151eabf7be99eb13ef55939776535abf5fd",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/BiliDashResult.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/BiliDashResult.cs",
+      "sourceSha256": "faf4cd922042b34d09655dcfc6806ae6220b91e721954ba73f98c0a54a7b7dda",
+      "targetSha256": "faf4cd922042b34d09655dcfc6806ae6220b91e721954ba73f98c0a54a7b7dda",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/BiliMediaType.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/BiliMediaType.cs",
+      "sourceSha256": "c9753232814e108e079159bf42e0496f09d970ee24a54c9d2d429514a654d03e",
+      "targetSha256": "c9753232814e108e079159bf42e0496f09d970ee24a54c9d2d429514a654d03e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/BiliQualityOption.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/BiliQualityOption.cs",
+      "sourceSha256": "2d85e3098515d2c7ec05aef241ee9321916834bf9bde40e7772d23bc1bec9e90",
+      "targetSha256": "2d85e3098515d2c7ec05aef241ee9321916834bf9bde40e7772d23bc1bec9e90",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/BiliUserInfo.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/BiliUserInfo.cs",
+      "sourceSha256": "3ee67e3e398b1798f3be025b6b94af2c5dad6b82c3e15447545ba584298d4168",
+      "targetSha256": "3ee67e3e398b1798f3be025b6b94af2c5dad6b82c3e15447545ba584298d4168",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/BiliVideoCollection.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/BiliVideoCollection.cs",
+      "sourceSha256": "206c2b43710c69f6e7cbcddbfb360bc414a33e82b332256e19edd082c57fb686",
+      "targetSha256": "206c2b43710c69f6e7cbcddbfb360bc414a33e82b332256e19edd082c57fb686",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/BiliVideoItem.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/BiliVideoItem.cs",
+      "sourceSha256": "4a3b1eb1a5461b7d66361a86d88c285c62360f91eeda0539c832033b9b60286b",
+      "targetSha256": "4a3b1eb1a5461b7d66361a86d88c285c62360f91eeda0539c832033b9b60286b",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/ContentComparison.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/ContentComparison.cs",
+      "sourceSha256": "d47336a53e664e38751254762d8918a9e677d8c12843a86b968306a9773a5ce6",
+      "targetSha256": "d47336a53e664e38751254762d8918a9e677d8c12843a86b968306a9773a5ce6",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/ContentSources/ContentSourceContracts.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/ContentSources/ContentSourceContracts.cs",
+      "sourceSha256": "7a8c39e1ec5686f840ce17160713501e6ff4eb1389f77e5868b7b6ce2bc756eb",
+      "targetSha256": "7a8c39e1ec5686f840ce17160713501e6ff4eb1389f77e5868b7b6ce2bc756eb",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/DeleteTaskOptions.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/DeleteTaskOptions.cs",
+      "sourceSha256": "d94558e1b8193a1d6b62cddee113f676e0e090c7b26364c403296d4812d38e85",
+      "targetSha256": "d94558e1b8193a1d6b62cddee113f676e0e090c7b26364c403296d4812d38e85",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/DocumentSaveDataV3.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/DocumentSaveDataV3.cs",
+      "sourceSha256": "149f7de64fb600245e038dd0c4d403ad64c75cdb9a7a294a5c34a235a909e63f",
+      "targetSha256": "149f7de64fb600245e038dd0c4d403ad64c75cdb9a7a294a5c34a235a909e63f",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/DownloadPreset.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/DownloadPreset.cs",
+      "sourceSha256": "870640fef692b16d199b3c78cd3413139f3b4b36bce6809fb04dfbbf3aa07856",
+      "targetSha256": "870640fef692b16d199b3c78cd3413139f3b4b36bce6809fb04dfbbf3aa07856",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/DownloadProfile.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/DownloadProfile.cs",
+      "sourceSha256": "4a5a8e43e795c64a57356d2812428f33cbd6b598d254c38b9ac114fc1095d868",
+      "targetSha256": "4a5a8e43e795c64a57356d2812428f33cbd6b598d254c38b9ac114fc1095d868",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/DownloadProgressInfo.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/DownloadProgressInfo.cs",
+      "sourceSha256": "6f0a1f927213c125ec578e6d5cb1f4c7d0aff008aa1e1b2afdf8afa026c2d5b7",
+      "targetSha256": "6f0a1f927213c125ec578e6d5cb1f4c7d0aff008aa1e1b2afdf8afa026c2d5b7",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/DownloadSubmission.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/DownloadSubmission.cs",
+      "sourceSha256": "61fd33155553b663728d2f99a4a49d59bbf13ce64693758fe774ebab259eadc0",
+      "targetSha256": "61fd33155553b663728d2f99a4a49d59bbf13ce64693758fe774ebab259eadc0",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/DownloadTaskRecord.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/DownloadTaskRecord.cs",
+      "sourceSha256": "af70c33ceccc1fdaca35188cbb5fe438b1ec57beaaa59e056bb377c1b1a0feef",
+      "targetSha256": "af70c33ceccc1fdaca35188cbb5fe438b1ec57beaaa59e056bb377c1b1a0feef",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/DownloadTaskStatus.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/DownloadTaskStatus.cs",
+      "sourceSha256": "0a87bf799780066205df50eaccee97f5bed7129fff573f2d1497eaf2f5c78a98",
+      "targetSha256": "0a87bf799780066205df50eaccee97f5bed7129fff573f2d1497eaf2f5c78a98",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/ExtrasExecutionSummary.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/ExtrasExecutionSummary.cs",
+      "sourceSha256": "1f8e557685049865cde4cf9153d1099f221dc61d7512d42acf4187ce56eed8b2",
+      "targetSha256": "1f8e557685049865cde4cf9153d1099f221dc61d7512d42acf4187ce56eed8b2",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/FileConflictPolicy.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/FileConflictPolicy.cs",
+      "sourceSha256": "e1375f0143f41fc7d3eacf5ca1baf29008596bb60e0e27688fcff549a6ea2ec4",
+      "targetSha256": "e1375f0143f41fc7d3eacf5ca1baf29008596bb60e0e27688fcff549a6ea2ec4",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/MediaOutput.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/MediaOutput.cs",
+      "sourceSha256": "f9cf56a4e579cfa63e2a482d88800780bba0a3c65133ed05a7f1a4d6fa74acba",
+      "targetSha256": "f9cf56a4e579cfa63e2a482d88800780bba0a3c65133ed05a7f1a4d6fa74acba",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/ReusableDownloadOptions.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/ReusableDownloadOptions.cs",
+      "sourceSha256": "ddd7c927c55ae7142c4d72d6637a264065b051c9f95798c9f9119eb58ada9e9f",
+      "targetSha256": "ddd7c927c55ae7142c4d72d6637a264065b051c9f95798c9f9119eb58ada9e9f",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/SubmissionPreflight.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/SubmissionPreflight.cs",
+      "sourceSha256": "6b7bbedea3c757ebfed0e7ac12e023ed58a285375a49e114c630ae75e779c990",
+      "targetSha256": "6b7bbedea3c757ebfed0e7ac12e023ed58a285375a49e114c630ae75e779c990",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/SubtitleListItem.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/SubtitleListItem.cs",
+      "sourceSha256": "478bfc0d5afd2c0bc83d38cb1cd5cf701ae6cda628a8b1f7b498b187ee9fdd65",
+      "targetSha256": "478bfc0d5afd2c0bc83d38cb1cd5cf701ae6cda628a8b1f7b498b187ee9fdd65",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/SubtitleModels.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/SubtitleModels.cs",
+      "sourceSha256": "c99b6b5af089efce1fe3311f204ef9ceacad2472cffabcca275df965606b7396",
+      "targetSha256": "c99b6b5af089efce1fe3311f204ef9ceacad2472cffabcca275df965606b7396",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/TaskHistory.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/TaskHistory.cs",
+      "sourceSha256": "5d10613f90a44be8f70dc8d61fb8d712e72eaa16e2d26abdddfdf19a46fa98ae",
+      "targetSha256": "5d10613f90a44be8f70dc8d61fb8d712e72eaa16e2d26abdddfdf19a46fa98ae",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Models/TaskRuntimeSnapshot.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Models/TaskRuntimeSnapshot.cs",
+      "sourceSha256": "d7389b3b9e3015137186b31d7ada536a048e6f2305a94f4afa225babffbc0e53",
+      "targetSha256": "d7389b3b9e3015137186b31d7ada536a048e6f2305a94f4afa225babffbc0e53",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Plugin/BiliDownloaderPluginModule.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Plugin/BiliDownloaderPluginModule.cs",
+      "sourceSha256": "377f892436dbd00fdb48d8994dc92585402b0a03c213f25143f3a7596be8c1d4",
+      "targetSha256": "377f892436dbd00fdb48d8994dc92585402b0a03c213f25143f3a7596be8c1d4",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Plugin/BiliDownloaderPluginReadiness.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Plugin/BiliDownloaderPluginReadiness.cs",
+      "sourceSha256": "d348e61bcde2b6d21efe25da108cede678c31046185d04146ce8113da3f1faca",
+      "targetSha256": "d348e61bcde2b6d21efe25da108cede678c31046185d04146ce8113da3f1faca",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Api/BiliApiService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Api/BiliApiService.cs",
+      "sourceSha256": "c4f38bb3bbf7a9bfb7e8e7e4ed4363959363ed450395ad2370239900eea2ce50",
+      "targetSha256": "c4f38bb3bbf7a9bfb7e8e7e4ed4363959363ed450395ad2370239900eea2ce50",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Api/BiliPersonalContentApi.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Api/BiliPersonalContentApi.cs",
+      "sourceSha256": "8d1f31d6d28e8d7d40b5687d1d17a654a3a8fa3b9fe288be82d4f10a822b02ac",
+      "targetSha256": "8d1f31d6d28e8d7d40b5687d1d17a654a3a8fa3b9fe288be82d4f10a822b02ac",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Api/BiliSubscriptionContentApi.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Api/BiliSubscriptionContentApi.cs",
+      "sourceSha256": "639e30d4a569f997a6c97621b0d494790e339b00944f09d60699cc4d214d50d4",
+      "targetSha256": "639e30d4a569f997a6c97621b0d494790e339b00944f09d60699cc4d214d50d4",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Api/BiliUploaderRequestContextFactory.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Api/BiliUploaderRequestContextFactory.cs",
+      "sourceSha256": "9b7b1a055fe0bfb06e21f09bee0a8b92055ffd792f59f5930f8b136caef66c07",
+      "targetSha256": "9b7b1a055fe0bfb06e21f09bee0a8b92055ffd792f59f5930f8b136caef66c07",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Api/IBiliContentSourceApi.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Api/IBiliContentSourceApi.cs",
+      "sourceSha256": "d5860c456657f3e9192b375a33f7631a2aa60a5cf6390f4690929428edf430ce",
+      "targetSha256": "d5860c456657f3e9192b375a33f7631a2aa60a5cf6390f4690929428edf430ce",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Api/JsonNodeReader.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Api/JsonNodeReader.cs",
+      "sourceSha256": "43457cb559466f9e94a57df8df8ffd8a1aab940448dcc491a174afdcae463f3e",
+      "targetSha256": "43457cb559466f9e94a57df8df8ffd8a1aab940448dcc491a174afdcae463f3e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Api/PersonalContentApiContracts.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Api/PersonalContentApiContracts.cs",
+      "sourceSha256": "8033b20f54a7dde93d974da0e8a352e6565cb6cb537c709c785a9f3fe88cde96",
+      "targetSha256": "8033b20f54a7dde93d974da0e8a352e6565cb6cb537c709c785a9f3fe88cde96",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Api/SubscriptionContentApiContracts.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Api/SubscriptionContentApiContracts.cs",
+      "sourceSha256": "6b56df54003ed6d82a0f0ab820335c0344eea3f5212013b0dfb5b8edde17b4c6",
+      "targetSha256": "6b56df54003ed6d82a0f0ab820335c0344eea3f5212013b0dfb5b8edde17b4c6",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Auth/BiliCredentialProvider.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Auth/BiliCredentialProvider.cs",
+      "sourceSha256": "e94c9886f6c84ed3f3b3646d17cb27f6ecc4b34f77440371e013aff3e7384248",
+      "targetSha256": "e94c9886f6c84ed3f3b3646d17cb27f6ecc4b34f77440371e013aff3e7384248",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Auth/BiliCredentialStore.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Auth/BiliCredentialStore.cs",
+      "sourceSha256": "8de47b352e7ee28dc69ac9fef8ef4a3af91b98812c38e91fd383aa48ced3c8c1",
+      "targetSha256": "8de47b352e7ee28dc69ac9fef8ef4a3af91b98812c38e91fd383aa48ced3c8c1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Auth/BiliLoginService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Auth/BiliLoginService.cs",
+      "sourceSha256": "b354a52c861283c53df58837326139c4ad6d0f91c45bfaa6cdae7614d5988966",
+      "targetSha256": "b354a52c861283c53df58837326139c4ad6d0f91c45bfaa6cdae7614d5988966",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Auth/BiliLoginStateService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Auth/BiliLoginStateService.cs",
+      "sourceSha256": "05ab2a7f421bedc5fd851dae9a0dcb4570ed84cf9c0de0a1af889f0737bf1b36",
+      "targetSha256": "05ab2a7f421bedc5fd851dae9a0dcb4570ed84cf9c0de0a1af889f0737bf1b36",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Auth/CredentialProtection.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Auth/CredentialProtection.cs",
+      "sourceSha256": "78397f41fb7078692f11529c5c86eba2358a2eee86f6c3999ee47c534f983d65",
+      "targetSha256": "78397f41fb7078692f11529c5c86eba2358a2eee86f6c3999ee47c534f983d65",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Auth/IBiliCredentialProvider.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Auth/IBiliCredentialProvider.cs",
+      "sourceSha256": "3d8ad19ff102e991a6a3e6e4be8eb5656310d245a93d55a130564fbcb01e1cbe",
+      "targetSha256": "3d8ad19ff102e991a6a3e6e4be8eb5656310d245a93d55a130564fbcb01e1cbe",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Auth/LoginDialogService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Auth/LoginDialogService.cs",
+      "sourceSha256": "9596f414c4c1e5bff3f7d02bfffb990d452a733b799d30298494fb2e87cce32e",
+      "targetSha256": "9596f414c4c1e5bff3f7d02bfffb990d452a733b799d30298494fb2e87cce32e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/ContentSources/ContentBrowsingServices.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/ContentSources/ContentBrowsingServices.cs",
+      "sourceSha256": "d7d092ff85f30865815c96ffd1ceeeed8e0ec2e7bec80310f0324c482de57fcf",
+      "targetSha256": "d7d092ff85f30865815c96ffd1ceeeed8e0ec2e7bec80310f0324c482de57fcf",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/ContentSources/ContentPageAccumulator.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/ContentSources/ContentPageAccumulator.cs",
+      "sourceSha256": "80ff67165d9711d91311d0a7db4c4113216abe627fff09e47577f5eb6c0d56bf",
+      "targetSha256": "80ff67165d9711d91311d0a7db4c4113216abe627fff09e47577f5eb6c0d56bf",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/ContentSources/ContentSourceAbstractions.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/ContentSources/ContentSourceAbstractions.cs",
+      "sourceSha256": "7b8db9a430708f1d7c5b18cc093de8dca655fe5e277bc43628672e29597966c4",
+      "targetSha256": "7b8db9a430708f1d7c5b18cc093de8dca655fe5e277bc43628672e29597966c4",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/ContentSources/ContentSourceFiltering.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/ContentSources/ContentSourceFiltering.cs",
+      "sourceSha256": "bdce1d7fa2874d5f7ba175d6c4a54e56b9b34ecaf7f6ab88f14144b11620dc51",
+      "targetSha256": "bdce1d7fa2874d5f7ba175d6c4a54e56b9b34ecaf7f6ab88f14144b11620dc51",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/ContentSources/ContentSourceProviderRegistry.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/ContentSources/ContentSourceProviderRegistry.cs",
+      "sourceSha256": "18a4f040304a4379a55ce893e0a3cc32dd4fbb1c23fc9b6c14caf66e627794db",
+      "targetSha256": "18a4f040304a4379a55ce893e0a3cc32dd4fbb1c23fc9b6c14caf66e627794db",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/ContentSources/DirectLinkProvider.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/ContentSources/DirectLinkProvider.cs",
+      "sourceSha256": "2b25bc111000b68169c2b9116fca35082c0d5987c0bb6555a8a2bbfe44539bc7",
+      "targetSha256": "2b25bc111000b68169c2b9116fca35082c0d5987c0bb6555a8a2bbfe44539bc7",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/ContentSources/IncrementalComparisonServices.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/ContentSources/IncrementalComparisonServices.cs",
+      "sourceSha256": "a3c3343bfd952861165fff2dd5624b92fae625eb7ea64446d997fa355946f5a2",
+      "targetSha256": "a3c3343bfd952861165fff2dd5624b92fae625eb7ea64446d997fa355946f5a2",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/ContentSources/PersonalContentProviders.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/ContentSources/PersonalContentProviders.cs",
+      "sourceSha256": "b360f3be6306cfd6a154411fd768e424ba1521a7b8dfbd9eb831b53e65e19f99",
+      "targetSha256": "b360f3be6306cfd6a154411fd768e424ba1521a7b8dfbd9eb831b53e65e19f99",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/ContentSources/SubscriptionContentProviders.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/ContentSources/SubscriptionContentProviders.cs",
+      "sourceSha256": "9ba52bf53d672a2ef6e4cd010b376f0cc61b9370a3822b03e334aba5ea470730",
+      "targetSha256": "9ba52bf53d672a2ef6e4cd010b376f0cc61b9370a3822b03e334aba5ea470730",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/ContentSources/VideoParseResultFactory.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/ContentSources/VideoParseResultFactory.cs",
+      "sourceSha256": "d4e770c9347928a54a38b12b025dc1166cacdcacd58cd0828ee1790d327cc7ea",
+      "targetSha256": "d4e770c9347928a54a38b12b025dc1166cacdcacd58cd0828ee1790d327cc7ea",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/BandwidthLimiting.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/BandwidthLimiting.cs",
+      "sourceSha256": "6b441a2c061f160e879cf560e61ce6a00b1f371ab77968d4853880ca12761c31",
+      "targetSha256": "6b441a2c061f160e879cf560e61ce6a00b1f371ab77968d4853880ca12761c31",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/BiliDownloadCoordinator.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/BiliDownloadCoordinator.cs",
+      "sourceSha256": "e6ccfe1111a7de377572ba4412ee4cce3f89127d45295cad1a83d3ba26ea5605",
+      "targetSha256": "e6ccfe1111a7de377572ba4412ee4cce3f89127d45295cad1a83d3ba26ea5605",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/BiliDownloadService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/BiliDownloadService.cs",
+      "sourceSha256": "23856ac6e7a03d39655d0bcb3ac6ac461d5f20d4755bef4a4e7aca6229deaa41",
+      "targetSha256": "23856ac6e7a03d39655d0bcb3ac6ac461d5f20d4755bef4a4e7aca6229deaa41",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/BiliDownloadTaskExecutor.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/BiliDownloadTaskExecutor.cs",
+      "sourceSha256": "b26ad97062d227641210673c64c3378c250a7466b4633598f5d6bec6f75c8863",
+      "targetSha256": "b26ad97062d227641210673c64c3378c250a7466b4633598f5d6bec6f75c8863",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/CdnUrlHelper.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/CdnUrlHelper.cs",
+      "sourceSha256": "eb7e5df7a0663d0ee5c18e539e739cc0f941298fe2b3f68eae0a5ded7a721949",
+      "targetSha256": "eb7e5df7a0663d0ee5c18e539e739cc0f941298fe2b3f68eae0a5ded7a721949",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/DownloadErrorClassifier.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/DownloadErrorClassifier.cs",
+      "sourceSha256": "1b40566d666923aa57fdac906cc17d4abf20a607eaa61308ea5e1c988f2b4e7d",
+      "targetSha256": "1b40566d666923aa57fdac906cc17d4abf20a607eaa61308ea5e1c988f2b4e7d",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/DownloadFailureActionService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/DownloadFailureActionService.cs",
+      "sourceSha256": "f0018fa8eb40309dca2752b85cd0adc8b72c972a01f767236695be90a2c2d90c",
+      "targetSha256": "f0018fa8eb40309dca2752b85cd0adc8b72c972a01f767236695be90a2c2d90c",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/DownloadProgressTracker.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/DownloadProgressTracker.cs",
+      "sourceSha256": "5ec49f733cac2c7dd4a5ecdfe8474fd51328a6a09debccfe854174246390b833",
+      "targetSha256": "5ec49f733cac2c7dd4a5ecdfe8474fd51328a6a09debccfe854174246390b833",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/DownloadRecoveryService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/DownloadRecoveryService.cs",
+      "sourceSha256": "078c88fcc5283c855d1a3278e5fbec680b3a7debcc5fd4016ff124b58a5754dd",
+      "targetSha256": "078c88fcc5283c855d1a3278e5fbec680b3a7debcc5fd4016ff124b58a5754dd",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/DownloadSubmissionService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/DownloadSubmissionService.cs",
+      "sourceSha256": "a15e6af06ed99856beaf1361ba5b5a1206b29d2f977a290c0aa9b939d009a3c4",
+      "targetSha256": "a15e6af06ed99856beaf1361ba5b5a1206b29d2f977a290c0aa9b939d009a3c4",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/DownloadTransferResult.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/DownloadTransferResult.cs",
+      "sourceSha256": "4fe4659a490f7013fd3362f9edd968f762b88cbad57ca519fbf236c69856285f",
+      "targetSha256": "4fe4659a490f7013fd3362f9edd968f762b88cbad57ca519fbf236c69856285f",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/Extras/CoverExtrasHandler.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/Extras/CoverExtrasHandler.cs",
+      "sourceSha256": "da8c4c046337fd7cd6fc6750b8a0d6250323cf03f152a522aa6596b2092ecee8",
+      "targetSha256": "da8c4c046337fd7cd6fc6750b8a0d6250323cf03f152a522aa6596b2092ecee8",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/Extras/DanmakuExtrasHandler.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/Extras/DanmakuExtrasHandler.cs",
+      "sourceSha256": "7bf3bac58f5e32ac6b1bbdc5f079e557ec21c700a4dc1c3afe6064522216ad08",
+      "targetSha256": "7bf3bac58f5e32ac6b1bbdc5f079e557ec21c700a4dc1c3afe6064522216ad08",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/Extras/DanmakuFormatters.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/Extras/DanmakuFormatters.cs",
+      "sourceSha256": "f356be4d8116663d4cc377e7d0b158f74816b9759557bf8cc6d4c8bb657ad09c",
+      "targetSha256": "f356be4d8116663d4cc377e7d0b158f74816b9759557bf8cc6d4c8bb657ad09c",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/Extras/ExtrasHandlerRegistry.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/Extras/ExtrasHandlerRegistry.cs",
+      "sourceSha256": "25c4b308c5766d19062d75559fc30b0ec2cbede8756578908739648f698ea031",
+      "targetSha256": "25c4b308c5766d19062d75559fc30b0ec2cbede8756578908739648f698ea031",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/Extras/IExtrasHandler.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/Extras/IExtrasHandler.cs",
+      "sourceSha256": "690b5357f688cfc89377fd5e9bad6ab49fbfd02d7c03df23935108e5a4982f0e",
+      "targetSha256": "690b5357f688cfc89377fd5e9bad6ab49fbfd02d7c03df23935108e5a4982f0e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/Extras/ProtobufDanmakuDecoder.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/Extras/ProtobufDanmakuDecoder.cs",
+      "sourceSha256": "51684ca51cf809e526bfdf6b1808fc79415bbcb09c6a28caa633ec59b38efa30",
+      "targetSha256": "51684ca51cf809e526bfdf6b1808fc79415bbcb09c6a28caa633ec59b38efa30",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/Extras/SubtitleExtrasHandler.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/Extras/SubtitleExtrasHandler.cs",
+      "sourceSha256": "b3939f40baa909594d11c7bf27e2d7d350f8768076f07f6bb62705566494c7f6",
+      "targetSha256": "b3939f40baa909594d11c7bf27e2d7d350f8768076f07f6bb62705566494c7f6",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/Extras/SubtitleServices.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/Extras/SubtitleServices.cs",
+      "sourceSha256": "b1dbaf6201db03ac449d096528c81a226c457e6c73afaf8465503b12c965d07e",
+      "targetSha256": "b1dbaf6201db03ac449d096528c81a226c457e6c73afaf8465503b12c965d07e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/FileConflictStrategies.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/FileConflictStrategies.cs",
+      "sourceSha256": "6a8253b9d96bb3b638ac343b8265dd45e6915f993b897dc9bf1742ebd1f8edf0",
+      "targetSha256": "6a8253b9d96bb3b638ac343b8265dd45e6915f993b897dc9bf1742ebd1f8edf0",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/GlobalBandwidthLimitService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/GlobalBandwidthLimitService.cs",
+      "sourceSha256": "f8b23a15db270db26660d75b4d9841a2aa882be7ac544bbdc27c4881f545f2e8",
+      "targetSha256": "f8b23a15db270db26660d75b4d9841a2aa882be7ac544bbdc27c4881f545f2e8",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/IDownloadProgressTracker.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/IDownloadProgressTracker.cs",
+      "sourceSha256": "69367ea29b75776e6efda74dfdb8ac8494739bc1500afc61b868acd28186c1e6",
+      "targetSha256": "69367ea29b75776e6efda74dfdb8ac8494739bc1500afc61b868acd28186c1e6",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/IDownloadTaskExecutor.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/IDownloadTaskExecutor.cs",
+      "sourceSha256": "d3b827734e9ccfd92fe1deef06ae0efd4085ddcc3fb113311a5ff434c319d0ac",
+      "targetSha256": "d3b827734e9ccfd92fe1deef06ae0efd4085ddcc3fb113311a5ff434c319d0ac",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/MediaCapabilityInspectionService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/MediaCapabilityInspectionService.cs",
+      "sourceSha256": "1c7e81151a8993fcdec449fc57110a0c10553e434f9a8feef8f8dc9da2bba08c",
+      "targetSha256": "1c7e81151a8993fcdec449fc57110a0c10553e434f9a8feef8f8dc9da2bba08c",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/MediaOutputPolicies.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/MediaOutputPolicies.cs",
+      "sourceSha256": "4e8bb2fadea5b89818ef07e6a41ed7d9c81e3e600d0d1e39b687aa5afbb89ea7",
+      "targetSha256": "4e8bb2fadea5b89818ef07e6a41ed7d9c81e3e600d0d1e39b687aa5afbb89ea7",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/MediaPreflightAnalyzer.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/MediaPreflightAnalyzer.cs",
+      "sourceSha256": "b080655c10bca21718d5efe80331dd2d8dedff6d36e34c0fbd4b9a009890c71e",
+      "targetSha256": "b080655c10bca21718d5efe80331dd2d8dedff6d36e34c0fbd4b9a009890c71e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/MultiConnectionDownloader.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/MultiConnectionDownloader.cs",
+      "sourceSha256": "03b77231f853b1ddd7d01bfa0909a711e783eb599359b043d78b18cf0ff7682c",
+      "targetSha256": "03b77231f853b1ddd7d01bfa0909a711e783eb599359b043d78b18cf0ff7682c",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/NativeAudioPublisher.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/NativeAudioPublisher.cs",
+      "sourceSha256": "172aa892800ec018fda6b8a31886fcb2e113d30dd175fef5b5dd449d337c80ec",
+      "targetSha256": "172aa892800ec018fda6b8a31886fcb2e113d30dd175fef5b5dd449d337c80ec",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/ProgressWriteChannel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/ProgressWriteChannel.cs",
+      "sourceSha256": "6e2f2d0ce8b98f666dcbbf41da0c4201ef539f8188661eb179d5ffcbb285b922",
+      "targetSha256": "6e2f2d0ce8b98f666dcbbf41da0c4201ef539f8188661eb179d5ffcbb285b922",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/SubmissionPreflightService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/SubmissionPreflightService.cs",
+      "sourceSha256": "fc98cd3057399a6e143436c6522f9a12a6e7b4647d8303642563c50c289a5cda",
+      "targetSha256": "fc98cd3057399a6e143436c6522f9a12a6e7b4647d8303642563c50c289a5cda",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Download/TaskRuntimeContext.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Download/TaskRuntimeContext.cs",
+      "sourceSha256": "52b0ad51b6a6f331d339ed6c70d9b38768e7a2b6503b41e3327857f0c33d7fe9",
+      "targetSha256": "52b0ad51b6a6f331d339ed6c70d9b38768e7a2b6503b41e3327857f0c33d7fe9",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/History/HistoryExportDestinationPicker.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/History/HistoryExportDestinationPicker.cs",
+      "sourceSha256": "f2948f15fa7ff8b17fd08dd0ee300b79534080a54f1e23aee8511d812fcdbd5a",
+      "targetSha256": "f2948f15fa7ff8b17fd08dd0ee300b79534080a54f1e23aee8511d812fcdbd5a",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/History/OutputFileStatusService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/History/OutputFileStatusService.cs",
+      "sourceSha256": "a758e0b2688f1ae9b065abfd3f3dc8c4a032e8aab370970d574fc9615b44b365",
+      "targetSha256": "a758e0b2688f1ae9b065abfd3f3dc8c4a032e8aab370970d574fc9615b44b365",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/History/TaskHistoryExporter.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/History/TaskHistoryExporter.cs",
+      "sourceSha256": "1b46aa89230d244e828a1ce0c1c0f1692e389b8437a5b9c7250f2cdede4b6bf5",
+      "targetSha256": "1b46aa89230d244e828a1ce0c1c0f1692e389b8437a5b9c7250f2cdede4b6bf5",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/History/TaskHistoryQueryService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/History/TaskHistoryQueryService.cs",
+      "sourceSha256": "dbe70c5f37b4ddf379df66ce14da3bb2cbcad98f3d954a8484c679dd4904db47",
+      "targetSha256": "dbe70c5f37b4ddf379df66ce14da3bb2cbcad98f3d954a8484c679dd4904db47",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/History/TaskHistoryRedownloadService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/History/TaskHistoryRedownloadService.cs",
+      "sourceSha256": "47a10051d387e0c344081c10845e34c3832a0a20a1e46c20714c00aaabe84329",
+      "targetSha256": "47a10051d387e0c344081c10845e34c3832a0a20a1e46c20714c00aaabe84329",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/HttpConstants.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/HttpConstants.cs",
+      "sourceSha256": "89131cefd17b38af76321b07a1e1134c6e1796a7e3d611422af17ad3383e47a6",
+      "targetSha256": "89131cefd17b38af76321b07a1e1134c6e1796a7e3d611422af17ad3383e47a6",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/BiliDataPaths.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/BiliDataPaths.cs",
+      "sourceSha256": "fb3e4040b4477a754188c968d378f27b5eaf30c99bb917259c36f4eb652d842d",
+      "targetSha256": "fb3e4040b4477a754188c968d378f27b5eaf30c99bb917259c36f4eb652d842d",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/BiliHttpClientFactory.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/BiliHttpClientFactory.cs",
+      "sourceSha256": "ecfd143ecc2b9db209ff1fc8514a9c34c3a53f620b3ed0f12790620b3dd1496f",
+      "targetSha256": "ecfd143ecc2b9db209ff1fc8514a9c34c3a53f620b3ed0f12790620b3dd1496f",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/BiliLocalStateInitializer.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/BiliLocalStateInitializer.cs",
+      "sourceSha256": "13761ab582f3193c69e284ec460873a7b030cac86a7c9c6410f51ff3b7828b53",
+      "targetSha256": "13761ab582f3193c69e284ec460873a7b030cac86a7c9c6410f51ff3b7828b53",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/DownloadRuntime.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/DownloadRuntime.cs",
+      "sourceSha256": "6c7792714093bf5a17c4e5e88c1611e0a97c7f9b750d9dec7f1cf66ae237c287",
+      "targetSha256": "6c7792714093bf5a17c4e5e88c1611e0a97c7f9b750d9dec7f1cf66ae237c287",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/FfmpegPackageInstaller.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/FfmpegPackageInstaller.cs",
+      "sourceSha256": "06efd0b778f2fbbd692065a9634cd30cdc17e74c1577753edd5a2c12b75b1157",
+      "targetSha256": "06efd0b778f2fbbd692065a9634cd30cdc17e74c1577753edd5a2c12b75b1157",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/FfmpegProcess.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/FfmpegProcess.cs",
+      "sourceSha256": "73bbd9f7de60e7b04be84e22ef828f672aadf131ebab8c316533728690365735",
+      "targetSha256": "73bbd9f7de60e7b04be84e22ef828f672aadf131ebab8c316533728690365735",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/FfmpegService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/FfmpegService.cs",
+      "sourceSha256": "9fa10523a75f511e12f6a5957a84d7c7a36b07eede03e9cd6e03cf66038b3613",
+      "targetSha256": "9fa10523a75f511e12f6a5957a84d7c7a36b07eede03e9cd6e03cf66038b3613",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/FileRevealService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/FileRevealService.cs",
+      "sourceSha256": "15b5f4304484a0094041f3744165638cc72cb1a1e7fa6042d306fe1a9a913e13",
+      "targetSha256": "15b5f4304484a0094041f3744165638cc72cb1a1e7fa6042d306fe1a9a913e13",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/IConfirmationService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/IConfirmationService.cs",
+      "sourceSha256": "68244a37fe452b6b25438fc67e4f4b6306c6c37d647c96d109d883e40109b055",
+      "targetSha256": "68244a37fe452b6b25438fc67e4f4b6306c6c37d647c96d109d883e40109b055",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/IFfmpegService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/IFfmpegService.cs",
+      "sourceSha256": "5bfc547a87fe22d4c854af334547c26562c58a4065afab7697b21d32bcca41b8",
+      "targetSha256": "5bfc547a87fe22d4c854af334547c26562c58a4065afab7697b21d32bcca41b8",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/IPluginLogger.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/IPluginLogger.cs",
+      "sourceSha256": "33b63d0c7851878cbf99fb318f22003278549f27e4f2055b4c9b992ae80dd78b",
+      "targetSha256": "33b63d0c7851878cbf99fb318f22003278549f27e4f2055b4c9b992ae80dd78b",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/MediaOutputVerifier.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/MediaOutputVerifier.cs",
+      "sourceSha256": "271155a29a93e3211288f0cc69c1320f8772b63f48552e6772e43ea7c7381d67",
+      "targetSha256": "271155a29a93e3211288f0cc69c1320f8772b63f48552e6772e43ea7c7381d67",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/PluginLog.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/PluginLog.cs",
+      "sourceSha256": "78d574e973b7a062529015bda795cdf1bc624bb50a9f55d460d21fa35bf1fce4",
+      "targetSha256": "78d574e973b7a062529015bda795cdf1bc624bb50a9f55d460d21fa35bf1fce4",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/PluginLogger.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/PluginLogger.cs",
+      "sourceSha256": "5cd89d4f49f9afe4ec5246d8c3680d83cc1d0b58ac161fd9f07a64c4619e61f1",
+      "targetSha256": "5cd89d4f49f9afe4ec5246d8c3680d83cc1d0b58ac161fd9f07a64c4619e61f1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/QrCodePngEncoder.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/QrCodePngEncoder.cs",
+      "sourceSha256": "a9a3e457a78c982612c88a92301e602fef81a5370da8ba7717ad4452bbc41c9c",
+      "targetSha256": "a9a3e457a78c982612c88a92301e602fef81a5370da8ba7717ad4452bbc41c9c",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/SensitiveDataSanitizer.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/SensitiveDataSanitizer.cs",
+      "sourceSha256": "9b7617db4cc6db8c41cb4fdc2dc0509c8e159e7e001e9891f85525bdb59f77a8",
+      "targetSha256": "9b7617db4cc6db8c41cb4fdc2dc0509c8e159e7e001e9891f85525bdb59f77a8",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/SqliteNativeLoader.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/SqliteNativeLoader.cs",
+      "sourceSha256": "6b8b5192899334d5ebba1dd6fae96172f78f54f33a57b52f21d9023191b75acf",
+      "targetSha256": "6b8b5192899334d5ebba1dd6fae96172f78f54f33a57b52f21d9023191b75acf",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/SubtitleTrackVerifier.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/SubtitleTrackVerifier.cs",
+      "sourceSha256": "f7e57bbd825cd002b7c56007950ccbbcff8d6e0ead90c5f8fee1acf48c532d26",
+      "targetSha256": "f7e57bbd825cd002b7c56007950ccbbcff8d6e0ead90c5f8fee1acf48c532d26",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Infrastructure/UiDispatcher.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Infrastructure/UiDispatcher.cs",
+      "sourceSha256": "5009f803c60c0d380d2ed6d4374e254ec2464117940ec9a9777ca6b85086f330",
+      "targetSha256": "5009f803c60c0d380d2ed6d4374e254ec2464117940ec9a9777ca6b85086f330",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Naming/FileNameSanitizer.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Naming/FileNameSanitizer.cs",
+      "sourceSha256": "423646966db67afe5544387832f68278bce56b26e09adf0e32400fea121cfcdb",
+      "targetSha256": "423646966db67afe5544387832f68278bce56b26e09adf0e32400fea121cfcdb",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Naming/NamingTemplateEngine.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Naming/NamingTemplateEngine.cs",
+      "sourceSha256": "d65d2db93757b399faa944a216b5c558bd5e86167f92a26a2d9ac243b7d0c317",
+      "targetSha256": "d65d2db93757b399faa944a216b5c558bd5e86167f92a26a2d9ac243b7d0c317",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Persistence/BiliDownloaderDocumentStateMapper.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Persistence/BiliDownloaderDocumentStateMapper.cs",
+      "sourceSha256": "f7d1b45646ab3e4986f4a12124f9e7804df0de38eca75d02746756fb299027c8",
+      "targetSha256": "f7d1b45646ab3e4986f4a12124f9e7804df0de38eca75d02746756fb299027c8",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Persistence/DocumentSaveCodec.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Persistence/DocumentSaveCodec.cs",
+      "sourceSha256": "8212c14c6e75a788f11ee29ac2591a0fcc40c2fdc60b2dfd0e1d5f0f24ce4c00",
+      "targetSha256": "8212c14c6e75a788f11ee29ac2591a0fcc40c2fdc60b2dfd0e1d5f0f24ce4c00",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Persistence/DownloadPresetService.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Persistence/DownloadPresetService.cs",
+      "sourceSha256": "f5473dc43558274e449b57cb963dff3fbfb9218ecbf5a73e9758952e95100cf1",
+      "targetSha256": "f5473dc43558274e449b57cb963dff3fbfb9218ecbf5a73e9758952e95100cf1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Persistence/DownloadTaskStore.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Persistence/DownloadTaskStore.cs",
+      "sourceSha256": "e05a8864e9b18254351544c33c1634e4b8516848c789015ad9d09ddd7669cef7",
+      "targetSha256": "e05a8864e9b18254351544c33c1634e4b8516848c789015ad9d09ddd7669cef7",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Persistence/IDownloadTaskRepository.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Persistence/IDownloadTaskRepository.cs",
+      "sourceSha256": "fab841347ccac5c5767f070d07359baad04dc1c7c739d41fc920d6b0baf7313d",
+      "targetSha256": "fab841347ccac5c5767f070d07359baad04dc1c7c739d41fc920d6b0baf7313d",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Persistence/IPresetRepository.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Persistence/IPresetRepository.cs",
+      "sourceSha256": "964d453b019678f5a197890699bddd659c6d393c78d6331d8994d76bc0bfd17e",
+      "targetSha256": "964d453b019678f5a197890699bddd659c6d393c78d6331d8994d76bc0bfd17e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Persistence/ISettingsRepository.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Persistence/ISettingsRepository.cs",
+      "sourceSha256": "7ac336a9350f438c7610a2b0cdf6dbc554d848bcab44b8e1d7a4d926408e35fc",
+      "targetSha256": "7ac336a9350f438c7610a2b0cdf6dbc554d848bcab44b8e1d7a4d926408e35fc",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Persistence/PresetStore.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Persistence/PresetStore.cs",
+      "sourceSha256": "d3df996d3c9cbfa2ed7ae680574163cd8ce5acd98a92d6187634b5c5f710513b",
+      "targetSha256": "d3df996d3c9cbfa2ed7ae680574163cd8ce5acd98a92d6187634b5c5f710513b",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Services/Persistence/SettingsStore.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Services/Persistence/SettingsStore.cs",
+      "sourceSha256": "88cfdf41b51d2a46bdebb7f940f17cf269f87bbf9957aa59b98dbe835e21d1b1",
+      "targetSha256": "88cfdf41b51d2a46bdebb7f940f17cf269f87bbf9957aa59b98dbe835e21d1b1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Styles/BiliDocumentStyles.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Styles/BiliDocumentStyles.axaml",
+      "sourceSha256": "d8fb78f40023fcecd491f470b8b03a36ad23e0985c0c6ce0dc45a3503a9bd3cb",
+      "targetSha256": "d8fb78f40023fcecd491f470b8b03a36ad23e0985c0c6ce0dc45a3503a9bd3cb",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/ContentSourceBrowserViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/ContentSourceBrowserViewModel.cs",
+      "sourceSha256": "32d11ca01b1bf9c939743d84d7ccb8ef9f71a8d43060e136bf30f619ccf0bbb3",
+      "targetSha256": "32d11ca01b1bf9c939743d84d7ccb8ef9f71a8d43060e136bf30f619ccf0bbb3",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/ContentSourceItemViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/ContentSourceItemViewModel.cs",
+      "sourceSha256": "12c9aa6ebcf15028c949c5312422803e6147268dc8edfaea8c21a04c592653a5",
+      "targetSha256": "12c9aa6ebcf15028c949c5312422803e6147268dc8edfaea8c21a04c592653a5",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/ContentSourcePickerViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/ContentSourcePickerViewModel.cs",
+      "sourceSha256": "b55acd624a4c097c0f961c984de2d27d0c6df166916d138e986470fc932ebc8f",
+      "targetSha256": "b55acd624a4c097c0f961c984de2d27d0c6df166916d138e986470fc932ebc8f",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/DownloadConfigViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/DownloadConfigViewModel.cs",
+      "sourceSha256": "876d5ba5349081626998725955cc478b4848e1e50b511b8f28006b81f54ff3b8",
+      "targetSha256": "876d5ba5349081626998725955cc478b4848e1e50b511b8f28006b81f54ff3b8",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/DownloadSourceWorkflowViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/DownloadSourceWorkflowViewModel.cs",
+      "sourceSha256": "b7308b7bd7b2113a2017e6e305a33b585d1d51de216abb1ddebccaddaa65341b",
+      "targetSha256": "b7308b7bd7b2113a2017e6e305a33b585d1d51de216abb1ddebccaddaa65341b",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/DownloadWorkspaceViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/DownloadWorkspaceViewModel.cs",
+      "sourceSha256": "79b4007e06e7f72ca1ef48a1adb4311741eb2c07a76f449ccf5554b9ba00f3f5",
+      "targetSha256": "79b4007e06e7f72ca1ef48a1adb4311741eb2c07a76f449ccf5554b9ba00f3f5",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/IncrementalComparisonViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/IncrementalComparisonViewModel.cs",
+      "sourceSha256": "3165ab5378d8a04fbcaff8e8b6a0f3a977fa5a2b367746a901c6af05879ca7c2",
+      "targetSha256": "3165ab5378d8a04fbcaff8e8b6a0f3a977fa5a2b367746a901c6af05879ca7c2",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/LoginBarViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/LoginBarViewModel.cs",
+      "sourceSha256": "598984aa35736efced5134fc1e61d3afd0ac947824a241748adfc0715b34512b",
+      "targetSha256": "598984aa35736efced5134fc1e61d3afd0ac947824a241748adfc0715b34512b",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/NamingTemplateViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/NamingTemplateViewModel.cs",
+      "sourceSha256": "89045051439933fb3dd37ac69284b1a4302c66d849ad70ba3321bf48e53947a1",
+      "targetSha256": "89045051439933fb3dd37ac69284b1a4302c66d849ad70ba3321bf48e53947a1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/RenamePanelViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/RenamePanelViewModel.cs",
+      "sourceSha256": "134599c5f47645ba51a72abceb7236caee5d17ad9627438ee6ca6eb8ea6c43cb",
+      "targetSha256": "134599c5f47645ba51a72abceb7236caee5d17ad9627438ee6ca6eb8ea6c43cb",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/VideoListViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/VideoListViewModel.cs",
+      "sourceSha256": "ccd4e4d2796b2435daede62182ac32dca365ca4c9de975bd738ba66a743587ee",
+      "targetSha256": "ccd4e4d2796b2435daede62182ac32dca365ca4c9de975bd738ba66a743587ee",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloader/VideoParseViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloader/VideoParseViewModel.cs",
+      "sourceSha256": "7a5eab1dc5577993b6f5708653223353d2c43edd8b83799da678646473b7e8eb",
+      "targetSha256": "7a5eab1dc5577993b6f5708653223353d2c43edd8b83799da678646473b7e8eb",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliDownloaderViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliDownloaderViewModel.cs",
+      "sourceSha256": "1b6edbd1601fb00fe1fddd7c75c7fcfcb9927df19377d372859ed488a81b3666",
+      "targetSha256": "1b6edbd1601fb00fe1fddd7c75c7fcfcb9927df19377d372859ed488a81b3666",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliScheduler/DownloadTaskItemViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliScheduler/DownloadTaskItemViewModel.cs",
+      "sourceSha256": "debcdf140e5bb547d8f8dea32e8406f855a877da23e7915871d37f332c4efa82",
+      "targetSha256": "debcdf140e5bb547d8f8dea32e8406f855a877da23e7915871d37f332c4efa82",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliScheduler/SchedulerSettingsViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliScheduler/SchedulerSettingsViewModel.cs",
+      "sourceSha256": "dc898aa3d3f4441b237771041656afb60e2823e33047cdd2a4d3b690055f8ec6",
+      "targetSha256": "dc898aa3d3f4441b237771041656afb60e2823e33047cdd2a4d3b690055f8ec6",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliScheduler/SchedulerTaskListViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliScheduler/SchedulerTaskListViewModel.cs",
+      "sourceSha256": "61647f7f5e298ecab3dd731510c5eb2a1df23fa7435f15913cd2567eb0414f92",
+      "targetSha256": "61647f7f5e298ecab3dd731510c5eb2a1df23fa7435f15913cd2567eb0414f92",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliScheduler/TaskFilterSortEngine.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliScheduler/TaskFilterSortEngine.cs",
+      "sourceSha256": "3091c1c85332a9dd97d9cafc769ea2fd04aa1c0739acbd7e3186de50b391b590",
+      "targetSha256": "3091c1c85332a9dd97d9cafc769ea2fd04aa1c0739acbd7e3186de50b391b590",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliScheduler/TaskHistoryItemViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliScheduler/TaskHistoryItemViewModel.cs",
+      "sourceSha256": "cd1556de130dbfef7120cbe0f15d1fbc987d81bf959cf2e010511f9c7b6f6a0e",
+      "targetSha256": "cd1556de130dbfef7120cbe0f15d1fbc987d81bf959cf2e010511f9c7b6f6a0e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliScheduler/TaskHistoryViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliScheduler/TaskHistoryViewModel.cs",
+      "sourceSha256": "ee82ee87106778886d611b9828548c5ff41e4e194880954cd6107e038aa36b25",
+      "targetSha256": "ee82ee87106778886d611b9828548c5ff41e4e194880954cd6107e038aa36b25",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/BiliSchedulerToolViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/BiliSchedulerToolViewModel.cs",
+      "sourceSha256": "aad94e598a0426473a8b2ae6e329f741a4bebf6499097110a1ddc2a508dc11ba",
+      "targetSha256": "aad94e598a0426473a8b2ae6e329f741a4bebf6499097110a1ddc2a508dc11ba",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/ViewModels/Login/LoginWindowViewModel.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/ViewModels/Login/LoginWindowViewModel.cs",
+      "sourceSha256": "d1df99785aaa9c17a673f7d125c151f4676470c7b36386b0180e152156471949",
+      "targetSha256": "d1df99785aaa9c17a673f7d125c151f4676470c7b36386b0180e152156471949",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/ContentSourceBrowserView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/ContentSourceBrowserView.axaml",
+      "sourceSha256": "a282c2b6bf51c3d8bd27758e54fbae46d5d4bae365a17c1b04629f7d685a5106",
+      "targetSha256": "a282c2b6bf51c3d8bd27758e54fbae46d5d4bae365a17c1b04629f7d685a5106",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/ContentSourceBrowserView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/ContentSourceBrowserView.axaml.cs",
+      "sourceSha256": "b873f37f04d9804fbf4bda0f58f26c133e194396a61f7cc05c1b1734f168c444",
+      "targetSha256": "b873f37f04d9804fbf4bda0f58f26c133e194396a61f7cc05c1b1734f168c444",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/ContentSourcePickerView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/ContentSourcePickerView.axaml",
+      "sourceSha256": "205fa0a7d2979a433dad6c0b3b5343b5b5b633d8e000c239792a356fe19a0baf",
+      "targetSha256": "205fa0a7d2979a433dad6c0b3b5343b5b5b633d8e000c239792a356fe19a0baf",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/ContentSourcePickerView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/ContentSourcePickerView.axaml.cs",
+      "sourceSha256": "e9edbc07c3876ac69d73afc7af40a8b2bfd3ceb70721ffb1319f1fa9bc927105",
+      "targetSha256": "e9edbc07c3876ac69d73afc7af40a8b2bfd3ceb70721ffb1319f1fa9bc927105",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/DownloadConfigView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/DownloadConfigView.axaml",
+      "sourceSha256": "c56580ff182ce1abad314206912e23ab97f9ea64f70722b0886afa9c1dc0350e",
+      "targetSha256": "c56580ff182ce1abad314206912e23ab97f9ea64f70722b0886afa9c1dc0350e",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/DownloadConfigView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/DownloadConfigView.axaml.cs",
+      "sourceSha256": "e379d5885b81bfb476d7c9c61e7eb916a61b5e61dbc026139cab0693eda92392",
+      "targetSha256": "e379d5885b81bfb476d7c9c61e7eb916a61b5e61dbc026139cab0693eda92392",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/DownloadLogView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/DownloadLogView.axaml",
+      "sourceSha256": "9be11d77ee5bb5ad4bd842c57e1b3194a343e807993564c70699d9f375e42d26",
+      "targetSha256": "9be11d77ee5bb5ad4bd842c57e1b3194a343e807993564c70699d9f375e42d26",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/DownloadLogView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/DownloadLogView.axaml.cs",
+      "sourceSha256": "0c258d4ffb9992fc9351ae2b17a2351f1eff064e6baf49c5620a665a1fbe2213",
+      "targetSha256": "0c258d4ffb9992fc9351ae2b17a2351f1eff064e6baf49c5620a665a1fbe2213",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/DownloadSourceWorkflowView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/DownloadSourceWorkflowView.axaml",
+      "sourceSha256": "1f5f8ecf5771694052d839672eaa782af78f42ce184358fd6fe5b10f86e649a8",
+      "targetSha256": "1f5f8ecf5771694052d839672eaa782af78f42ce184358fd6fe5b10f86e649a8",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/DownloadSourceWorkflowView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/DownloadSourceWorkflowView.axaml.cs",
+      "sourceSha256": "4d1990d9a815645f2a5183ac3858be26cda6745cfb330b5012c072f21b478ab2",
+      "targetSha256": "4d1990d9a815645f2a5183ac3858be26cda6745cfb330b5012c072f21b478ab2",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/DownloadWorkspaceView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/DownloadWorkspaceView.axaml",
+      "sourceSha256": "820e320ecba613983d7605cc68a788222708567402e43f13b754e29f97df8759",
+      "targetSha256": "820e320ecba613983d7605cc68a788222708567402e43f13b754e29f97df8759",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/DownloadWorkspaceView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/DownloadWorkspaceView.axaml.cs",
+      "sourceSha256": "a0cee068c0e950db3ea945f3ccdfb17bbf287d101e1656f51c6679dfad9417b8",
+      "targetSha256": "a0cee068c0e950db3ea945f3ccdfb17bbf287d101e1656f51c6679dfad9417b8",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/IncrementalComparisonView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/IncrementalComparisonView.axaml",
+      "sourceSha256": "e3b295928f45f0853ce68ac90033fe7ff84bdc405893408059f714467aaf5baf",
+      "targetSha256": "e3b295928f45f0853ce68ac90033fe7ff84bdc405893408059f714467aaf5baf",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/IncrementalComparisonView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/IncrementalComparisonView.axaml.cs",
+      "sourceSha256": "320fd2ef83296df7d83e4f5135f40f5285e5ad1db98118aaea800f8df7bb6045",
+      "targetSha256": "320fd2ef83296df7d83e4f5135f40f5285e5ad1db98118aaea800f8df7bb6045",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/LoginBarView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/LoginBarView.axaml",
+      "sourceSha256": "aabf28e8ea610bbce2b8b46685e969cb64e21ec3a2fe52c2168d24d322d72894",
+      "targetSha256": "aabf28e8ea610bbce2b8b46685e969cb64e21ec3a2fe52c2168d24d322d72894",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/LoginBarView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/LoginBarView.axaml.cs",
+      "sourceSha256": "908b910091fd94f5ce3dad37e4d3d2491737b05fa035ba31873209a32bad5cb7",
+      "targetSha256": "908b910091fd94f5ce3dad37e4d3d2491737b05fa035ba31873209a32bad5cb7",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/NamingTemplateView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/NamingTemplateView.axaml",
+      "sourceSha256": "6d71d5d83a040c3f35fc43dfcfa0f837663504a719201de9db7cc7018aa786ec",
+      "targetSha256": "6d71d5d83a040c3f35fc43dfcfa0f837663504a719201de9db7cc7018aa786ec",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/NamingTemplateView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/NamingTemplateView.axaml.cs",
+      "sourceSha256": "12cb01754c764ca86bb62a53397aa9aec394e387a7fd80a39541353f2d267ee9",
+      "targetSha256": "12cb01754c764ca86bb62a53397aa9aec394e387a7fd80a39541353f2d267ee9",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/PresetManagementView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/PresetManagementView.axaml",
+      "sourceSha256": "90082d7d90abb586294101420e95c2668bda03bdc8b1a6ee65f5c74af97a0616",
+      "targetSha256": "90082d7d90abb586294101420e95c2668bda03bdc8b1a6ee65f5c74af97a0616",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/PresetManagementView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/PresetManagementView.axaml.cs",
+      "sourceSha256": "b66385652e6fbe53ef33b77b3910f8d740b755097de02fb641a99e14c6fd300f",
+      "targetSha256": "b66385652e6fbe53ef33b77b3910f8d740b755097de02fb641a99e14c6fd300f",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/RenamePanelView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/RenamePanelView.axaml",
+      "sourceSha256": "78aa12869dc8d3328df0952e07361536e06c3bfb84d8e684ab3f7da53515f38a",
+      "targetSha256": "78aa12869dc8d3328df0952e07361536e06c3bfb84d8e684ab3f7da53515f38a",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/RenamePanelView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/RenamePanelView.axaml.cs",
+      "sourceSha256": "79736ebc9f4a776ecaf10f4c7d570f8a20bec5eaaa1bd5d1117178a400679ff2",
+      "targetSha256": "79736ebc9f4a776ecaf10f4c7d570f8a20bec5eaaa1bd5d1117178a400679ff2",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/VideoListView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/VideoListView.axaml",
+      "sourceSha256": "1e6a97a47615a3fa2b71f5f656d90941b20f29cce36cfa2b096ef6249186edd1",
+      "targetSha256": "1e6a97a47615a3fa2b71f5f656d90941b20f29cce36cfa2b096ef6249186edd1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/VideoListView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/VideoListView.axaml.cs",
+      "sourceSha256": "6c62fe635a27ddbfe97dee7c674ac0a327b09438e056941e8d9390d3828f151d",
+      "targetSha256": "6c62fe635a27ddbfe97dee7c674ac0a327b09438e056941e8d9390d3828f151d",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/VideoParseView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/VideoParseView.axaml",
+      "sourceSha256": "38a491844753ebb253f3b8beb26850801183c7d2c54156ed1577bba873156ec0",
+      "targetSha256": "38a491844753ebb253f3b8beb26850801183c7d2c54156ed1577bba873156ec0",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloader/VideoParseView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloader/VideoParseView.axaml.cs",
+      "sourceSha256": "dc715bad18cd8ebdb2ddaf20c27f7a38228236d8a59ee20bcc9ab00e1e65fb48",
+      "targetSha256": "dc715bad18cd8ebdb2ddaf20c27f7a38228236d8a59ee20bcc9ab00e1e65fb48",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloaderView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloaderView.axaml",
+      "sourceSha256": "7d06b79c4430762290a221663274ade363870f3b403a609746661ae3870cdf46",
+      "targetSha256": "7d06b79c4430762290a221663274ade363870f3b403a609746661ae3870cdf46",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliDownloaderView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliDownloaderView.axaml.cs",
+      "sourceSha256": "0d0195a045089c11e7b6aea2f05fca72a5c6d5349f0d82ff8fa8471122c56e80",
+      "targetSha256": "0d0195a045089c11e7b6aea2f05fca72a5c6d5349f0d82ff8fa8471122c56e80",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliScheduler/SchedulerSettingsView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliScheduler/SchedulerSettingsView.axaml",
+      "sourceSha256": "f63e2653e3a34da6d1db16e6bf630eeda4c30b17bc30db44c7796820cdb22749",
+      "targetSha256": "f63e2653e3a34da6d1db16e6bf630eeda4c30b17bc30db44c7796820cdb22749",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliScheduler/SchedulerSettingsView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliScheduler/SchedulerSettingsView.axaml.cs",
+      "sourceSha256": "fc01556ec03f3cc8b179f2c8ae6913fdb0f872a4ecd460f91a3d34faf4fb8f66",
+      "targetSha256": "fc01556ec03f3cc8b179f2c8ae6913fdb0f872a4ecd460f91a3d34faf4fb8f66",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliScheduler/SchedulerTaskListView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliScheduler/SchedulerTaskListView.axaml",
+      "sourceSha256": "41804e9cf7b5ec9e08af6b9f89e1e8a264cfe5f92d60e16341147d5b4435e0da",
+      "targetSha256": "41804e9cf7b5ec9e08af6b9f89e1e8a264cfe5f92d60e16341147d5b4435e0da",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliScheduler/SchedulerTaskListView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliScheduler/SchedulerTaskListView.axaml.cs",
+      "sourceSha256": "3bd245f09188bbae2a1ba70ccac0c5c4e243b3d28d8e7b998cfe401435292f58",
+      "targetSha256": "3bd245f09188bbae2a1ba70ccac0c5c4e243b3d28d8e7b998cfe401435292f58",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliScheduler/TaskHistoryView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliScheduler/TaskHistoryView.axaml",
+      "sourceSha256": "6e739f5915ae7d115d398ba3733d7c0d7400b659ee990af72046e8683a5ee0c6",
+      "targetSha256": "6e739f5915ae7d115d398ba3733d7c0d7400b659ee990af72046e8683a5ee0c6",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliScheduler/TaskHistoryView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliScheduler/TaskHistoryView.axaml.cs",
+      "sourceSha256": "7d3ddd65e8b9e62439c42ec41af79499c5124122ac2b2767ce165617de61bd5c",
+      "targetSha256": "7d3ddd65e8b9e62439c42ec41af79499c5124122ac2b2767ce165617de61bd5c",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliSchedulerToolView.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliSchedulerToolView.axaml",
+      "sourceSha256": "6cd0d8bf87305af97e5dcf9683fea01b0685dd3c66f13c095b658fbf91973104",
+      "targetSha256": "6cd0d8bf87305af97e5dcf9683fea01b0685dd3c66f13c095b658fbf91973104",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/BiliSchedulerToolView.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/BiliSchedulerToolView.axaml.cs",
+      "sourceSha256": "e90c92808d78e346ff217a65a5cc6e408fb2fd6625ce4d71f3343ab4cdcc7028",
+      "targetSha256": "e90c92808d78e346ff217a65a5cc6e408fb2fd6625ce4d71f3343ab4cdcc7028",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/Login/LoginWindow.axaml",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/Login/LoginWindow.axaml",
+      "sourceSha256": "8581ed7e0b93dce2cb5ad3705d2ff50f6c9cb400e1b85ec9321ccf87f7eed6c3",
+      "targetSha256": "8581ed7e0b93dce2cb5ad3705d2ff50f6c9cb400e1b85ec9321ccf87f7eed6c3",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/Views/Login/LoginWindow.axaml.cs",
+      "target": "src/BiliDownloaderPlugin.Plugin/Views/Login/LoginWindow.axaml.cs",
+      "sourceSha256": "a0cc2548795eb6d89340b8f8f6092e66a79571b04c77b8f2b148d438369d4e61",
+      "targetSha256": "a0cc2548795eb6d89340b8f8f6092e66a79571b04c77b8f2b148d438369d4e61",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/ARCHITECTURE_IMPROVEMENT.md",
+      "target": "docs/design/ARCHITECTURE_IMPROVEMENT.md",
+      "sourceSha256": "b85809c109794577af59c4035dbe60b76dbbeb5b207049aa004d267804c4005f",
+      "targetSha256": "b85809c109794577af59c4035dbe60b76dbbeb5b207049aa004d267804c4005f",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/BILIDOWNLOADER-ARCHITECTURE-REVIEW.md",
+      "target": "docs/design/BILIDOWNLOADER-ARCHITECTURE-REVIEW.md",
+      "sourceSha256": "38e0db96dde9ba6010504618d54f970a2a28a10f2735458f08b639da08b2bfb9",
+      "targetSha256": "8ea81318a4f9099f4161fe2aa3c36f90935f7cd9ec193635dfba311c8018df80",
+      "unchanged": false,
+      "changeReason": "文档路径或当前入口适配"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/architecture-guide/01-宏观架构与完整链路.md",
+      "target": "docs/design/architecture-guide/01-宏观架构与完整链路.md",
+      "sourceSha256": "2896da9e8dac50402c1787271e983eba4e94eaa69c518efc1f07a777bb1e6e57",
+      "targetSha256": "2896da9e8dac50402c1787271e983eba4e94eaa69c518efc1f07a777bb1e6e57",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/architecture-guide/02-代码层级与核心对象.md",
+      "target": "docs/design/architecture-guide/02-代码层级与核心对象.md",
+      "sourceSha256": "9a9e41ce9ad7b245d279b17a320dd6617bf9cfa0440b6f72b45fb0b0ce4ce5f7",
+      "targetSha256": "9a9e41ce9ad7b245d279b17a320dd6617bf9cfa0440b6f72b45fb0b0ce4ce5f7",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/architecture-guide/03-URL与内容源解析.md",
+      "target": "docs/design/architecture-guide/03-URL与内容源解析.md",
+      "sourceSha256": "3cda73983af865e402797e0ecef2c211e9a23db67ecb8a9496b5aa1dbc7888ad",
+      "targetSha256": "3cda73983af865e402797e0ecef2c211e9a23db67ecb8a9496b5aa1dbc7888ad",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/architecture-guide/04-下载提交与预检.md",
+      "target": "docs/design/architecture-guide/04-下载提交与预检.md",
+      "sourceSha256": "bc34395577a4621fff41cabcd7e1c4c3008b01ab38f3d85398e4fa7880d2932a",
+      "targetSha256": "bc34395577a4621fff41cabcd7e1c4c3008b01ab38f3d85398e4fa7880d2932a",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/architecture-guide/05-调度与下载执行.md",
+      "target": "docs/design/architecture-guide/05-调度与下载执行.md",
+      "sourceSha256": "77396c04914c94abce9c31324620991efa6a72a41250185ab8b0b687fc4ffde6",
+      "targetSha256": "77396c04914c94abce9c31324620991efa6a72a41250185ab8b0b687fc4ffde6",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/architecture-guide/06-附加资源与登录安全.md",
+      "target": "docs/design/architecture-guide/06-附加资源与登录安全.md",
+      "sourceSha256": "20655bcafe819347a70c8e953f5b7af51e2a04b33fa200c3819d14509afedfd7",
+      "targetSha256": "20655bcafe819347a70c8e953f5b7af51e2a04b33fa200c3819d14509afedfd7",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/architecture-guide/07-持久化恢复与消息通信.md",
+      "target": "docs/design/architecture-guide/07-持久化恢复与消息通信.md",
+      "sourceSha256": "560581cf537c71edfab132125d71a7cb86c2ad36ff092eac1877950e94901357",
+      "targetSha256": "560581cf537c71edfab132125d71a7cb86c2ad36ff092eac1877950e94901357",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/architecture-guide/08-设计模式与SOLID评析.md",
+      "target": "docs/design/architecture-guide/08-设计模式与SOLID评析.md",
+      "sourceSha256": "a83811df2561193349513c94c2831cd099752e801b31a9c1b4200b04046db5c4",
+      "targetSha256": "a83811df2561193349513c94c2831cd099752e801b31a9c1b4200b04046db5c4",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/architecture-guide/README.md",
+      "target": "docs/design/architecture-guide/README.md",
+      "sourceSha256": "90c45d0884db801fefe5680d4df8ff36fb51eff87c0f29f2bf6903667d103b43",
+      "targetSha256": "79b044fb44c5f08870c17d35e82c7096f4ecef0e9b828c92a2b73acde2a0f643",
+      "unchanged": false,
+      "changeReason": "文档路径或当前入口适配"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/design/download-feature-design.md",
+      "target": "docs/design/download-feature-design.md",
+      "sourceSha256": "320764475d4a958a4652a6ab41ff2fc7a5707796ff65f9f30b31753bf753ee94",
+      "targetSha256": "320764475d4a958a4652a6ab41ff2fc7a5707796ff65f9f30b31753bf753ee94",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/G0-BASELINE-TEST-LIFECYCLE.md",
+      "target": "docs/plan-history/G0-BASELINE-TEST-LIFECYCLE.md",
+      "sourceSha256": "99443cfb9dcf183bb9fa8ddf54ae4967184fd7893fba0998202d8bb2c3c77d2d",
+      "targetSha256": "99443cfb9dcf183bb9fa8ddf54ae4967184fd7893fba0998202d8bb2c3c77d2d",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/G1-CREDENTIAL-DATA-SECURITY.md",
+      "target": "docs/plan-history/G1-CREDENTIAL-DATA-SECURITY.md",
+      "sourceSha256": "6b1df43b6c3194e288c030b4755598f3c863797b57a21c4e4a5274130dfc5af7",
+      "targetSha256": "6b1df43b6c3194e288c030b4755598f3c863797b57a21c4e4a5274130dfc5af7",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/G2-SINGLE-TASK-CONTROL.md",
+      "target": "docs/plan-history/G2-SINGLE-TASK-CONTROL.md",
+      "sourceSha256": "15706423707c304e345f80dd9ad0b128e2db060bed2b8967aee7cf88fed1ab61",
+      "targetSha256": "15706423707c304e345f80dd9ad0b128e2db060bed2b8967aee7cf88fed1ab61",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/G3-G5-AGGRESSIVE-REVIEW-2026-08-02.md",
+      "target": "docs/plan-history/G3-G5-AGGRESSIVE-REVIEW-2026-08-02.md",
+      "sourceSha256": "88cb4a67f0a295ab120b329f6cceec76561582cf112834bc4ad04118d90c1466",
+      "targetSha256": "88cb4a67f0a295ab120b329f6cceec76561582cf112834bc4ad04118d90c1466",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/G3-PERSISTENCE-RECOVERY.md",
+      "target": "docs/plan-history/G3-PERSISTENCE-RECOVERY.md",
+      "sourceSha256": "4e572d228feced90a67eeabffdd8ce2d87a5652060efb597998c8e3c016c201b",
+      "targetSha256": "4e572d228feced90a67eeabffdd8ce2d87a5652060efb597998c8e3c016c201b",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/G4-TASK-CENTER-PRODUCTIZATION.md",
+      "target": "docs/plan-history/G4-TASK-CENTER-PRODUCTIZATION.md",
+      "sourceSha256": "c801d6aaff99db48a1b12ec40c208253cf22f0c7be480a908b4e4d76a4444de8",
+      "targetSha256": "c801d6aaff99db48a1b12ec40c208253cf22f0c7be480a908b4e4d76a4444de8",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/G5-PRESET-NAMING-TEMPLATE.md",
+      "target": "docs/plan-history/G5-PRESET-NAMING-TEMPLATE.md",
+      "sourceSha256": "7160c30f9851c64b0412b5ac7d7b2f953e8987843ec0db3f28bc1416c41364b2",
+      "targetSha256": "7160c30f9851c64b0412b5ac7d7b2f953e8987843ec0db3f28bc1416c41364b2",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/G6-FILE-CONFLICT-SUBMISSION-PREFLIGHT.md",
+      "target": "docs/plan-history/G6-FILE-CONFLICT-SUBMISSION-PREFLIGHT.md",
+      "sourceSha256": "4e033f20d31254901682cc1e8f2d4a5d2e3f7a29e7b18748754b1f7c729e41ad",
+      "targetSha256": "4e033f20d31254901682cc1e8f2d4a5d2e3f7a29e7b18748754b1f7c729e41ad",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/G7-FFMPEG-ERROR-ACTION-ENTRY.md",
+      "target": "docs/plan-history/G7-FFMPEG-ERROR-ACTION-ENTRY.md",
+      "sourceSha256": "4c748e3a7ccd158666030d9168120769a2960530e2e7a6cc1a2e1279a8a8b027",
+      "targetSha256": "4c748e3a7ccd158666030d9168120769a2960530e2e7a6cc1a2e1279a8a8b027",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/G8-P0-ACCEPTANCE-RELEASE.md",
+      "target": "docs/plan-history/G8-P0-ACCEPTANCE-RELEASE.md",
+      "sourceSha256": "afade4abe837c705a3059c53fe1eaebf1652f0bd5886a5d176cc1a012f3798f4",
+      "targetSha256": "d70b6316ae648b21c9cd260e271056b8f597f4df69e8a06850f0be0e8833e2cc",
+      "unchanged": false,
+      "changeReason": "文档路径或当前入口适配"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/P1-G0-CONTENT-SOURCE-FOUNDATION.md",
+      "target": "docs/plan-history/P1-G0-CONTENT-SOURCE-FOUNDATION.md",
+      "sourceSha256": "be7dfa3496b392bebf399d0b5a9aca9dc33a097cb00e1ccc39ccdee4d4bd2f44",
+      "targetSha256": "be7dfa3496b392bebf399d0b5a9aca9dc33a097cb00e1ccc39ccdee4d4bd2f44",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/P1-G1-PERSONAL-CONTENT-SOURCES.md",
+      "target": "docs/plan-history/P1-G1-PERSONAL-CONTENT-SOURCES.md",
+      "sourceSha256": "0888a59f31dfdfddebee4d8a2648adc8f8edd9d960d75cd488b93cc336e90965",
+      "targetSha256": "0888a59f31dfdfddebee4d8a2648adc8f8edd9d960d75cd488b93cc336e90965",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/P1-G10-BANDWIDTH-REGRESSION-RELEASE-ACCEPTANCE.md",
+      "target": "docs/plan-history/P1-G10-BANDWIDTH-REGRESSION-RELEASE-ACCEPTANCE.md",
+      "sourceSha256": "392839faea97520a5f4ac8cd5ef502014dd56725d699ab53a617214729ebf333",
+      "targetSha256": "392839faea97520a5f4ac8cd5ef502014dd56725d699ab53a617214729ebf333",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/P1-G2-SUBSCRIPTIONS-BANGUMI-COURSE-SOURCES.md",
+      "target": "docs/plan-history/P1-G2-SUBSCRIPTIONS-BANGUMI-COURSE-SOURCES.md",
+      "sourceSha256": "5f09ac10c7e32346e6182ae9f3d7eb96d9816bc4d696e4bfe7a065cfbe5fad05",
+      "targetSha256": "5f09ac10c7e32346e6182ae9f3d7eb96d9816bc4d696e4bfe7a065cfbe5fad05",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/P1-G4-DOCUMENT-V3-REUSABLE-SCHEMES.md",
+      "target": "docs/plan-history/P1-G4-DOCUMENT-V3-REUSABLE-SCHEMES.md",
+      "sourceSha256": "8bc31096efc9dd73feaff56ff2caecb1dac879621040829a246af33d96a4f758",
+      "targetSha256": "8bc31096efc9dd73feaff56ff2caecb1dac879621040829a246af33d96a4f758",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/P1-G5-INCREMENTAL-COMPARISON-DEDUPLICATION.md",
+      "target": "docs/plan-history/P1-G5-INCREMENTAL-COMPARISON-DEDUPLICATION.md",
+      "sourceSha256": "1d29ce002bc5c8177c1430d562538e48f837ca98e80c0091b748d0ab5b895ab6",
+      "targetSha256": "1d29ce002bc5c8177c1430d562538e48f837ca98e80c0091b748d0ab5b895ab6",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/P1-G6-HISTORY-CENTER-SECURE-EXPORT.md",
+      "target": "docs/plan-history/P1-G6-HISTORY-CENTER-SECURE-EXPORT.md",
+      "sourceSha256": "a54d4fd340be1d165e90aeab8d4c5ce6623c7d7481f918708713767fb8d411f3",
+      "targetSha256": "a54d4fd340be1d165e90aeab8d4c5ce6623c7d7481f918708713767fb8d411f3",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/P1-G7-ENCODING-CONTAINER-OUTPUT-MODES.md",
+      "target": "docs/plan-history/P1-G7-ENCODING-CONTAINER-OUTPUT-MODES.md",
+      "sourceSha256": "e0e84d46564465e169b59afa36fdf2bd9cbee0b253b175427e166b09ca789458",
+      "targetSha256": "e0e84d46564465e169b59afa36fdf2bd9cbee0b253b175427e166b09ca789458",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/P1-G8-HIGH-SPEC-MEDIA.md",
+      "target": "docs/plan-history/P1-G8-HIGH-SPEC-MEDIA.md",
+      "sourceSha256": "df39fe962f7678ac73ba6bb00ce86f5ec0aea5f857f47b905bf6839c5c3152bf",
+      "targetSha256": "df39fe962f7678ac73ba6bb00ce86f5ec0aea5f857f47b905bf6839c5c3152bf",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/P1-G9-SUBTITLE-DANMAKU-ENHANCEMENT.md",
+      "target": "docs/plan-history/P1-G9-SUBTITLE-DANMAKU-ENHANCEMENT.md",
+      "sourceSha256": "4eddc76e663a1be4b47628b4ebaad27fcd04d497fe614ed74fb8bfb76a5051e1",
+      "targetSha256": "4eddc76e663a1be4b47628b4ebaad27fcd04d497fe614ed74fb8bfb76a5051e1",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/ROADMAP-P1.md",
+      "target": "docs/plan-history/ROADMAP-P1.md",
+      "sourceSha256": "b6940da5122d53784bf5ea17de7fd5a5f9cd0310fb4649d7c6a1df54f01e8947",
+      "targetSha256": "b6940da5122d53784bf5ea17de7fd5a5f9cd0310fb4649d7c6a1df54f01e8947",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/plan-history/ROADMAP.md",
+      "target": "docs/plan-history/ROADMAP.md",
+      "sourceSha256": "d812eba6d4b2cf0ba686ee0a929f2c41186f304e51176cb4521a7f0bac97c412",
+      "targetSha256": "d812eba6d4b2cf0ba686ee0a929f2c41186f304e51176cb4521a7f0bac97c412",
+      "unchanged": true,
+      "changeReason": "原样迁移"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/doc/reference/PRODUCT.md",
+      "target": "docs/reference/PRODUCT.md",
+      "sourceSha256": "59a982decbb6bb31b404d4e505659318731f70e40964d2c0c0ce9337fd29d75d",
+      "targetSha256": "ece71de305a3f2a388be9c9d07ecade87717ae76582391d9669e21555ed54a05",
+      "unchanged": false,
+      "changeReason": "文档路径或当前入口适配"
+    },
+    {
+      "source": "Plugins/BiliDownloader/BiliDownloader/packages.lock.json",
+      "target": "src/BiliDownloaderPlugin.Plugin/packages.lock.json",
+      "sourceSha256": "616eddf965d6a046f39cbd781b8d8b0b36104127b192c795995e07baf02d4beb",
+      "targetSha256": "2cb55ba149006a9ce35e1126255e0bfbe410e39147aee130ee16957ab005e09d",
+      "unchanged": false,
+      "changeReason": "独立 NuGet 依赖图"
+    }
+  ]
+}
