@@ -175,8 +175,9 @@ internal sealed partial class PackageVerificationGate(
         }
     }
 
+    // V6.1：只允许 Icons 这一纯数据资源，其他 Host/SDK 及相似 DLL 名称继续拒绝。
     [GeneratedRegex(
-        "^(?:MyAvaloniaManagement(?:Common)?|CommunityToolkit\\.Mvvm|Avalonia(?:\\.|$)|Dock\\.|Semi\\.Avalonia|Ursa(?:\\.|$)|Microsoft\\.Extensions\\.|Newtonsoft\\.Json).*\\.dll$",
+        "^(?:MyAvaloniaManagement(?!\\.Icons\\.dll$)(?:Common)?|CommunityToolkit\\.Mvvm|Avalonia(?:\\.|$)|Dock\\.|Semi\\.Avalonia|Ursa(?:\\.|$)|Microsoft\\.Extensions\\.|Newtonsoft\\.Json).*\\.dll$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex ForbiddenSharedAssemblyRegex();
 }

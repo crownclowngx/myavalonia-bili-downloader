@@ -12,10 +12,10 @@
         <ManagedPlugin>true</ManagedPlugin>
         <ManagedPluginId>myavalonia.plugin.bili-downloader</ManagedPluginId>
         <ManagedPluginDirectoryName>BiliDownloader</ManagedPluginDirectoryName>
-        <PluginVersion>3.0.0</PluginVersion>
+        <PluginVersion>3.0.1</PluginVersion>
         <ManagedPluginRuntimeIdentifier>win-x64</ManagedPluginRuntimeIdentifier>
         <ManagedPluginEntryType>BiliDownloader.Plugin.BiliDownloaderPluginModule</ManagedPluginEntryType>
-        <ManagedPluginSdkMinInclusive>3.3.0</ManagedPluginSdkMinInclusive>
+        <ManagedPluginSdkMinInclusive>3.4.0</ManagedPluginSdkMinInclusive>
         <ManagedPluginSdkMaxExclusive>4.0.0</ManagedPluginSdkMaxExclusive>
     </PropertyGroup>
 
@@ -37,6 +37,9 @@
       <PackageReference Include="CommunityToolkit.Mvvm" />
       <PackageReference Include="MyAvaloniaManagement.PluginSdk" />
       <PackageReference Include="MyAvaloniaManagement.PluginSdk.UI" />
+      <!-- 公共图形为普通私有资源，随插件 ZIP 部署，不进入 Host 共享程序集闭包。 -->
+      <PackageReference Include="MyAvaloniaManagement.Icons" />
+      <ManagedPluginPrivatePackage Include="MyAvaloniaManagement.Icons" />
       <PackageReference Include="MyAvaloniaManagement.Plugin.Build" PrivateAssets="all" />
       <PackageReference Include="Flurl.Http" />
       <PackageReference Include="Microsoft.Data.Sqlite" />

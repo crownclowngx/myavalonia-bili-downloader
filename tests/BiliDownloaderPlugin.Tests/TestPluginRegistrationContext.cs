@@ -11,8 +11,22 @@ namespace BiliDownloader.Tests;
 /// </summary>
 internal sealed class TestPluginRegistrationContext(
     PluginId pluginId,
-    IServiceCollection services) : IPluginRegistration
+    IServiceCollection services) : IPluginRegistration, IPluginIconRegistration
 {
+    // V6.1：预览/测试只保留本次组合的纯图标数据；不使用 Host 的全局注册表或缓存。
+    // 对重复名称和非法名称直接报错，避免预览吞掉正式 Host 会拒绝的声明。
+    private readonly Dictionary<string, VectorIconDefinition> _previewIcons = new(StringComparer.Ordinal);
+    public string AddIcon(string localName, VectorIconDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        if (localName is null || !System.Text.RegularExpressions.Regex.IsMatch(localName, @"\A[a-z][a-z0-9]*(?:-[a-z0-9]+)*\z"))
+            throw new ArgumentException("图标名称必须使用小写字母、数字及单个连字符分段。", nameof(localName));
+        var reference = $"plugin:{PluginId.Value}/{localName}";
+        _previewIcons.Add(reference, definition);
+        return reference;
+    }
+
+
     public PluginId PluginId { get; } = pluginId;
 
     public IServiceCollection Services { get; } = services;

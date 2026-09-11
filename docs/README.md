@@ -1,5 +1,7 @@
 # BiliDownloader 文档索引
 
+- [V6.1 图标同步升级](plan-history/v6.1-plugin-icons.md)：入口映射、依赖边界和验证结果。
+
 ## 当前使用
 
 - [仓库快速开始](../README.md)

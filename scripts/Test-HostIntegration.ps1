@@ -18,7 +18,10 @@ try {
         dotnet msbuild src/BiliDownloaderPlugin.Plugin/BiliDownloaderPlugin.Plugin.csproj -t:BuildManagedPluginPackage "-p:Configuration=$Configuration" -v:minimal
         if ($LASTEXITCODE -ne 0) { throw '插件打包失败。' }
     }
-    $package = Join-Path $repository 'src/BiliDownloaderPlugin.Plugin/artifacts/managed-plugin-packages/BiliDownloader-3.0.0-win-x64.zip'
+    # 版本由插件项目拥有，联调入口不另维护固定的旧 ZIP 文件名。
+    [xml]$pluginProject = Get-Content -LiteralPath 'src/BiliDownloaderPlugin.Plugin/BiliDownloaderPlugin.Plugin.csproj' -Raw
+    $pluginVersion = ($pluginProject.Project.PropertyGroup.PluginVersion | Where-Object { $_ } | Select-Object -First 1)
+    $package = Join-Path $repository "src/BiliDownloaderPlugin.Plugin/artifacts/managed-plugin-packages/BiliDownloader-$pluginVersion-win-x64.zip"
     $packageManifest = Get-Content -Raw -LiteralPath ($package -replace '\.zip$', '.manifest.json') | ConvertFrom-Json
     if ((Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash -ne $packageManifest.archive.sha256) {
         throw 'ZIP 摘要与配对清单不一致。'
@@ -40,7 +43,8 @@ try {
     $manifest = Get-Content -Raw -LiteralPath (Join-Path $env:BILIDOWNLOADER_PACKAGE_ROOT 'plugin.manifest.json') | ConvertFrom-Json
     if ($manifest.pluginId -ne 'myavalonia.plugin.bili-downloader') { throw '插件身份漂移。' }
     foreach ($pattern in @('MyAvaloniaManagement*','Avalonia*','Dock*','Microsoft.Extensions.*','*Standalone*','*Tests*')) {
-        if (Get-ChildItem -LiteralPath $env:BILIDOWNLOADER_PACKAGE_ROOT -Recurse -File | Where-Object Name -Like $pattern) {
+        # V6.1 只精确放行纯数据资源 DLL；SDK、伪扩展名和其他共享程序集仍按原规则拒绝。
+        if (Get-ChildItem -LiteralPath $env:BILIDOWNLOADER_PACKAGE_ROOT -Recurse -File | Where-Object { $_.Name -like $pattern -and $_.Name -ne 'MyAvaloniaManagement.Icons.dll' }) {
             throw "正式包混入共享或开发资产：$pattern"
         }
     }

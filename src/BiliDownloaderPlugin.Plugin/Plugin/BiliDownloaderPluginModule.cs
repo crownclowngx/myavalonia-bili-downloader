@@ -1,3 +1,4 @@
+using MyAvaloniaManagement.Icons;
 using BiliDownloader.Services.Api;
 using BiliDownloader.Services.Auth;
 using BiliDownloader.Services.ContentSources;
@@ -30,6 +31,10 @@ public sealed class BiliDownloaderPluginModule : IPluginModule
     public void Configure(IPluginRegistration registration)
     {
         ArgumentNullException.ThrowIfNull(registration);
+
+        // 图形只在模块组合阶段声明；引用由当前注册上下文绑定所有者，业务入口不手写 plugin: 身份。
+        var personalSourceIcon = registration.AddIcon("personal-source", PluginIcons.PersonalSource);
+        var schedulerIcon = registration.AddIcon("scheduler", PluginIcons.Scheduler);
         var services = registration.Services;
         services.AddSingleton<IBiliDataPaths, BiliDataPaths>();
         services.AddSingleton<IBiliLocalStateInitializer, BiliLocalStateInitializer>();
@@ -211,15 +216,15 @@ public sealed class BiliDownloaderPluginModule : IPluginModule
                     new DocumentCreationIntentDescriptor(
                         BiliDownloaderContributionIds.PersonalSourceIntent,
                         "个人内容来源",
-                        "浏览 UP 主投稿、收藏夹、稍后再看和历史记录。"),
-                ]));
+                        "浏览 UP 主投稿、收藏夹、稍后再看和历史记录。", iconPath: personalSourceIcon),
+                ], iconPath: CommonIcons.Download.Key));
         registration.AddTool<BiliSchedulerToolViewModel, BiliSchedulerToolView>(
             new ToolDescriptor(
                 BiliDownloaderContributionIds.SchedulerTool,
                 "Bilibili调度工具",
                 "下载调度与ffmpeg处理管理",
                 ToolDockSide.Right,
-                ToolCloseBehavior.Hide));
+                ToolCloseBehavior.Hide, iconPath: schedulerIcon));
         registration.UseLifecycle<BiliDownloaderPluginLifecycle>();
     }
 }
