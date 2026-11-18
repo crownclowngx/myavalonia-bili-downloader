@@ -38,3 +38,4 @@ coverage.opencover.xml
 
 # packages.lock.json、coverage-baseline.json、coverage.runsettings、源码和文档应提交。
 # 不全局忽略 DLL/EXE/ZIP，避免隐藏将来明确纳入版本控制的测试资产。
+.aiflow/insight/
