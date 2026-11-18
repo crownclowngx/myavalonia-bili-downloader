@@ -69,7 +69,8 @@ public sealed class BiliPackageCompositionTests
                     new PluginId("myavalonia.plugin.bili-downloader"),
                     PluginLifecycleStatus.Ready));
             var workspace = provider.GetRequiredService<WorkspaceSession>();
-            var documentEntries = workspace.GetAllDocumentCreationEntries().Where(entry =>
+            var creationMenu = provider.GetRequiredService<DocumentCreationMenuQuery>();
+            var documentEntries = creationMenu.ReadDirectory().Items.Select(item => item.Entry).Where(entry =>
                 entry.DocumentTypeId.Value.StartsWith(
                     "myavalonia.plugin.bili-downloader.document.",
                     StringComparison.Ordinal)).ToArray();

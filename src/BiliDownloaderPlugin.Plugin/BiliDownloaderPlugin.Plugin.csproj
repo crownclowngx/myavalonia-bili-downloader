@@ -15,7 +15,7 @@
         <PluginVersion>3.0.1</PluginVersion>
         <ManagedPluginRuntimeIdentifier>win-x64</ManagedPluginRuntimeIdentifier>
         <ManagedPluginEntryType>BiliDownloader.Plugin.BiliDownloaderPluginModule</ManagedPluginEntryType>
-        <ManagedPluginSdkMinInclusive>3.4.0</ManagedPluginSdkMinInclusive>
+        <ManagedPluginSdkMinInclusive>3.4.2</ManagedPluginSdkMinInclusive>
         <ManagedPluginSdkMaxExclusive>4.0.0</ManagedPluginSdkMaxExclusive>
     </PropertyGroup>
 
