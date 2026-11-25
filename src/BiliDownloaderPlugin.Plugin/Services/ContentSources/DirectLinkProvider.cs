@@ -1,8 +1,11 @@
+using System.Globalization;
+using System.Web;
 using BiliDownloader.Models;
 using BiliDownloader.Models.ContentSources;
 using BiliDownloader.Services.Api;
 using BiliDownloader.Services.Auth;
 using BiliDownloader.Services.Download;
+using Flurl.Http;
 
 namespace BiliDownloader.Services.ContentSources;
 
@@ -13,6 +16,7 @@ namespace BiliDownloader.Services.ContentSources;
 /// </summary>
 public sealed class DirectLinkProvider : IContentSourceProvider, IContentSourceResolutionProvider
 {
+    internal const string PartParameter = "part";
     private const string VideoBvPrefix = "video:bv:";
     private const string VideoAvPrefix = "video:av:";
     private const string BangumiEpPrefix = "bangumi:ep:";
@@ -58,11 +62,14 @@ public sealed class DirectLinkProvider : IContentSourceProvider, IContentSourceR
         }
 
         var stableId = NormalizeStableId(resolved);
+        var part = stableId.StartsWith("video:", StringComparison.Ordinal) ? ReadPart(resolved) : null;
         return new ContentSourceDescriptor(
             Kind,
             stableId,
             ToDisplayName(stableId),
-            publicParameters: null,
+            publicParameters: part is int number
+                ? new Dictionary<string, string> { [PartParameter] = number.ToString(CultureInfo.InvariantCulture) }
+                : null,
             CapabilityVersion);
     }
 
@@ -115,6 +122,18 @@ public sealed class DirectLinkProvider : IContentSourceProvider, IContentSourceR
                 collection = await _api.GetBangumiCollectionAsync(id, isSeasonId, cookie, cancellationToken);
             }
 
+            if (GetPart(descriptor) is int part)
+            {
+                if (!collection.SourceParts.TryGetValue(part, out var video))
+                    throw new ContentSourceException(ContentSourceErrorCode.InvalidInput, $"此视频没有第 {part} P。请核对链接中的分 P。");
+                if (!collection.Items.Any(item => item.Aid == video.Aid && item.Cid == video.Cid))
+                    collection.Items.Insert(0, video);
+            }
+            else if (item.EpId is long epId && !collection.Items.Any(video => video.EpId == epId))
+            {
+                throw new ContentSourceException(ContentSourceErrorCode.InvalidInput, $"找不到链接指向的番剧分集 EP{epId}。");
+            }
+
             return ContentCollectionAdapter.Normalize(collection);
         }
         catch (OperationCanceledException)
@@ -129,11 +148,39 @@ public sealed class DirectLinkProvider : IContentSourceProvider, IContentSourceR
         {
             throw new ContentSourceException(ContentSourceErrorCode.LoginRequired, "此内容需要登录后才能访问。");
         }
+        catch (FlurlHttpException ex) when (ex.StatusCode == 412)
+        {
+            throw new ContentSourceException(ContentSourceErrorCode.RemoteFailure, "B 站暂时拒绝了此请求（HTTP 412），请稍后再试。");
+        }
         catch
         {
             // 不保留远端异常文本或 InnerException，避免签名 URL 经上层日志泄漏。
             throw new ContentSourceException(ContentSourceErrorCode.RemoteFailure, "获取内容信息失败，请稍后重试。");
         }
+    }
+
+    internal static int? GetPart(ContentSourceDescriptor descriptor)
+        => descriptor.PublicParameters.TryGetValue(PartParameter, out var part)
+            && int.TryParse(part, NumberStyles.None, CultureInfo.InvariantCulture, out var number) && number > 0
+            ? number
+            : null;
+
+    internal static string ToCanonicalInput(ContentSourceDescriptor descriptor)
+        => GetPart(descriptor) is int part
+            ? $"https://www.bilibili.com/video/{ToDisplayName(descriptor.StableSourceId)}/?p={part.ToString(CultureInfo.InvariantCulture)}"
+            : descriptor.DisplayName;
+
+    private static int? ReadPart(string input)
+    {
+        var queryStart = input.IndexOf('?');
+        var fragmentStart = input.IndexOf('#');
+        if (queryStart < 0 || (fragmentStart >= 0 && fragmentStart < queryStart)) return null;
+        var query = fragmentStart < 0 ? input[queryStart..] : input[queryStart..fragmentStart];
+        var values = HttpUtility.ParseQueryString(query).GetValues("p");
+        if (values is null) return null;
+        if (values.Length == 1 && int.TryParse(values[0], NumberStyles.None, CultureInfo.InvariantCulture, out var number) && number > 0)
+            return number;
+        throw new ContentSourceException(ContentSourceErrorCode.InvalidInput, "分 P 参数无效，请使用正整数，例如 p=2。");
     }
 
     private static string NormalizeStableId(string input)

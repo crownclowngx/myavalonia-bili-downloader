@@ -85,7 +85,7 @@ public sealed class DownloadWorkspaceViewModel : ObservableObject, IDisposable
     {
         _capabilityInspector?.Clear();
         VideoCollection = result.Collection;
-        VideoList.SetItems(result.VideoItems);
+        VideoList.SetItems(result.VideoItems, result.PreferredItemId);
         DownloadConfig.PopulateQualities(
             result.QualityOptions,
             result.SelectedQuality,
@@ -198,6 +198,11 @@ public sealed class DownloadWorkspaceViewModel : ObservableObject, IDisposable
     private void OnDownloadConfigPropertyChanged(object? sender, PropertyChangedEventArgs args)
     {
         OnPropertyChanged(nameof(DownloadSettingsSummary));
+        if (args.PropertyName is nameof(DownloadConfigViewModel.SelectedQuality)
+            or nameof(DownloadConfigViewModel.VideoCodecPreference)
+            or nameof(DownloadConfigViewModel.OutputMediaMode)
+            or nameof(DownloadConfigViewModel.OutputContainer))
+            ScheduleCapabilityRefresh();
         if (DownloadConfig.IsRestoredPresetUnavailable
             || !string.IsNullOrWhiteSpace(DownloadConfig.QualityRestoreNotice))
         {

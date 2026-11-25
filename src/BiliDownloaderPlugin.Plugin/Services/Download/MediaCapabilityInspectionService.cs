@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using BiliDownloader.Models;
 using BiliDownloader.Services.Api;
 using BiliDownloader.Services.Auth;
+using BiliDownloader.Services.ContentSources;
 
 namespace BiliDownloader.Services.Download;
 
@@ -9,7 +10,9 @@ namespace BiliDownloader.Services.Download;
 public sealed record BatchMediaCapabilitySnapshot(
     int ItemCount,
     IReadOnlyDictionary<MediaFeatureFlags, MediaCapabilityAvailability> Availability,
-    IReadOnlyDictionary<MediaFeatureFlags, int> AvailableCounts)
+    IReadOnlyDictionary<MediaFeatureFlags, int> AvailableCounts,
+    int? RequestedQualityId = null,
+    IReadOnlyList<BiliQualityOption>? VideoQualities = null)
 {
     public MediaCapabilityAvailability GetAvailability(MediaFeatureFlags feature)
         => Availability.TryGetValue(feature, out var value) ? value : MediaCapabilityAvailability.Unknown;
@@ -37,6 +40,7 @@ public sealed class MediaCapabilityInspectionService(
     IBiliMediaProbe mediaProbe,
     IBiliCredentialProvider credentials) : IMediaCapabilityInspectionService
 {
+    private static readonly VideoCodec[] StandardCodecs = [VideoCodec.Avc, VideoCodec.Hevc, VideoCodec.Av1];
     private static readonly MediaFeatureFlags[] Features =
     [
         MediaFeatureFlags.Hdr,
@@ -45,7 +49,7 @@ public sealed class MediaCapabilityInspectionService(
         MediaFeatureFlags.DolbyAtmos,
     ];
 
-    private readonly ConcurrentDictionary<ProbeKey, Lazy<Task<MediaCapabilitySnapshot>>> _cache = new();
+    private readonly ConcurrentDictionary<ProbeKey, Lazy<Task<ItemSnapshot>>> _cache = new();
     private readonly SemaphoreSlim _concurrency = new(4, 4);
 
     public async Task<BatchMediaCapabilitySnapshot> InspectAsync(
@@ -64,22 +68,39 @@ public sealed class MediaCapabilityInspectionService(
         var counts = new Dictionary<MediaFeatureFlags, int>();
         foreach (var feature in Features)
         {
-            var states = snapshots.Select(snapshot => snapshot.GetAvailability(feature)).ToArray();
+            var states = snapshots.Select(snapshot => snapshot.Capabilities.GetAvailability(feature)).ToArray();
             counts[feature] = states.Count(state => state == MediaCapabilityAvailability.Available);
             availability[feature] = Aggregate(states);
         }
-        return new(items.Count, availability, counts);
+        var qualities = snapshots.SelectMany(snapshot => snapshot.Qualities)
+            .GroupBy(option => option.QualityId)
+            .OrderByDescending(group => group.Key)
+            .Select(group => new BiliQualityOption
+            {
+                QualityId = group.Key,
+                DisplayName = group.First().DisplayName,
+                IsAvailable = group.Count(option => option.IsAvailable == true) == items.Count
+                    ? true
+                    : group.Key == qualityId ? false : null,
+                AvailableCodecs = group.Count() == items.Count
+                    ? StandardCodecs.Where(codec => group.All(option => option.AvailableCodecs?.Contains(codec) == true)).ToHashSet()
+                    : null,
+            })
+            .ToList();
+        if (qualityId is > 0 and not (125 or 126) && qualities.All(option => option.QualityId != qualityId))
+            qualities.Add(new BiliQualityOption { QualityId = qualityId, DisplayName = $"画质 {qualityId}", IsAvailable = false });
+        return new(items.Count, availability, counts, qualityId, qualities);
     }
 
     public void Clear() => _cache.Clear();
 
-    private async Task<MediaCapabilitySnapshot> GetSnapshotAsync(
+    private async Task<ItemSnapshot> GetSnapshotAsync(
         BiliVideoItem item,
         int qualityId,
         CancellationToken cancellationToken)
     {
         var key = new ProbeKey(item.Aid, item.Cid, item.MediaType, item.EpId, item.SeasonId, qualityId);
-        var lazy = _cache.GetOrAdd(key, _ => new Lazy<Task<MediaCapabilitySnapshot>>(
+        var lazy = _cache.GetOrAdd(key, _ => new Lazy<Task<ItemSnapshot>>(
             () => ProbeCoreAsync(item, qualityId, cancellationToken),
             LazyThreadSafetyMode.ExecutionAndPublication));
         try
@@ -89,12 +110,12 @@ public sealed class MediaCapabilityInspectionService(
         catch
         {
             // 失败或取消不能污染当前会话缓存，否则后续重新登录也只能得到同一个失败 Task。
-            _cache.TryRemove(new KeyValuePair<ProbeKey, Lazy<Task<MediaCapabilitySnapshot>>>(key, lazy));
+            _cache.TryRemove(new KeyValuePair<ProbeKey, Lazy<Task<ItemSnapshot>>>(key, lazy));
             throw;
         }
     }
 
-    private async Task<MediaCapabilitySnapshot> ProbeCoreAsync(
+    private async Task<ItemSnapshot> ProbeCoreAsync(
         BiliVideoItem item,
         int qualityId,
         CancellationToken cancellationToken)
@@ -105,7 +126,15 @@ public sealed class MediaCapabilityInspectionService(
             var dash = await mediaProbe.GetDashResultAsync(
                 item.Aid, item.Cid, qualityId, credentials.GetCookieHeader(),
                 item.MediaType, item.EpId, item.SeasonId, cancellationToken);
-            return dash.Capabilities;
+            return new ItemSnapshot(dash.Capabilities, VideoParseResultFactory.GetVideoQualityOptions(dash));
+        }
+        catch (MediaAuthorizationException)
+        {
+            return new ItemSnapshot(MediaCapabilitySnapshot.Unknown, []);
+        }
+        catch (ResourceUnavailableException)
+        {
+            return new ItemSnapshot(MediaCapabilitySnapshot.Unknown, []);
         }
         finally
         {
@@ -125,6 +154,8 @@ public sealed class MediaCapabilityInspectionService(
             return MediaCapabilityAvailability.RequiresLogin;
         return MediaCapabilityAvailability.Unknown;
     }
+
+    private sealed record ItemSnapshot(MediaCapabilitySnapshot Capabilities, IReadOnlyList<BiliQualityOption> Qualities);
 
     private readonly record struct ProbeKey(
         long Aid,

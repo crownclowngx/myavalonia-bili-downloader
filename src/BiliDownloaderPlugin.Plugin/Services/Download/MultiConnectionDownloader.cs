@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
 using BiliDownloader.Services.Infrastructure;
 
 namespace BiliDownloader.Services.Download;
@@ -10,6 +12,7 @@ namespace BiliDownloader.Services.Download;
 public sealed class MultiConnectionDownloader : IDisposable
 {
     private const int MaxRetries = 3;
+    private const int RangeBlockBytes = 8 * 1024 * 1024;
 
     private readonly int _chunkCount;
     private readonly HttpClient _client;
@@ -71,33 +74,111 @@ public sealed class MultiConnectionDownloader : IDisposable
         string cookie,
         string taskId,
         Action<long, long, string> onProgress,
-        CancellationToken ct)
+        CancellationToken ct,
+        Action? onNodeSwitch = null)
     {
         if (urls is null || urls.Count == 0)
-        {
             throw new ArgumentException("至少需要一个下载 URL", nameof(urls));
-        }
 
-        if (urls.Count == 1 || _chunkCount <= 1)
+        var preferRanges = urls.Count > 1 || File.Exists(outputPath) || File.Exists(outputPath + ".range-state");
+        Exception? lastFailure = null;
+        HttpRequestException? expiredAddress = null;
+        for (var index = 0; index < urls.Count; index++)
         {
-            return await DownloadSingleAsync(urls[0], outputPath, cookie, taskId, onProgress, ct);
+            if (index > 0) onNodeSwitch?.Invoke();
+            var url = urls[index];
+            if (!preferRanges)
+            {
+                try
+                {
+                    return await DownloadFullAsync(url, outputPath, cookie, taskId, onProgress, ct);
+                }
+                catch (Exception ex) when (IsRemoteFailure(ex, ct))
+                {
+                    lastFailure = ex;
+                    expiredAddress = IsExpiredAddress(ex) ? (HttpRequestException)ex : expiredAddress;
+                }
+            }
+
+            try
+            {
+                var source = await ProbeRangeSourceAsync(url, cookie, ct);
+                if (source is not null)
+                {
+                    try
+                    {
+                        return await DownloadRangesAsync(url, source, outputPath, cookie, taskId, onProgress, ct);
+                    }
+                    catch (RangesNotSupportedException)
+                    {
+                        // Some nodes return a full response even when the request contains Range.
+                    }
+                }
+
+                if (preferRanges)
+                    return await DownloadFullAsync(url, outputPath, cookie, taskId, onProgress, ct);
+            }
+            catch (Exception ex) when (IsRemoteFailure(ex, ct))
+            {
+                lastFailure = ex;
+                expiredAddress = IsExpiredAddress(ex) ? (HttpRequestException)ex : expiredAddress;
+            }
         }
 
-        var totalSize = await GetContentLengthAsync(urls[0], cookie, ct);
-        if (totalSize <= 0)
+        if (expiredAddress is not null)
+            throw new HttpRequestException("媒体下载地址被 CDN 拒绝。", expiredAddress, expiredAddress.StatusCode);
+        if (lastFailure is DownloadProtocolException protocol)
+            throw protocol;
+        throw new HttpRequestException("所有下载节点均不可用。", lastFailure);
+    }
+
+    internal static bool IsExpiredAddress(Exception exception) =>
+        exception is HttpRequestException
         {
-            return await DownloadSingleAsync(urls[0], outputPath, cookie, taskId, onProgress, ct);
-        }
+            StatusCode: HttpStatusCode.Forbidden or HttpStatusCode.NotFound or HttpStatusCode.Gone,
+        };
 
-        var chunkCount = Math.Min(
-            _chunkCount,
-            Math.Max(1, (int)Math.Ceiling((double)totalSize / (1024 * 1024))));
+    private static bool IsRemoteFailure(Exception exception, CancellationToken cancellationToken) =>
+        exception is HttpRequestException or HttpIOException or DownloadProtocolException
+        || exception is OperationCanceledException && !cancellationToken.IsCancellationRequested;
+
+    private async Task<DownloadTransferResult> DownloadRangesAsync(
+        string url,
+        RangeSource source,
+        string outputPath,
+        string cookie,
+        string taskId,
+        Action<long, long, string> onProgress,
+        CancellationToken ct)
+    {
+        var totalSize = source.TotalSize;
+        var chunkCount = (int)Math.Min(_chunkCount, (totalSize - 1) / (1024 * 1024) + 1);
         var chunkSize = totalSize / chunkCount;
+        var checkpointPath = outputPath + ".range-state";
+        var checkpoint = GetCheckpointId(url, source, chunkCount);
+        var previousCheckpoint = File.Exists(checkpointPath)
+            ? await File.ReadAllTextAsync(checkpointPath, ct)
+            : null;
+        if (checkpoint is not null && previousCheckpoint == "complete:" + checkpoint
+            && File.Exists(outputPath) && new FileInfo(outputPath).Length == totalSize)
+        {
+            onProgress(totalSize, totalSize, "");
+            return new DownloadTransferResult(totalSize, totalSize, IntegrityPassed: true);
+        }
+
+        // Legacy or unvalidated pieces cannot be safely appended to a newly selected representation.
+        if (checkpoint is null || previousCheckpoint != "partial:" + checkpoint)
+        {
+            File.Delete(checkpointPath);
+            DeleteChunks(outputPath);
+            if (checkpoint is not null)
+                await SaveCheckpointAsync(checkpointPath, "partial:" + checkpoint, ct);
+        }
+
         var downloadedTotal = 0L;
         var lastReportedBytes = 0L;
         var lastReportTime = _runtime.UtcNow;
         var progressLock = new object();
-
         void AddProgress(long delta)
         {
             var current = Interlocked.Add(ref downloadedTotal, delta);
@@ -105,129 +186,83 @@ public sealed class MultiConnectionDownloader : IDisposable
             {
                 var now = _runtime.UtcNow;
                 var elapsed = (now - lastReportTime).TotalSeconds;
-                if (elapsed < 0.5)
-                {
-                    return;
-                }
-
-                var bytesPerSecond = (current - lastReportedBytes) / elapsed;
+                if (elapsed < 0.5) return;
+                var speed = (current - lastReportedBytes) / elapsed;
                 lastReportedBytes = current;
                 lastReportTime = now;
-                onProgress(totalSize, current, FormatSpeed((long)bytesPerSecond));
+                onProgress(totalSize, current, FormatSpeed((long)speed));
             }
         }
 
         var tasks = new List<Task>(chunkCount);
-        for (var chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++)
+        for (var index = 0; index < chunkCount; index++)
         {
-            var start = chunkIndex * chunkSize;
-            var end = chunkIndex == chunkCount - 1
-                ? totalSize - 1
-                : (chunkIndex + 1) * chunkSize - 1;
-            var chunkPath = $"{outputPath}.chunk{chunkIndex}";
-            var expectedChunkLength = end - start + 1;
-
-            if (File.Exists(chunkPath))
+            var start = index * chunkSize;
+            var end = index == chunkCount - 1 ? totalSize - 1 : (index + 1) * chunkSize - 1;
+            var chunkPath = $"{outputPath}.chunk{index}";
+            var length = File.Exists(chunkPath) ? new FileInfo(chunkPath).Length : 0;
+            if (length > end - start + 1)
             {
-                var existingLength = new FileInfo(chunkPath).Length;
-                if (existingLength > expectedChunkLength)
-                {
-                    File.Delete(chunkPath);
-                }
-                else
-                {
-                    Interlocked.Add(ref downloadedTotal, existingLength);
-                }
+                File.Delete(chunkPath);
+                length = 0;
             }
 
-            tasks.Add(DownloadChunkAsync(
-                urls,
-                chunkIndex,
-                chunkPath,
-                cookie,
-                start,
-                end,
-                totalSize,
-                taskId,
-                AddProgress,
-                ct));
+            Interlocked.Add(ref downloadedTotal, length);
+            tasks.Add(DownloadChunkAsync(url, source, chunkPath, cookie, start, end, length, taskId, AddProgress, ct));
         }
 
         lastReportedBytes = Interlocked.Read(ref downloadedTotal);
         try
         {
             await Task.WhenAll(tasks);
-            await MergeChunksAsync(outputPath, chunkCount, totalSize, ct);
         }
-        catch
+        catch when (tasks.Any(task => task.Exception?.InnerException is RangesNotSupportedException))
         {
-            DeleteIfExists(outputPath + ".merging");
-            throw;
+            ct.ThrowIfCancellationRequested();
+            throw new RangesNotSupportedException();
         }
 
-        for (var i = 0; i < chunkCount; i++)
-        {
-            DeleteIfExists($"{outputPath}.chunk{i}");
-        }
-
+        await MergeChunksAsync(outputPath, chunkCount, totalSize, ct);
+        if (checkpoint is not null)
+            await SaveCheckpointAsync(checkpointPath, "complete:" + checkpoint, ct);
+        DeleteChunks(outputPath);
         onProgress(totalSize, totalSize, "");
         return new DownloadTransferResult(totalSize, totalSize, IntegrityPassed: true);
     }
 
     private async Task DownloadChunkAsync(
-        List<string> urls,
-        int chunkIndex,
+        string url,
+        RangeSource source,
         string chunkPath,
         string cookie,
-        long rangeStart,
-        long rangeEnd,
-        long expectedTotalLength,
+        long start,
+        long end,
+        long length,
         string taskId,
         Action<long> onBytesDelta,
         CancellationToken ct)
     {
-        Exception? lastException = null;
-        for (var attempt = 0; attempt < MaxRetries; attempt++)
+        while (length < end - start + 1)
         {
-            var url = urls[(chunkIndex + attempt) % urls.Count];
-            try
+            var blockEnd = Math.Min(end, start + length + RangeBlockBytes - 1);
+            for (var attempt = 1; ; attempt++)
             {
-                await DownloadChunkOnceAsync(
-                    url,
-                    chunkPath,
-                    cookie,
-                    rangeStart,
-                    rangeEnd,
-                    expectedTotalLength,
-                    taskId,
-                    onBytesDelta,
-                    ct);
-                return;
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                lastException = ex;
-                if (attempt < MaxRetries - 1)
+                try
                 {
-                    await _runtime.DelayForRetryAsync(attempt, ct);
+                    await DownloadChunkOnceAsync(url, chunkPath, cookie, start, blockEnd,
+                        source, taskId, onBytesDelta, ct);
+                    break;
+                }
+                catch (Exception ex) when (attempt < MaxRetries && IsRemoteFailure(ex, ct)
+                    && !IsExpiredAddress(ex)
+                    && ex is not HttpRequestException
+                        { StatusCode: HttpStatusCode.PreconditionFailed or HttpStatusCode.RequestedRangeNotSatisfiable })
+                {
+                    await _runtime.DelayForRetryAsync(attempt - 1, ct);
                 }
             }
+            length = blockEnd - start + 1;
         }
-
-        if (lastException is DownloadProtocolException protocolException)
-        {
-            throw new DownloadProtocolException(
-                $"Chunk {chunkIndex} 协议验证失败（已重试 {MaxRetries} 次）: {protocolException.Message}",
-                protocolException);
-        }
-
-        throw new IOException(
-            $"Chunk {chunkIndex} 下载失败（已重试 {MaxRetries} 次）: {lastException?.Message}",
-            lastException);
     }
 
     private async Task DownloadChunkOnceAsync(
@@ -236,7 +271,7 @@ public sealed class MultiConnectionDownloader : IDisposable
         string cookie,
         long rangeStart,
         long rangeEnd,
-        long expectedTotalLength,
+        RangeSource source,
         string taskId,
         Action<long> onBytesDelta,
         CancellationToken ct)
@@ -257,6 +292,7 @@ public sealed class MultiConnectionDownloader : IDisposable
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
         AddCookie(request, cookie);
         request.Headers.Range = new RangeHeaderValue(actualStart, rangeEnd);
+        if (source.ETag is not null) request.Headers.IfMatch.Add(source.ETag);
 
         long writtenThisAttempt = 0;
         var rangeValidated = false;
@@ -266,18 +302,20 @@ public sealed class MultiConnectionDownloader : IDisposable
                 request,
                 HttpCompletionOption.ResponseHeadersRead,
                 ct);
+            if (response.StatusCode == HttpStatusCode.OK)
+                throw new RangesNotSupportedException();
+            response.EnsureSuccessStatusCode();
             if (response.StatusCode != HttpStatusCode.PartialContent)
-            {
-                throw new DownloadProtocolException(
-                    $"CDN 返回 {(int)response.StatusCode} 而非 206 Partial Content");
-            }
+                throw new DownloadProtocolException($"CDN 返回 {(int)response.StatusCode} 而非 206 Partial Content");
+            if (source.ETag is not null && response.Headers.ETag is { } received && !source.ETag.Equals(received))
+                throw new DownloadProtocolException("CDN 返回的媒体版本已变化。");
 
             var expectedResponseLength = rangeEnd - actualStart + 1;
             ValidateContentRange(
                 response.Content.Headers.ContentRange,
                 actualStart,
                 rangeEnd,
-                expectedTotalLength);
+                source.TotalSize);
             ValidateDeclaredContentLength(
                 response.Content.Headers.ContentLength,
                 expectedResponseLength);
@@ -320,6 +358,9 @@ public sealed class MultiConnectionDownloader : IDisposable
                 throw new DownloadProtocolException(
                     $"Range 响应体长度错误，期望 {expectedResponseLength}，实际 {writtenThisAttempt}");
             }
+            if (response.Content.Headers.ContentLength is null
+                && await ReadLimitedAsync(stream, buffer.AsMemory(0, 1), taskId, ct) != 0)
+                throw new DownloadProtocolException("Range 响应体超过声明区间。");
         }
         catch (Exception ex)
         {
@@ -328,9 +369,7 @@ public sealed class MultiConnectionDownloader : IDisposable
             {
                 onBytesDelta(-writtenThisAttempt);
             }
-            if (rangeValidated
-                && ex is IOException
-                && ex is not DownloadProtocolException)
+            if (rangeValidated && ex is HttpIOException)
             {
                 throw new DownloadProtocolException(
                     $"Range 响应在达到预期长度前中断，已读取 {writtenThisAttempt} 字节",
@@ -340,30 +379,38 @@ public sealed class MultiConnectionDownloader : IDisposable
         }
     }
 
-    private async Task<long> GetContentLengthAsync(
-        string url,
-        string cookie,
-        CancellationToken ct)
+    private async Task<RangeSource?> ProbeRangeSourceAsync(string url, string cookie, CancellationToken ct)
     {
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Head, url);
-            AddCookie(request, cookie);
-            using var response = await _client.SendAsync(request, ct);
-            response.EnsureSuccessStatusCode();
-            return response.Content.Headers.ContentLength ?? -1;
+            using var head = new HttpRequestMessage(HttpMethod.Head, url);
+            AddCookie(head, cookie);
+            using var response = await _client.SendAsync(head, HttpCompletionOption.ResponseHeadersRead, ct);
+            if (response.IsSuccessStatusCode && response.Content.Headers.ContentLength is > 0 and var length)
+                return new RangeSource(length, ReadStrongETag(response));
         }
-        catch (OperationCanceledException)
+        catch (Exception ex) when (IsRemoteFailure(ex, ct))
         {
-            throw;
+            // HEAD is optional; a bounded GET is authoritative for media range downloads.
         }
-        catch
-        {
-            return -1;
-        }
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        AddCookie(request, cookie);
+        request.Headers.Range = new RangeHeaderValue(0, 0);
+        using var probe = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
+        if (probe.StatusCode == HttpStatusCode.OK) return null;
+        probe.EnsureSuccessStatusCode();
+        if (probe.StatusCode != HttpStatusCode.PartialContent ||
+            probe.Content.Headers.ContentRange?.Length is not > 0)
+            throw new DownloadProtocolException("CDN 无法确认媒体总长度。");
+
+        var total = probe.Content.Headers.ContentRange.Length.Value;
+        ValidateContentRange(probe.Content.Headers.ContentRange, 0, 0, total);
+        ValidateDeclaredContentLength(probe.Content.Headers.ContentLength, 1);
+        return new RangeSource(total, ReadStrongETag(probe));
     }
 
-    private async Task<DownloadTransferResult> DownloadSingleAsync(
+    private async Task<DownloadTransferResult> DownloadFullAsync(
         string url,
         string outputPath,
         string cookie,
@@ -371,138 +418,115 @@ public sealed class MultiConnectionDownloader : IDisposable
         Action<long, long, string> onProgress,
         CancellationToken ct)
     {
-        var existingBytes = File.Exists(outputPath) ? new FileInfo(outputPath).Length : 0;
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
         AddCookie(request, cookie);
-        if (existingBytes > 0)
-        {
-            request.Headers.Range = new RangeHeaderValue(existingBytes, null);
-        }
-
-        using var response = await _client.SendAsync(
-            request,
-            HttpCompletionOption.ResponseHeadersRead,
-            ct);
+        using var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
         response.EnsureSuccessStatusCode();
-
-        var append = existingBytes > 0 && response.StatusCode == HttpStatusCode.PartialContent;
-        long expectedTotal;
-        long expectedResponseLength;
-        if (append)
+        var expected = response.Content.Headers.ContentLength ?? 0;
+        if (response.StatusCode == HttpStatusCode.PartialContent)
         {
-            var contentRange = response.Content.Headers.ContentRange;
-            if (contentRange?.Length is not long totalLength)
-            {
-                throw new DownloadProtocolException("续传响应缺少 Content-Range 总长度");
-            }
-            if (contentRange.To is not long responseEnd)
-            {
-                throw new DownloadProtocolException("续传响应缺少 Content-Range 终点");
-            }
-
-            ValidateContentRange(contentRange, existingBytes, totalLength - 1, totalLength);
-            expectedTotal = totalLength;
-            expectedResponseLength = responseEnd - existingBytes + 1;
-            ValidateDeclaredContentLength(
-                response.Content.Headers.ContentLength,
-                expectedResponseLength);
+            var total = response.Content.Headers.ContentRange?.Length;
+            if (total is not > 0)
+                throw new DownloadProtocolException("206 响应缺少媒体总长度。");
+            ValidateContentRange(response.Content.Headers.ContentRange, 0, total.Value - 1, total.Value);
+            ValidateDeclaredContentLength(response.Content.Headers.ContentLength, total.Value);
+            expected = total.Value;
         }
-        else if (response.StatusCode == HttpStatusCode.PartialContent)
+        else if (response.StatusCode != HttpStatusCode.OK)
         {
-            var contentRange = response.Content.Headers.ContentRange;
-            if (contentRange?.Length is not long totalLength)
-            {
-                throw new DownloadProtocolException("206 响应缺少 Content-Range 总长度");
-            }
-            ValidateContentRange(contentRange, 0, totalLength - 1, totalLength);
-            expectedTotal = totalLength;
-            expectedResponseLength = totalLength;
-            ValidateDeclaredContentLength(
-                response.Content.Headers.ContentLength,
-                expectedResponseLength);
-        }
-        else
-        {
-            // 服务器忽略 Range 返回 200 时明确从头覆盖。
-            existingBytes = 0;
-            expectedResponseLength = response.Content.Headers.ContentLength ?? 0;
-            expectedTotal = expectedResponseLength;
+            throw new DownloadProtocolException($"CDN 返回意外的媒体响应 {(int)response.StatusCode}。");
         }
 
-        var initialLength = append ? existingBytes : 0;
-        long writtenThisAttempt = 0;
-        var lastBytes = existingBytes;
-        var lastTime = _runtime.UtcNow;
+        var stagingPath = outputPath + ".merging";
+        var totalWritten = 0L;
+        var lastReportedBytes = 0L;
+        var lastReportedAt = _runtime.UtcNow;
         try
         {
-            await using var stream = await response.Content.ReadAsStreamAsync(ct);
-            await using var fileStream = new FileStream(
-                outputPath,
-                append ? FileMode.Append : FileMode.Create,
-                FileAccess.Write,
-                FileShare.None,
-                8192,
-                useAsync: true);
-            var buffer = new byte[8192];
-            while (true)
+            await using (var input = await response.Content.ReadAsStreamAsync(ct))
+            await using (var output = new FileStream(
+                stagingPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
             {
-                var remaining = expectedResponseLength > 0
-                    ? expectedResponseLength - writtenThisAttempt
-                    : buffer.Length;
-                if (remaining == 0) break;
-                var plannedRead = (int)Math.Min(buffer.Length, remaining);
-                await _bandwidthLimiter.AcquireAsync(plannedRead, taskId, ct);
-                var bytesRead = await stream.ReadAsync(buffer.AsMemory(0, plannedRead), ct);
-                if (bytesRead == 0)
+                var buffer = new byte[8192];
+                int read;
+                while ((read = await ReadLimitedAsync(input, buffer, taskId, ct)) > 0)
                 {
-                    break;
+                    totalWritten += read;
+                    if (expected > 0 && totalWritten > expected)
+                        throw new DownloadProtocolException("完整媒体响应超过声明长度。");
+                    await output.WriteAsync(buffer.AsMemory(0, read), ct);
+                    var now = _runtime.UtcNow;
+                    var elapsed = (now - lastReportedAt).TotalSeconds;
+                    if (elapsed >= 0.5)
+                    {
+                        onProgress(expected > 0 ? expected : -1, totalWritten,
+                            FormatSpeed((long)((totalWritten - lastReportedBytes) / elapsed)));
+                        lastReportedBytes = totalWritten;
+                        lastReportedAt = now;
+                    }
                 }
-                if (expectedResponseLength > 0
-                    && writtenThisAttempt + bytesRead > expectedResponseLength)
-                {
-                    throw new DownloadProtocolException(
-                        $"响应体超过声明长度 {expectedResponseLength}");
-                }
-
-                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead), ct);
-                writtenThisAttempt += bytesRead;
-                var downloaded = existingBytes + writtenThisAttempt;
-                var now = _runtime.UtcNow;
-                var elapsed = (now - lastTime).TotalSeconds;
-                var speed = "";
-                if (elapsed >= 0.5)
-                {
-                    speed = FormatSpeed((long)((downloaded - lastBytes) / elapsed));
-                    lastBytes = downloaded;
-                    lastTime = now;
-                }
-                onProgress(expectedTotal > 0 ? expectedTotal : -1, downloaded, speed);
             }
 
-            if (expectedResponseLength > 0 && writtenThisAttempt != expectedResponseLength)
-            {
-                throw new DownloadProtocolException(
-                    $"响应体长度错误，期望 {expectedResponseLength}，实际 {writtenThisAttempt}");
-            }
+            if (totalWritten == 0 || (expected > 0 && totalWritten != expected))
+                throw new DownloadProtocolException($"完整媒体响应长度错误，期望 {expected}，实际 {totalWritten}。");
+            File.Delete(outputPath + ".range-state");
+            File.Move(stagingPath, outputPath, overwrite: true);
+            DeleteChunks(outputPath);
         }
-        catch
+        finally
         {
-            RollbackFile(outputPath, initialLength);
-            throw;
+            DeleteIfExists(stagingPath);
         }
 
-        var actualBytes = existingBytes + writtenThisAttempt;
-        var integrityPassed = expectedTotal > 0 && actualBytes == expectedTotal;
-        if (expectedTotal > 0 && !integrityPassed)
-        {
-            RollbackFile(outputPath, initialLength);
-            throw new DownloadProtocolException(
-                $"最终文件长度错误，期望 {expectedTotal}，实际 {actualBytes}");
-        }
-
-        onProgress(expectedTotal > 0 ? expectedTotal : -1, actualBytes, "");
-        return new DownloadTransferResult(expectedTotal, actualBytes, integrityPassed);
+        onProgress(expected > 0 ? expected : -1, totalWritten, "");
+        return new DownloadTransferResult(expected, totalWritten, IntegrityPassed: expected > 0);
     }
+
+    private async ValueTask<int> ReadLimitedAsync(Stream input, Memory<byte> buffer, string taskId, CancellationToken ct)
+    {
+        await _bandwidthLimiter.AcquireAsync(buffer.Length, taskId, ct);
+        return await input.ReadAsync(buffer, ct);
+    }
+
+    private static EntityTagHeaderValue? ReadStrongETag(HttpResponseMessage response)
+        => response.Headers.ETag is { IsWeak: false } etag ? etag : null;
+
+    private static string? GetCheckpointId(string url, RangeSource source, int chunkCount)
+    {
+        if (source.ETag is null) return null;
+        var resource = new Uri(url).GetLeftPart(UriPartial.Path);
+        var bytes = Encoding.UTF8.GetBytes(FormattableString.Invariant(
+            $"{resource}|{source.ETag}|{source.TotalSize}|{chunkCount}"));
+        return Convert.ToHexString(SHA256.HashData(bytes));
+    }
+
+    private static async Task SaveCheckpointAsync(string path, string value, CancellationToken ct)
+    {
+        var stagingPath = path + ".tmp";
+        try
+        {
+            await File.WriteAllTextAsync(stagingPath, value, ct);
+            File.Move(stagingPath, path, overwrite: true);
+        }
+        finally
+        {
+            DeleteIfExists(stagingPath);
+        }
+    }
+
+    private static void DeleteChunks(string outputPath)
+    {
+        var path = Path.GetFullPath(outputPath);
+        var prefix = Path.GetFileName(path) + ".chunk";
+        foreach (var chunk in Directory.EnumerateFiles(Path.GetDirectoryName(path)!, prefix + "*"))
+        {
+            if (int.TryParse(Path.GetFileName(chunk).AsSpan(prefix.Length), out _))
+                File.Delete(chunk);
+        }
+    }
+
+    private sealed record RangeSource(long TotalSize, EntityTagHeaderValue? ETag);
+    private sealed class RangesNotSupportedException : Exception;
 
     private static async Task MergeChunksAsync(
         string outputPath,
@@ -612,7 +636,7 @@ public sealed class MultiConnectionDownloader : IDisposable
     {
         if (length == 0)
         {
-            DeleteIfExists(path);
+            File.Delete(path);
             return;
         }
         if (!File.Exists(path))

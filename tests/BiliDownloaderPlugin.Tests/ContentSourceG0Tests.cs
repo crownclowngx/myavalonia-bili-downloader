@@ -4,9 +4,11 @@ using BiliDownloader.Plugin;
 using BiliDownloader.Services.Api;
 using BiliDownloader.Services.Auth;
 using BiliDownloader.Services.ContentSources;
+using BiliDownloader.Services.Persistence;
 using MyAvaloniaManagement.PluginSdk;
 using BiliDownloader.ViewModels.BiliDownloader;
 using Microsoft.Extensions.DependencyInjection;
+using Flurl.Http.Testing;
 using System.Text.Json;
 
 namespace BiliDownloader.Tests;
@@ -362,6 +364,7 @@ public sealed class DirectLinkProviderTests
 
         Assert.Equal("https://b23.tv/secret", api.LastShortLink);
         Assert.Equal("video:bv:1abcDEF123", descriptor.StableSourceId);
+        Assert.Equal(1, DirectLinkProvider.GetPart(descriptor));
         Assert.DoesNotContain("b23.tv", json, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("token", json, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("SESSDATA", json, StringComparison.OrdinalIgnoreCase);
@@ -414,10 +417,11 @@ public sealed class DirectLinkProviderTests
     [Theory]
     [InlineData("ep12", "ep12", false)]
     [InlineData("ss34", "ss34", true)]
-    [InlineData("md56", "md56", false)]
+    [InlineData("https://www.bilibili.com/bangumi/media/md56/", "md56", false)]
     public async Task 番剧来源统一路由到目录Api(string input, string apiId, bool isSeasonId)
     {
         var provider = CreateProvider(out var api);
+        api.BangumiCollection.Items[0].EpId = 12;
         var descriptor = await provider.NormalizeAsync(input, CancellationToken.None);
         var page = await provider.GetPageAsync(descriptor, new ContentPageRequest(), CancellationToken.None);
 
@@ -588,6 +592,23 @@ public sealed class ContentSourceViewModelAndDiTests
     }
 
     [Fact]
+    public async Task B站拒绝匿名元数据请求时展示明确提示()
+    {
+        using var http = new HttpTest();
+        http.ForCallsTo("https://api.bilibili.com/x/web-interface/view*")
+            .RespondWith("预检失败", 412);
+        using var vm = new VideoParseViewModel(new BiliApiService(), new StubCredentials(""), null, () => false)
+        {
+            Url = "https://www.bilibili.com/video/BV1NVWxeeEVJ/?p=2",
+        };
+
+        await vm.ParseCommand.ExecuteAsync(null);
+
+        Assert.Contains("HTTP 412", vm.DownloadInfo, StringComparison.Ordinal);
+        Assert.False(vm.IsParsed);
+    }
+
+    [Fact]
     public async Task 解析ViewModel隐藏未知异常文本()
     {
         var source = new ThrowingNormalizeProvider(
@@ -627,6 +648,47 @@ public sealed class ContentSourceViewModelAndDiTests
 
         Assert.Equal("解析异常，请稍后重试", vm.DownloadInfo);
         Assert.Equal(1, source.NormalizeCount);
+    }
+
+    [Fact]
+    public async Task 直接链接定位P2且只推荐实际下发的画质并保存分集()
+    {
+        var p1 = new BiliVideoItem { Aid = 1, Cid = 11, Title = "P1" };
+        var p2 = new BiliVideoItem { Aid = 1, Cid = 12, Title = "P2" };
+        var api = new StubContentSourceApi
+        {
+            VideoCollection = new BiliVideoCollection { Items = [p1, p2] },
+        };
+        api.VideoCollection.SourceParts.Add(1, p1);
+        api.VideoCollection.SourceParts.Add(2, p2);
+        var creds = new StubCredentials("");
+        var probe = new StubMediaProbe
+        {
+            VideoStreams = [new BiliDashStream { Id = 32, Codecid = 7, BaseUrl = "https://cdn.test/video" }],
+        };
+        VideoParseResult? result = null;
+        using var vm = new VideoParseViewModel(
+            new ContentSourceProviderRegistry([new DirectLinkProvider(api, creds)]), probe, creds,
+            parsed => result = parsed, () => false)
+        {
+            Url = "https://www.bilibili.com/video/BV1NVWxeeEVJ/?p=2&token=secret",
+        };
+
+        await vm.ParseCommand.ExecuteAsync(null);
+
+        Assert.NotNull(result);
+        Assert.Equal(12, probe.LastCid);
+        Assert.Equal(p2.ItemId, result.PreferredItemId);
+        Assert.Equal(32, result.SelectedQuality?.QualityId);
+        Assert.Null(result.QualityOptions.Single(option => option.QualityId == 80).IsAvailable);
+        Assert.True(result.QualityOptions.Single(option => option.QualityId == 32).IsAvailable);
+        Assert.EndsWith("/?p=2", vm.Url);
+        var saved = ContentSourceSaveDataMapper.FromRuntime(vm.CurrentSourceDescriptor!);
+        Assert.Equal(2, saved.VideoPart);
+        Assert.True(ContentSourceSaveDataMapper.TryToRuntime(saved, out var restored));
+        vm.RestoreSource(restored!, legacyUrl: "BV1NVWxeeEVJ");
+        Assert.EndsWith("/?p=2", vm.Url);
+        Assert.Equal(2, result.VideoItems.Count);
     }
 
     [Fact]
@@ -780,6 +842,8 @@ internal sealed class StubCredentials(string cookie) : IBiliCredentialProvider
 internal sealed class StubMediaProbe : IBiliMediaProbe
 {
     public List<BiliDashStream> AudioStreams { get; init; } = [];
+    public List<BiliDashStream> VideoStreams { get; init; } = [];
+    public long LastCid { get; private set; }
 
     public Task<BiliDashResult> GetDashResultAsync(
         long aid,
@@ -792,9 +856,11 @@ internal sealed class StubMediaProbe : IBiliMediaProbe
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        LastCid = cid;
         return Task.FromResult(new BiliDashResult
         {
             AcceptQualities = [new BiliQualityOption { QualityId = 80, DisplayName = "1080P" }],
+            VideoStreams = VideoStreams,
             AudioStreams = AudioStreams,
         });
     }

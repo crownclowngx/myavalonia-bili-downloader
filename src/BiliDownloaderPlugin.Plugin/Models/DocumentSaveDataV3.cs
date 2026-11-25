@@ -17,6 +17,7 @@ public sealed class SourceDescriptorSaveData
     public string DisplayName { get; set; } = string.Empty;
     public int CapabilityVersion { get; set; } = 1;
     public bool AutoOpen { get; set; }
+    public int? VideoPart { get; set; }
 }
 
 /// <summary>筛选规则的持久化 DTO，与可变 UI 控件和 Provider 查询计划解耦。</summary>

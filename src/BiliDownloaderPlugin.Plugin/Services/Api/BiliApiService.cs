@@ -86,14 +86,14 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
         if (MdRegex().IsMatch(input))
             return (input, false); // media_id，后续需转换
 
-        // 从 URL 中提取：bilibili.com/bangumi/play/ep12345 或 ss12345
+        // 播放页使用 ep/ss，详情页使用 md。
         var urlMatch = BangumiUrlRegex().Match(input);
         if (urlMatch.Success)
         {
-            var id = urlMatch.Groups[1].Value;
+            var id = urlMatch.Groups[1].Success ? urlMatch.Groups[1].Value : urlMatch.Groups[2].Value;
             if (id.StartsWith("ss", StringComparison.OrdinalIgnoreCase))
                 return (id, true);
-            return (id, false); // ep
+            return (id, false); // ep 或 md
         }
 
         return null;
@@ -158,7 +158,7 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
         {
             foreach (var page in pages.OfType<JsonNode>())
             {
-                collection.Items.Add(new BiliVideoItem
+                var part = new BiliVideoItem
                 {
                     Title = pages.Count > 1
                         ? (page["part"]?.Value<string>() ?? title)
@@ -167,7 +167,11 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
                     Bvid = bvid,
                     Cid = page["cid"]?.Value<long>() ?? 0,
                     Duration = page["duration"]?.Value<int>() ?? 0,
-                });
+                };
+                collection.Items.Add(part);
+                var partNumber = page["page"]?.Value<int>() ?? collection.Items.Count;
+                if (partNumber > 0 && part.Cid > 0)
+                    collection.SourceParts.TryAdd(partNumber, part);
             }
         }
         else
@@ -181,6 +185,8 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
                 Cid = data["cid"]?.Value<long>() ?? 0,
                 Duration = data["duration"]?.Value<int>() ?? 0,
             });
+            if (collection.Items[0].Cid > 0)
+                collection.SourceParts.Add(1, collection.Items[0]);
         }
 
         // 如果有 ugc_season（合集），解析合集下的所有视频
@@ -292,7 +298,7 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
                     Cid = ep["cid"]?.Value<long>() ?? 0,
                     Duration = (int)((ep["duration"]?.Value<long>() ?? 0) / 1000), // 番剧 duration 为毫秒
                     MediaType = BiliMediaType.Bangumi,
-                    EpId = ep["ep_id"]?.Value<long>() ?? 0,
+                    EpId = ep["ep_id"]?.Value<long>() ?? ep["id"]?.Value<long>() ?? 0,
                     SeasonId = seasonId2,
                 });
             }
@@ -316,7 +322,7 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
                         Cid = ep["cid"]?.Value<long>() ?? 0,
                         Duration = (int)((ep["duration"]?.Value<long>() ?? 0) / 1000),
                         MediaType = BiliMediaType.Bangumi,
-                        EpId = ep["ep_id"]?.Value<long>() ?? 0,
+                        EpId = ep["ep_id"]?.Value<long>() ?? ep["id"]?.Value<long>() ?? 0,
                         SeasonId = seasonId2,
                     });
                 }
@@ -561,6 +567,8 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
         var data = resp["data"] ?? resp["result"]?["video_info"];
         if (data == null)
             throw new ResourceUnavailableException("播放数据缺失或已失效。");
+        if (ReadBoolean(data, "is_preview") || (resp["result"] is JsonObject resultData && ReadBoolean(resultData, "is_preview")))
+            throw new MediaAuthorizationException("当前账号只能获取试看片段，请确认该内容的播放权限。");
 
         var result = new BiliDashResult();
 
@@ -957,7 +965,7 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
     [GeneratedRegex(@"^md\d+$", RegexOptions.IgnoreCase)]
     private static partial Regex MdRegex();
 
-    [GeneratedRegex(@"bilibili\.com/bangumi/play/(ep\d+|ss\d+)", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"bilibili\.com/bangumi/(?:play/(ep\d+|ss\d+)|media/(md\d+))", RegexOptions.IgnoreCase)]
     private static partial Regex BangumiUrlRegex();
 
     #endregion

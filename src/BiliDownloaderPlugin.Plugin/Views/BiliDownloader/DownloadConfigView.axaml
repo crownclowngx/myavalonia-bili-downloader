@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:BiliDownloader.ViewModels.BiliDownloader"
+             xmlns:models="using:BiliDownloader.Models"
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="260"
              x:Class="BiliDownloader.Views.BiliDownloader.DownloadConfigView"
              x:DataType="vm:DownloadConfigViewModel">
@@ -57,7 +58,13 @@
                               Classes="bili-doc-input"
                               IsEnabled="{Binding IsVideoOutputEnabled}"
                               ItemsSource="{Binding QualityOptions}"
-                              SelectedItem="{Binding SelectedQuality}" />
+                              SelectedItem="{Binding SelectedQuality}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:BiliQualityOption">
+                                <TextBlock Text="{Binding AvailabilityDisplayName}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
                 <Grid Grid.Column="1" ColumnDefinitions="Auto,*" ColumnSpacing="7">
                     <TextBlock Text="音频质量" Classes="bili-doc-caption" VerticalAlignment="Center" />

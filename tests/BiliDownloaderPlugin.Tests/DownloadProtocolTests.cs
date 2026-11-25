@@ -11,7 +11,7 @@ namespace BiliDownloader.Tests;
 public sealed class DownloadProtocolTests
 {
     [Fact]
-    public void Cdn排序优先Mirror并补充Upos且去重()
+    public void Cdn保留原始地址优先级并去重()
     {
         var mirror = "https://upos-sz-mirrorali.bilivideo.com/file?os=uposbv";
         var upos = "https://upos.example.test/file?os=upos";
@@ -20,19 +20,17 @@ public sealed class DownloadProtocolTests
             upos,
             [mirror, upos, ""]);
 
-        Assert.Equal([mirror, upos], result);
+        Assert.Equal([upos, mirror], result);
     }
 
     [Fact]
-    public void 无Mirror时会改写Upos域名并保留原地址()
+    public void 原始地址缺少备用节点时保持签名地址原样()
     {
         const string source = "https://upos.example.test/path/video.m4s?os=upos&x=1";
 
         var result = CdnUrlHelper.FilterAndSortUrls(source, []);
 
-        Assert.Equal(2, result.Count);
-        Assert.Contains(result, x => x.Contains("upos-sz-mirrorali.bilivideo.com", StringComparison.Ordinal));
-        Assert.Contains(source, result);
+        Assert.Equal([source], result);
     }
 
     [Fact]
@@ -43,25 +41,20 @@ public sealed class DownloadProtocolTests
         var result = CdnUrlHelper.FilterAndSortUrls(
             bcache,
             ["not a valid url", "https://other.example.test/file"]);
-        Assert.Contains(result, x => x.Contains("mirror", StringComparison.Ordinal));
-        Assert.Contains(bcache, result);
+        Assert.Equal([bcache, "https://other.example.test/file"], result);
     }
 
     [Fact]
-    public async Task 流下载支持206续传并报告完整总长度()
+    public async Task 旧流断点无验证信息时重新请求有界区间并报告总长度()
     {
         var allBytes = Encoding.UTF8.GetBytes("0123456789");
         await using var server = LoopbackHttpServer.Create(request =>
         {
-            Assert.Equal("bytes=4-", request.Header("Range"));
             Assert.Equal("SESSDATA=test", request.Header("Cookie"));
-            return LoopbackResponse.Bytes(
-                allBytes[4..],
-                206,
-                new Dictionary<string, string>
-                {
-                    ["Content-Range"] = "bytes 4-9/10",
-                });
+            if (request.Method == "HEAD")
+                return LoopbackResponse.Bytes([], headers: new Dictionary<string, string>() { ["Content-Length"] = "10" });
+            Assert.Equal("bytes=0-9", request.Header("Range"));
+            return LoopbackResponse.Bytes(allBytes, 206, new Dictionary<string, string>() { ["Content-Range"] = "bytes 0-9/10" });
         });
         using var paths = new TestDataPaths();
         var output = Path.Combine(paths.RootDirectory, "stream.bin");
@@ -106,24 +99,21 @@ public sealed class DownloadProtocolTests
     }
 
     [Fact]
-    public async Task 单连接下载器可从断点继续()
+    public async Task 单节点拒绝普通请求时有界探测并下载()
     {
         var allBytes = Encoding.UTF8.GetBytes("abcdefghij");
         await using var server = LoopbackHttpServer.Create(request =>
         {
-            Assert.Equal("bytes=3-", request.Header("Range"));
-            return LoopbackResponse.Bytes(
-                allBytes[3..],
-                206,
-                new Dictionary<string, string>
-                {
-                    ["Content-Range"] = "bytes 3-9/10",
-                });
+            var range = request.Header("Range");
+            if (range is null) return LoopbackResponse.Text("Range required", 403);
+            if (range == "bytes=0-0")
+                return LoopbackResponse.Bytes(allBytes[..1], 206, new Dictionary<string, string>() { ["Content-Range"] = "bytes 0-0/10" });
+            Assert.Equal("bytes=0-9", range);
+            return LoopbackResponse.Bytes(allBytes, 206, new Dictionary<string, string>() { ["Content-Range"] = "bytes 0-9/10" });
         });
         using var paths = new TestDataPaths();
         Directory.CreateDirectory(paths.RootDirectory);
         var output = Path.Combine(paths.RootDirectory, "single.bin");
-        await File.WriteAllBytesAsync(output, allBytes[..3]);
         using var downloader = new MultiConnectionDownloader(chunkCount: 1);
 
         await downloader.DownloadAsync(
@@ -186,8 +176,7 @@ public sealed class DownloadProtocolTests
         var getRequests = server.Requests.Where(x => x.Method == "GET").ToList();
         Assert.Equal(3, getRequests.Count);
         Assert.All(getRequests, request => Assert.Equal("cookie=value", request.Header("Cookie")));
-        Assert.Contains(getRequests, x => x.Target.StartsWith("/cdn-a", StringComparison.Ordinal));
-        Assert.Contains(getRequests, x => x.Target.StartsWith("/cdn-b", StringComparison.Ordinal));
+        Assert.All(getRequests, x => Assert.Equal("/cdn-a", x.Target));
     }
 
     [Theory]
@@ -248,7 +237,7 @@ public sealed class DownloadProtocolTests
     }
 
     [Fact]
-    public async Task 多连接会从已有Chunk偏移继续()
+    public async Task 旧分块缺少验证信息时重新下载()
     {
         var allBytes = Enumerable.Range(0, 2_100_000)
             .Select(i => (byte)(i % 239))
@@ -289,7 +278,82 @@ public sealed class DownloadProtocolTests
 
         Assert.Equal(allBytes, await File.ReadAllBytesAsync(output));
         Assert.Contains(server.Requests, request =>
+            request.Header("Range")?.StartsWith("bytes=0-", StringComparison.Ordinal) == true);
+        Assert.DoesNotContain(server.Requests, request =>
             request.Header("Range")?.StartsWith("bytes=100-", StringComparison.Ordinal) == true);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task 只有验证标记相同才会复用已下载分块(bool sameETag)
+    {
+        const int length = 2_100_000;
+        var bytes = Enumerable.Range(0, length).Select(value => (byte)(value % 239)).ToArray();
+        var useFreshUrl = false;
+        await using var server = LoopbackHttpServer.Create(request =>
+        {
+            var etag = !useFreshUrl || sameETag ? "\"version1\"" : "\"version2\"";
+            if (request.Method == "HEAD")
+                return LoopbackResponse.Bytes([], headers: new Dictionary<string, string>()
+                {
+                    ["Content-Length"] = length.ToString(),
+                    ["ETag"] = etag,
+                });
+            var (start, end) = ParseRange(request.Header("Range")!);
+            Assert.Equal(etag, request.Header("If-Match"));
+            if (!useFreshUrl && start > 0) return LoopbackResponse.Text("expired", 403);
+            return LoopbackResponse.Bytes(bytes[(int)start..((int)end + 1)], 206, new Dictionary<string, string>()
+            {
+                ["Content-Range"] = $"bytes {start}-{end}/{length}",
+                ["ETag"] = etag,
+            });
+        });
+        using var paths = new TestDataPaths();
+        Directory.CreateDirectory(paths.RootDirectory);
+        var output = Path.Combine(paths.RootDirectory, "validated.bin");
+        using var downloader = new MultiConnectionDownloader(chunkCount: 2);
+        Task<DownloadTransferResult> DownloadAsync(string query) => downloader.DownloadAsync(
+            [server.Url("media?" + query), server.Url("media?" + query)],
+            output, "", (_, _, _) => { }, CancellationToken.None);
+
+        await Assert.ThrowsAsync<HttpRequestException>(() => DownloadAsync("old"));
+        Assert.True(File.Exists(output + ".chunk0"));
+        useFreshUrl = true;
+        var result = await DownloadAsync("new");
+
+        Assert.True(result.IntegrityPassed);
+        Assert.Equal(bytes, await File.ReadAllBytesAsync(output));
+        Assert.Equal(!sameETag, server.Requests.Any(request => request.Target.Contains("?new")
+            && request.Header("Range")?.StartsWith("bytes=0-", StringComparison.Ordinal) == true));
+    }
+
+    [Fact]
+    public async Task 首节点拒绝时自动尝试官方备用地址()
+    {
+        var bytes = Encoding.UTF8.GetBytes("backup");
+        await using var server = LoopbackHttpServer.Create(request =>
+        {
+            if (request.Target == "/primary") return LoopbackResponse.Text("forbidden", 403);
+            if (request.Method == "HEAD")
+                return LoopbackResponse.Bytes([], headers: new Dictionary<string, string>() { ["Content-Length"] = "6" });
+            Assert.Equal("bytes=0-5", request.Header("Range"));
+            return LoopbackResponse.Bytes(bytes, 206, new Dictionary<string, string>() { ["Content-Range"] = "bytes 0-5/6" });
+        });
+        using var paths = new TestDataPaths();
+        Directory.CreateDirectory(paths.RootDirectory);
+        var output = Path.Combine(paths.RootDirectory, "backup.bin");
+        using var client = new HttpClient();
+        using var downloader = new MultiConnectionDownloader(client, new FakeDownloadRuntime(), chunkCount: 1);
+        var switched = 0;
+
+        var result = await downloader.DownloadAsync(
+            [server.Url("primary"), server.Url("backup")],
+            output, "", "test", (_, _, _) => { }, CancellationToken.None, () => switched++);
+
+        Assert.True(result.IntegrityPassed);
+        Assert.Equal(bytes, await File.ReadAllBytesAsync(output));
+        Assert.Equal(1, switched);
     }
 
     [Fact]
@@ -328,8 +392,10 @@ public sealed class DownloadProtocolTests
         Assert.Equal("urls", ex.ParamName);
     }
 
-    [Fact]
-    public async Task 注入依赖可离线跑通媒体下载与Ffmpeg合并主链路()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task 注入依赖可离线跑通媒体下载与Ffmpeg合并主链路(bool expires)
     {
         using var state = new StaticStateScope();
         using var apiHttp = new HttpTest();
@@ -340,17 +406,26 @@ public sealed class DownloadProtocolTests
                   "sub_url":"https://i.test/654321zyxwvutsrqponmlkjihgfedcba.png"
                 }}}
                 """);
-        apiHttp.ForCallsTo("*x/player/wbi/playurl*")
-            .RespondWith("""
+        var play = apiHttp.ForCallsTo("*x/player/wbi/playurl*");
+        if (expires)
+            play.RespondWith("""
                 {"code":0,"data":{"dash":{
-                  "video":[{"id":80,"base_url":"https://media.test/video","codecid":7}],
+                  "video":[{"id":80,"base_url":"https://media.test/expired","codecid":7}],
                   "audio":[{"id":30232,"base_url":"https://media.test/audio","bandwidth":192000}]
                 }}}
                 """);
+        play.RespondWith("""
+            {"code":0,"data":{"dash":{
+              "video":[{"id":80,"base_url":"https://media.test/video","codecid":7}],
+              "audio":[{"id":30232,"base_url":"https://media.test/audio","bandwidth":192000}]
+            }}}
+            """);
         var videoBytes = Encoding.UTF8.GetBytes("video-data");
         var audioBytes = Encoding.UTF8.GetBytes("audio-data");
         var httpFactory = new StubBiliHttpClientFactory(request =>
         {
+            if (request.RequestUri?.AbsolutePath == "/expired")
+                return new HttpResponseMessage(HttpStatusCode.Forbidden);
             var bytes = request.RequestUri?.AbsolutePath == "/video" ? videoBytes : audioBytes;
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -400,7 +475,8 @@ public sealed class DownloadProtocolTests
         Assert.Equal(".mp4", Path.GetExtension(mergeOutputPath));
         Assert.EndsWith(".staging-offline-main.mp4", mergeOutputPath, StringComparison.Ordinal);
         Assert.True(File.Exists(result.OutputFilePath));
-        Assert.Equal(2, httpFactory.Requests.Count);
+        Assert.Equal(expires ? 5 : 2, httpFactory.Requests.Count);
+        apiHttp.ShouldHaveCalled("*x/player/wbi/playurl*").Times(expires ? 2 : 1);
         Assert.All(httpFactory.Requests, request =>
             Assert.Equal("SESSDATA=test", request.Headers["Cookie"]));
     }

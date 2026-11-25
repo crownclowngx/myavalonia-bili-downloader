@@ -1,6 +1,7 @@
 using BiliDownloader.Constants;
 using BiliDownloader.Models;
 using BiliDownloader.Models.ContentSources;
+using BiliDownloader.Services.ContentSources;
 using BiliDownloader.Services.Download;
 using BiliDownloader.Services.Infrastructure;
 using MyAvaloniaManagement.PluginSdk;
@@ -144,6 +145,7 @@ public sealed class BiliDownloaderDocumentStateMapper : IBiliDownloaderDocumentS
             DisplayName = SensitiveDataSanitizer.Sanitize(source.DisplayName),
             CapabilityVersion = source.CapabilityVersion,
             AutoOpen = source.AutoOpen,
+            VideoPart = source.VideoPart,
         };
 
     internal static SourceFilterRulesSaveData CloneFilters(SourceFilterRulesSaveData? filters) => new()
@@ -196,7 +198,8 @@ internal static class ContentSourceSaveDataMapper
     {
         ArgumentNullException.ThrowIfNull(descriptor);
         var unknownParameter = descriptor.PublicParameters.Keys
-            .FirstOrDefault(static key => !string.Equals(key, "autoOpen", StringComparison.Ordinal));
+            .FirstOrDefault(key => !string.Equals(key, "autoOpen", StringComparison.Ordinal)
+                && (descriptor.Kind != ContentSourceKind.DirectLink || key != DirectLinkProvider.PartParameter));
         if (unknownParameter is not null)
             throw new InvalidOperationException("内容源包含尚未纳入 Document 白名单的公开参数，无法安全保存。");
 
@@ -210,6 +213,7 @@ internal static class ContentSourceSaveDataMapper
             DisplayName = SensitiveDataSanitizer.Sanitize(descriptor.DisplayName),
             CapabilityVersion = descriptor.CapabilityVersion,
             AutoOpen = autoOpen,
+            VideoPart = DirectLinkProvider.GetPart(descriptor),
         };
         DocumentSaveSecurityPolicy.ValidateSource(data);
         return data;
@@ -222,9 +226,10 @@ internal static class ContentSourceSaveDataMapper
             || !Enum.IsDefined(kind))
             return false;
 
-        var parameters = data.AutoOpen
-            ? new Dictionary<string, string>(StringComparer.Ordinal) { ["autoOpen"] = "true" }
-            : null;
+        var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (data.AutoOpen) parameters.Add("autoOpen", "true");
+        if (data.VideoPart is int part)
+            parameters.Add(DirectLinkProvider.PartParameter, part.ToString(System.Globalization.CultureInfo.InvariantCulture));
         descriptor = new ContentSourceDescriptor(
             kind,
             data.StableSourceId,
@@ -301,6 +306,9 @@ internal static class DocumentSaveSecurityPolicy
             || string.IsNullOrWhiteSpace(source.DisplayName)
             || source.CapabilityVersion <= 0)
             throw new InvalidOperationException("内容源描述不完整。");
+        if (source.VideoPart is int part && (part <= 0 || source.Kind != nameof(ContentSourceKind.DirectLink)
+            || !source.StableSourceId.StartsWith("video:", StringComparison.Ordinal)))
+            throw new InvalidOperationException("视频分 P 定位无效。");
         RejectSensitiveOrTemporaryValue(source.StableSourceId, "稳定来源 ID");
     }
 

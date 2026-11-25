@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using BiliDownloader.Models;
@@ -7,6 +6,7 @@ using BiliDownloader.Services.Api;
 using BiliDownloader.Services.Auth;
 using BiliDownloader.Services.ContentSources;
 using BiliDownloader.Services.Download;
+using BiliDownloader.Services.Infrastructure;
 
 namespace BiliDownloader.ViewModels.BiliDownloader;
 
@@ -21,6 +21,7 @@ public class VideoParseResult
     public BiliQualityOption? SelectedQuality { get; set; }
     public List<BiliQualityOption> AudioQualityOptions { get; set; } = new();
     public BiliQualityOption? SelectedAudioQuality { get; set; }
+    public string? PreferredItemId { get; set; }
     public bool IsMultiVideo { get; set; }
     public string TitlesText { get; set; } = "";
 }
@@ -31,8 +32,7 @@ public class VideoParseResult
 public partial class VideoParseViewModel : ObservableObject, IDisposable
 {
     private readonly IContentSourceProviderRegistry _providerRegistry;
-    private readonly IBiliMediaProbe _mediaProbe;
-    private readonly IBiliCredentialProvider _credentialProvider;
+    private readonly VideoParseResultFactory _resultFactory;
     private readonly Action<VideoParseResult>? _onParsed;
     private bool _restoringSource;
     // URL 解析、媒体能力探测和字幕发现都产生只服务于当前页面的临时结果，必须绑定 Document。
@@ -81,8 +81,7 @@ public partial class VideoParseViewModel : ObservableObject, IDisposable
         CancellationToken documentToken = default)
     {
         _providerRegistry = providerRegistry;
-        _mediaProbe = mediaProbe;
-        _credentialProvider = credentialProvider;
+        _resultFactory = new VideoParseResultFactory(mediaProbe, credentialProvider);
         _onParsed = onParsed;
         _documentToken = documentToken;
         // 保留该参数以兼容已有调用方；鉴权现在以远端实际响应为准，不再依赖本地预判。
@@ -118,7 +117,8 @@ public partial class VideoParseViewModel : ObservableObject, IDisposable
             _disposeCts.Token);
         cancellationToken = linked.Token;
         if (IsDisposed) return;
-        if (string.IsNullOrWhiteSpace(Url))
+        var input = Url;
+        if (string.IsNullOrWhiteSpace(input))
         {
             DownloadInfo = "请输入有效的B站视频链接";
             return;
@@ -130,7 +130,7 @@ public partial class VideoParseViewModel : ObservableObject, IDisposable
             IsLoading = true;
             DownloadInfo = "正在解析视频信息...";
 
-            var descriptor = await provider.NormalizeAsync(Url, cancellationToken);
+            var descriptor = await provider.NormalizeAsync(input, cancellationToken);
             var request = new ContentPageRequest();
             var page = await provider.GetPageAsync(descriptor, request, cancellationToken);
             var accumulator = new ContentPageAccumulator();
@@ -145,77 +145,29 @@ public partial class VideoParseViewModel : ObservableObject, IDisposable
                 descriptor,
                 rootItems[0],
                 cancellationToken);
-            var videoItems = collection.Items.ToList();
+            var preferred = rootItems[0].EpId is long epId
+                ? collection.Items.FirstOrDefault(item => item.EpId == epId)
+                : DirectLinkProvider.GetPart(descriptor) is int part && collection.SourceParts.TryGetValue(part, out var sourcePart)
+                    ? collection.Items.FirstOrDefault(item => item.Aid == sourcePart.Aid && item.Cid == sourcePart.Cid)
+                    : null;
+            var result = await _resultFactory.ProbeAsync(collection, preferred, cancellationToken);
 
-            // 生成重命名面板初始文本
-            var titlesLines = string.Join(Environment.NewLine, collection.Items.Select(i => i.Title));
-
-            // 获取可用清晰度和音频流
-            var qualityOptions = new List<BiliQualityOption>();
-            BiliQualityOption? selectedQuality = null;
-            var audioQualityOptions = new List<BiliQualityOption>();
-            BiliQualityOption? selectedAudioQuality = null;
-
-            if (collection.Items.Count > 0)
-            {
-                var first = collection.Items[0];
-                var dashResult = await _mediaProbe.GetDashResultAsync(
-                    first.Aid,
-                    first.Cid,
-                    80,
-                    _credentialProvider.GetCookieHeader(),
-                    first.MediaType,
-                    first.EpId,
-                    first.SeasonId,
-                    cancellationToken);
-
-                // 视频清晰度
-                foreach (var q in dashResult.AcceptQualities)
-                    qualityOptions.Add(q);
-                selectedQuality = qualityOptions.FirstOrDefault();
-
-                // 音频清晰度
-                var audioGroups = dashResult.AudioStreams
-                    .Where(a => a.AudioFeature == BiliAudioFeature.Standard)
-                    .GroupBy(a => a.Id)
-                    .Select(g => g.OrderByDescending(a => a.Bandwidth).First())
-                    .OrderBy(a => a.Bandwidth)
-                    .ToList();
-                foreach (var a in audioGroups)
-                {
-                    audioQualityOptions.Add(new BiliQualityOption
-                    {
-                        QualityId = a.Id,
-                        DisplayName = FormatAudioQualityName(a.Id, a.Bandwidth)
-                    });
-                }
-                selectedAudioQuality = audioQualityOptions.LastOrDefault();
-            }
-
-            var isMultiVideo = collection.Items.Count > 1;
-
-            // 所有远端调用完成后才提交状态，失败或取消不会留下半成品结果。
+            // 取消时保留上次成功结果。
             cancellationToken.ThrowIfCancellationRequested();
             if (IsDisposed) return;
+            if (!string.Equals(input, Url, StringComparison.Ordinal))
+            {
+                DownloadInfo = "链接已变更，请重新解析";
+                return;
+            }
             VideoCollection = collection;
-            Url = descriptor.DisplayName;
+            Url = DirectLinkProvider.ToCanonicalInput(descriptor);
             CurrentSourceDescriptor = descriptor;
             PersistentSourceChanged?.Invoke();
             IsParsed = true;
             DownloadInfo = $"解析成功: {collection.SeriesTitle} ({collection.Items.Count} 个视频)";
 
-            // 通过回调传递结果
-            _onParsed?.Invoke(new VideoParseResult
-            {
-                Collection = collection,
-                VideoItems = videoItems,
-                QualityOptions = qualityOptions,
-                SelectedQuality = selectedQuality,
-                AudioQualityOptions = audioQualityOptions,
-                SelectedAudioQuality = selectedAudioQuality,
-                IsMultiVideo = isMultiVideo,
-                TitlesText = titlesLines,
-            });
+            _onParsed?.Invoke(result);
         }
         catch (OperationCanceledException)
         {
@@ -226,7 +178,7 @@ public partial class VideoParseViewModel : ObservableObject, IDisposable
         {
             DownloadInfo = ex.Code switch
             {
-                ContentSourceErrorCode.InvalidInput => "无法解析链接，请输入有效的B站视频或番剧链接",
+                ContentSourceErrorCode.InvalidInput => $"无法解析链接：{SensitiveDataSanitizer.Sanitize(ex.Message)}",
                 ContentSourceErrorCode.LoginRequired => "请先登录后再解析",
                 ContentSourceErrorCode.RemoteFailure => ex.Message,
                 _ => "内容源响应不符合协议，请稍后重试",
@@ -263,7 +215,9 @@ public partial class VideoParseViewModel : ObservableObject, IDisposable
     {
         ArgumentNullException.ThrowIfNull(descriptor);
         _restoringSource = true;
-        Url = string.IsNullOrWhiteSpace(legacyUrl) ? descriptor.DisplayName : legacyUrl;
+        Url = DirectLinkProvider.GetPart(descriptor) is not null || string.IsNullOrWhiteSpace(legacyUrl)
+            ? DirectLinkProvider.ToCanonicalInput(descriptor)
+            : legacyUrl;
         CurrentSourceDescriptor = descriptor;
         _restoringSource = false;
     }
@@ -276,16 +230,4 @@ public partial class VideoParseViewModel : ObservableObject, IDisposable
         PersistentSourceChanged?.Invoke();
     }
 
-    private static string FormatAudioQualityName(int audioId, long bandwidth)
-    {
-        var kbps = bandwidth / 1000;
-        return audioId switch
-        {
-            30216 => $"{kbps}kbps (标准)",
-            30232 => $"{kbps}kbps (高品质)",
-            30280 => $"{kbps}kbps (无损)",
-            _ when audioId >= 30250 => $"{kbps}kbps (Hi-Res)",
-            _ => $"{kbps}kbps (ID:{audioId})"
-        };
-    }
 }

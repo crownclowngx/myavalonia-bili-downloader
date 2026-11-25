@@ -163,7 +163,7 @@ public partial class VideoListViewModel : ObservableObject, IDisposable
     /// <summary>
     /// 解析成功后设置视频列表
     /// </summary>
-    public void SetItems(List<BiliVideoItem> items)
+    public void SetItems(List<BiliVideoItem> items, string? preferredItemId = null)
     {
         _taskToSubmissionItem.Clear();
         foreach (var oldItem in VideoItems)
@@ -172,8 +172,8 @@ public partial class VideoListViewModel : ObservableObject, IDisposable
         VideoItems.Clear();
         foreach (var item in items)
         {
-            // 解析结果始终从“未选择”开始，避免单视频或合集被意外提交。
-            item.IsSelected = false;
+            // 只有链接明确指向的分集会预选，入队仍由用户提交。
+            item.IsSelected = item.ItemId == preferredItemId;
             VideoItems.Add(item);
             item.PropertyChanged += OnVideoItemPropertyChanged;
         }
@@ -312,7 +312,7 @@ public partial class VideoListViewModel : ObservableObject, IDisposable
             return;
         }
 
-        if (!ctx.IsHighSpecificationSelectionValid)
+        if (!ctx.IsHighSpecificationSelectionValid && _submissionService is null)
         {
             _onConfigurationBlocked?.Invoke();
             _onStatusMessage("当前显式高规格并非所有所选媒体都可用；请调整选择或改为自动/标准。");
@@ -410,6 +410,7 @@ public partial class VideoListViewModel : ObservableObject, IDisposable
                 IsPreflighting = true;
                 SubmissionCommitResult? result = null;
                 SubmissionPreflightReport? report = null;
+                var excludedCount = 0;
                 for (var attempt = 0; attempt < 3; attempt++)
                 {
                     report = await _submissionService.PreflightAsync(submission, cancellationToken);
@@ -417,6 +418,29 @@ public partial class VideoListViewModel : ObservableObject, IDisposable
                     PreflightSummary = $"可提交 {report.ReadyCount}，跳过 {report.SkipCount}，警告 {report.WarningCount}，阻止 {report.BlockedCount}";
                     if (report.IsBlocked)
                     {
+                        var ready = report.Items
+                            .Where(item => item.ShouldSubmit && item.Issues.All(issue => issue.Severity != PreflightIssueSeverity.Blocking))
+                            .Select(item => item.Item)
+                            .ToArray();
+                        if (ready.Length > 0 && attempt < 2 && _promptService is not null
+                            && submission.IncrementalExpectation is null
+                            && report.GlobalIssues.All(issue => issue.Severity != PreflightIssueSeverity.Blocking))
+                        {
+                            var issues = report.Items.SelectMany(item => item.Issues)
+                                .Where(issue => issue.Severity == PreflightIssueSeverity.Blocking)
+                                .Select(issue => issue.Message).ToArray();
+                            var details = string.Join(Environment.NewLine, issues.Take(6));
+                            if (issues.Length > 6) details += $"{Environment.NewLine}另有 {issues.Length - 6} 条阻止原因。";
+                            var submitReady = await _promptService.ConfirmAsync(
+                                $"仅提交可下载的 {ready.Length} 项？", details);
+                            cancellationToken.ThrowIfCancellationRequested();
+                            if (submitReady)
+                            {
+                                excludedCount += submission.Items.Count - ready.Length;
+                                submission = submission with { Items = ready };
+                                continue;
+                            }
+                        }
                         SetBlockingAction(report);
                         _onConfigurationBlocked?.Invoke();
                         _onStatusMessage(PreflightSummary + "。请先处理阻止项。");
@@ -455,7 +479,9 @@ public partial class VideoListViewModel : ObservableObject, IDisposable
                     .Select(item => item.Item.ItemId).ToHashSet();
                 foreach (var reference in result.EffectiveCommittedTasks)
                     _taskToSubmissionItem[reference.TaskId] = reference.SubmissionItemId;
-                _onStatusMessage(result.Message);
+                _onStatusMessage(excludedCount > 0
+                    ? $"{result.Message} 其余 {excludedCount} 项未提交。"
+                    : result.Message);
             }
 
             // 标记为已提交
@@ -528,7 +554,9 @@ public partial class VideoListViewModel : ObservableObject, IDisposable
                     ? ("disk", "更换输出目录")
                     : codes.Contains("output_empty") || codes.Contains("output_unwritable")
                         ? ("directory", "选择输出目录")
-                        : ("", "");
+                        : codes.Any(code => code.StartsWith("media_", StringComparison.Ordinal))
+                            ? ("media", "刷新下载规格")
+                            : ("", "");
         OnPropertyChanged(nameof(HasBlockingAction));
     }
 

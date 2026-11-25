@@ -351,6 +351,10 @@ public class BiliDownloaderViewModel : ObservableObject, IPersistablePluginDocum
                             AppendLog("输出目录已更新，请重新提交。");
                         }
                         break;
+                    case "media":
+                        workspace?.ExpandSettings();
+                        workspace?.InvalidateMediaCapabilities();
+                        break;
                     case "stale-comparison":
                         await SourceWorkflow.RefreshComparisonFromCacheAsync(_documentCts.Token);
                         break;

@@ -7,6 +7,7 @@ using BiliDownloader.Messages;
 using BiliDownloader.Models;
 using BiliDownloader.Services.Api;
 using BiliDownloader.Services.Auth;
+using BiliDownloader.Services.Download;
 using BiliDownloader.Services.Download.Extras;
 using BiliDownloader.Services.Infrastructure;
 using BiliDownloader.Services.Persistence;
@@ -369,6 +370,33 @@ public sealed class PresentationLogicTests
         Assert.Contains("已提交 1 个", status, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task 部分下载项受限时按用户选择重新预检可用子集(bool confirms)
+    {
+        using var paths = new TestDataPaths();
+        var service = new PartialBatchSubmission();
+        var prompt = new PartialBatchPrompt(confirms);
+        using var vm = new VideoListViewModel(
+            () => new SubmitContext { DocumentId = "batch", QualityId = 32, OutputDirectory = paths.RootDirectory },
+            new RecordingBiliDownloaderEventBus(), _ => { },
+            new FakeFfmpegService(), submissionService: service, promptService: prompt);
+        vm.SetItems([
+            new BiliVideoItem { Aid = 1, Cid = 11, ItemId = "ready", Title = "可下载项" },
+            new BiliVideoItem { Aid = 2, Cid = 22, ItemId = "blocked", Title = "受限项" },
+        ]);
+        foreach (var item in vm.VideoItems) item.IsSelected = true;
+
+        await vm.SubmitDownloadCommand.ExecuteAsync(null);
+
+        Assert.Contains("仅提交可下载的 1 项", prompt.Title, StringComparison.Ordinal);
+        Assert.Equal(confirms ? 2 : 1, service.PreflightCalls);
+        Assert.Equal(confirms ? "ready" : null, service.CommittedId);
+        Assert.Equal(!confirms, vm.VideoItems[0].IsSelected);
+        Assert.True(vm.VideoItems[1].IsSelected);
+    }
+
     [Fact]
     public async Task 下载配置加载默认目录并填充画质()
     {
@@ -387,6 +415,28 @@ public sealed class PresentationLogicTests
         Assert.Same(audio, vm.SelectedAudioQuality);
         Assert.True(vm.IsMultiVideo);
         Assert.True(vm.UseGroupFolder);
+    }
+
+    [Fact]
+    public void 最高画质预设使用已确认的兼容档位且保留用户显式选择()
+    {
+        using var vm = new DownloadConfigViewModel(new InMemorySettingsRepository());
+        var advertised = new BiliQualityOption { QualityId = 120, DisplayName = "4K", IsAvailable = null };
+        var av1Only = new BiliQualityOption { QualityId = 80, DisplayName = "1080P", AvailableCodecs = new HashSet<VideoCodec> { VideoCodec.Av1 } };
+        var compatible = new BiliQualityOption { QualityId = 32, DisplayName = "480P", AvailableCodecs = new HashSet<VideoCodec> { VideoCodec.Avc } };
+        vm.PopulateQualities([advertised, av1Only, compatible], av1Only, [], null, isMultiVideo: true);
+        vm.SelectedPreset = new DownloadPreset { Name = "最高", QualityPreference = "highest", VideoCodecPreference = VideoCodecPreference.Avc };
+
+        vm.ApplyPresetCommand.Execute(null);
+
+        Assert.Same(compatible, vm.SelectedQuality);
+        vm.SelectedQuality = advertised;
+        vm.ApplyMediaCapabilities(new BatchMediaCapabilitySnapshot(2,
+            new Dictionary<MediaFeatureFlags, MediaCapabilityAvailability>(),
+            new Dictionary<MediaFeatureFlags, int>(), 120,
+            [new BiliQualityOption { QualityId = 120, DisplayName = "4K", IsAvailable = false }, compatible]));
+        Assert.Same(advertised, vm.SelectedQuality);
+        Assert.False(advertised.IsAvailable);
     }
 
     [Fact]
@@ -715,6 +765,45 @@ public sealed class PresentationLogicTests
                   "sub_url":"https://i.test/654321zyxwvutsrqponmlkjihgfedcba.png"
                 }}}
                 """);
+    }
+
+    private sealed class PartialBatchSubmission : IDownloadSubmissionService
+    {
+        public int PreflightCalls { get; private set; }
+        public string? CommittedId { get; private set; }
+
+        public Task<SubmissionPreflightReport> PreflightAsync(DownloadSubmission submission, CancellationToken cancellationToken = default)
+        {
+            PreflightCalls++;
+            var results = submission.Items.Select(item =>
+            {
+                var ready = item.ItemId == "ready";
+                return new PreflightItemResult(item, "", "", ready, false, false, null, false, 0,
+                    ready ? [] : [new PreflightIssue("login", PreflightIssueSeverity.Blocking, "受限项需要权限。")]);
+            }).ToArray();
+            return Task.FromResult(new SubmissionPreflightReport(submission, results, [], "snapshot", null));
+        }
+
+        public Task<SubmissionCommitResult> CommitAsync(PreparedSubmission prepared, CancellationToken cancellationToken = default)
+        {
+            CommittedId = Assert.Single(prepared.Report.Submission.Items).ItemId;
+            return Task.FromResult(new SubmissionCommitResult(SubmissionCommitStatus.Committed, 1, 0, "已提交"));
+        }
+    }
+
+    private sealed class PartialBatchPrompt(bool confirms) : IUserPromptService
+    {
+        public string Title { get; private set; } = "";
+        public Task<bool> ConfirmAsync(string title, string message)
+        {
+            Title = title;
+            return Task.FromResult(confirms);
+        }
+
+        public Task<DeleteTaskPromptResult> ConfirmDeleteAsync(int taskCount, bool hasOutputFiles)
+            => Task.FromResult(DeleteTaskPromptResult.Cancelled);
+
+        public Task<bool> ConfirmSubmissionAsync(SubmissionPreflightReport report) => Task.FromResult(false);
     }
 
     private sealed class FakeCredentialProviderWithLogin(string cookie)

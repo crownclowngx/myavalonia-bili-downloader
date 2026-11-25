@@ -230,9 +230,9 @@ public sealed class SubmissionPreflightService : ISubmissionPreflightService
                     mediaBlocked = true;
                 }
                 catch (OperationCanceledException) { throw; }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    issues.Add(Block("media_probe", $"“{item.Title}”无法验证可用媒体流：{ex.Message}", item.ItemId));
+                    issues.Add(Block("media_probe", $"“{item.Title}”暂时无法验证可用媒体流，请刷新规格后重试。", item.ItemId));
                     mediaBlocked = true;
                 }
             }

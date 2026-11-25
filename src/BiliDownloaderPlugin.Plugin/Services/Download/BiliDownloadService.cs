@@ -147,13 +147,19 @@ public class BiliDownloadService : IDisposable
         // 1. 获取 DASH 流
         ReportProgress("fetching");
         var mediaType = Enum.TryParse<BiliMediaType>(task.MediaType, true, out var mt) ? mt : BiliMediaType.Video;
-        var dashResult = await apiService.GetDashResultAsync(
-            task.Aid, task.Cid, task.QualityId, cookieHeader,
-            mediaType, task.EpId, task.SeasonId);
-
-        var selection = _selectionPolicy.Select(dashResult, new MediaSelectionRequest(
+        var request = new MediaSelectionRequest(
             task.QualityId, task.AudioQualityId, codecPreference, container, mode,
-            dynamicRangePreference, audioFeaturePreference));
+            dynamicRangePreference, audioFeaturePreference);
+
+        async Task<MediaSelectionResult> ResolveSelectionAsync()
+        {
+            var dash = await apiService.GetDashResultAsync(
+                task.Aid, task.Cid, task.QualityId, cookieHeader,
+                mediaType, task.EpId, task.SeasonId, ct);
+            return _selectionPolicy.Select(dash, request);
+        }
+
+        var selection = await ResolveSelectionAsync();
         if (!selection.Success || selection.OutputPlan is null)
             throw new ResourceUnavailableException(selection.Message);
         var outputPlan = selection.OutputPlan;
@@ -162,16 +168,45 @@ public class BiliDownloadService : IDisposable
         if (onMediaSelectionResolvedAsync is not null)
             await onMediaSelectionResolvedAsync(outputPlan);
 
-        var videoStream = selection.SelectedVideo;
-        var audioStream = selection.SelectedAudio;
+        async Task<DownloadTransferResult> DownloadTrackAsync(
+            BiliDashStream stream, bool video, string staging, Action<long, long, string> progress)
+        {
+            var stage = video ? "video" : "audio";
+            async Task<DownloadTransferResult> TransferAsync(BiliDashStream resolved)
+            {
+                var urls = CdnUrlHelper.FilterAndSortUrls(resolved.BaseUrl, resolved.BackupUrls);
+                if (urls.Count == 0)
+                    throw new ResourceUnavailableException("媒体没有可用的下载地址。");
+                return await _multiDownloader.DownloadAsync(urls, staging, cookieHeader, task.TaskId, progress, ct,
+                    () =>
+                    {
+                        currentSpeed = "正在切换下载节点";
+                        ReportProgress(stage);
+                    });
+            }
+
+            try
+            {
+                return await TransferAsync(stream);
+            }
+            catch (HttpRequestException ex) when (MultiConnectionDownloader.IsExpiredAddress(ex))
+            {
+                currentSpeed = "正在刷新下载地址";
+                ReportProgress(stage);
+                var refreshed = await ResolveSelectionAsync();
+                var replacement = video ? refreshed.SelectedVideo : refreshed.SelectedAudio;
+                if (!refreshed.Success || refreshed.OutputPlan != outputPlan || replacement is null
+                    || !SameRendition(stream, replacement))
+                    throw new ResourceUnavailableException("原下载规格已失效，请刷新规格后重新提交。");
+                return await TransferAsync(replacement);
+            }
+        }
 
         // 2. 下载视频流（多连接加速）
         var videoTransfer = new DownloadTransferResult(0, 0, false);
         if (outputPlan.RequiresVideo)
         {
-            var videoUrls = CdnUrlHelper.FilterAndSortUrls(videoStream!.BaseUrl, videoStream.BackupUrls);
-            videoTransfer = await _multiDownloader.DownloadAsync(
-                videoUrls, videoTmp, cookieHeader, task.TaskId,
+            videoTransfer = await DownloadTrackAsync(selection.SelectedVideo!, video: true, videoTmp,
                 (total, downloaded, speed) =>
                 {
                     task.VideoBytesDownloaded = downloaded;
@@ -179,7 +214,7 @@ public class BiliDownloadService : IDisposable
                     currentSpeed = speed;
                     ReportProgress("video");
                     onBytesUpdate?.Invoke(task.VideoBytesDownloaded, task.AudioBytesDownloaded);
-                }, ct);
+                });
             currentSpeed = "";
             videoProgress = 100;
             ReportProgress("video");
@@ -192,9 +227,7 @@ public class BiliDownloadService : IDisposable
         var audioTransfer = new DownloadTransferResult(0, 0, false);
         if (outputPlan.RequiresAudio)
         {
-            var audioUrls = CdnUrlHelper.FilterAndSortUrls(audioStream!.BaseUrl, audioStream.BackupUrls);
-            audioTransfer = await _multiDownloader.DownloadAsync(
-                audioUrls, audioTmp, cookieHeader, task.TaskId,
+            audioTransfer = await DownloadTrackAsync(selection.SelectedAudio!, video: false, audioTmp,
                 (total, downloaded, speed) =>
                 {
                     task.AudioBytesDownloaded = downloaded;
@@ -202,7 +235,7 @@ public class BiliDownloadService : IDisposable
                     currentSpeed = speed;
                     ReportProgress("audio");
                     onBytesUpdate?.Invoke(task.VideoBytesDownloaded, task.AudioBytesDownloaded);
-                }, ct);
+                });
             currentSpeed = "";
             audioProgress = 100;
             ReportProgress("audio");
@@ -290,16 +323,7 @@ public class BiliDownloadService : IDisposable
         }
         ReportProgress("done");
 
-        // 5. 清理临时文件
-        try
-        {
-            if (outputPlan.RequiresVideo && File.Exists(videoTmp)) File.Delete(videoTmp);
-            if (outputPlan.RequiresAudio && File.Exists(audioTmp)) File.Delete(audioTmp);
-            if (Directory.Exists(task.TempDirectory) &&
-                Directory.GetFiles(task.TempDirectory).Length == 0)
-                Directory.Delete(task.TempDirectory);
-        }
-        catch { /* 忽略清理失败 */ }
+        CleanupVerifiedInputs(task.TempDirectory, videoTmp, audioTmp);
 
         return new BiliDownloadItemResult(outputPath, videoTransfer, audioTransfer, outputPlan);
     }
@@ -436,6 +460,14 @@ public class BiliDownloadService : IDisposable
         await _mediaMuxer.MergeAsync(videoPath, audioPath, outputPath, ct);
     }
 
+    private static bool SameRendition(BiliDashStream first, BiliDashStream second)
+        => first.Id == second.Id
+           && first.Codecid == second.Codecid
+           && first.Codecs == second.Codecs
+           && first.Bandwidth == second.Bandwidth
+           && first.Features == second.Features
+           && first.AudioFeature == second.AudioFeature;
+
     /// <summary>
     /// 临时输出与最终文件保持相同扩展名，确保 ffmpeg 能根据扩展名选择封装格式。
     /// 临时文件仍位于最终目录，发布时可以使用同卷原子移动。
@@ -466,7 +498,11 @@ public class BiliDownloadService : IDisposable
     {
         try
         {
-            foreach (var file in files) if (File.Exists(file)) File.Delete(file);
+            foreach (var file in files)
+            {
+                File.Delete(file);
+                File.Delete(file + ".range-state");
+            }
             if (Directory.Exists(tempDirectory) && Directory.GetFiles(tempDirectory).Length == 0)
                 Directory.Delete(tempDirectory);
         }

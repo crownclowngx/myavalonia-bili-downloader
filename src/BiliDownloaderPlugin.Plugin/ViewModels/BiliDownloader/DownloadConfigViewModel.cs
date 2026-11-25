@@ -28,6 +28,8 @@ public partial class DownloadConfigViewModel : ObservableObject, IDisposable
     private Task? _initializationTask;
     private bool _documentConfigurationApplied;
     private bool _isApplyingPreset;
+    private bool _useAutomaticVideoQuality;
+    private bool _settingAutomaticVideoQuality;
     private bool _isNormalizingOutputCombination;
     private OutputContainer _lastVideoContainer = OutputContainer.Mp4;
     private int? _pendingQualityId;
@@ -200,6 +202,29 @@ public partial class DownloadConfigViewModel : ObservableObject, IDisposable
 
     public void ApplyMediaCapabilities(BatchMediaCapabilitySnapshot snapshot)
     {
+        if (snapshot.VideoQualities is { } qualities)
+        {
+            var byId = qualities.ToDictionary(option => option.QualityId);
+            foreach (var option in QualityOptions)
+            {
+                var current = byId.GetValueOrDefault(option.QualityId);
+                option.AvailableCodecs = current?.AvailableCodecs;
+                option.IsAvailable = current is not null
+                    ? current.IsAvailable
+                    : option.QualityId == snapshot.RequestedQualityId ? false : null;
+            }
+            foreach (var option in qualities.Where(option => QualityOptions.All(existing => existing.QualityId != option.QualityId)))
+                QualityOptions.Add(option);
+
+            if (_useAutomaticVideoQuality && (SelectedQuality is null || !IsConfirmedVideoQuality(SelectedQuality)))
+            {
+                var limit = SelectedQuality?.QualityId ?? int.MaxValue;
+                var recommended = QualityOptions.Where(option => option.QualityId <= limit && IsConfirmedVideoQuality(option))
+                    .MaxBy(option => option.QualityId);
+                if (recommended is not null) SetAutomaticVideoQuality(recommended);
+            }
+        }
+
         HdrAvailability = snapshot.GetAvailability(MediaFeatureFlags.Hdr);
         DolbyVisionAvailability = snapshot.GetAvailability(MediaFeatureFlags.DolbyVision);
         HiResAvailability = snapshot.GetAvailability(MediaFeatureFlags.HiResAudio);
@@ -508,8 +533,8 @@ public partial class DownloadConfigViewModel : ObservableObject, IDisposable
         // 125/126 是 HDR/杜比视界能力流，不是普通画质档位。把它们留在画质下拉会造成
         // “选了 126 又选标准动态范围”这类矛盾状态，因此只由专用高规格偏好控制。
         var standardQualities = qualities.Where(q => q.QualityId is not 125 and not 126).ToList();
-        if (selectedQuality?.QualityId is 125 or 126)
-            selectedQuality = standardQualities.FirstOrDefault();
+        if (selectedQuality is not null && (selectedQuality.QualityId is 125 or 126 || !IsConfirmedVideoQuality(selectedQuality)))
+            selectedQuality = standardQualities.Where(IsConfirmedVideoQuality).MaxBy(option => option.QualityId);
         QualityOptions.Clear();
         foreach (var q in standardQualities)
             QualityOptions.Add(q);
@@ -526,6 +551,7 @@ public partial class DownloadConfigViewModel : ObservableObject, IDisposable
         if (_pendingQualityId is int pendingQuality)
         {
             var restored = standardQualities.FirstOrDefault(q => q.QualityId == pendingQuality);
+            _useAutomaticVideoQuality = false;
             SelectedQuality = restored
                 ?? MatchQualityByPreference(standardQualities, _pendingQualityPreference)
                 ?? selectedQuality;
@@ -536,12 +562,12 @@ public partial class DownloadConfigViewModel : ObservableObject, IDisposable
         }
         else if (!string.IsNullOrEmpty(_pendingQualityPreference) && QualityOptions.Count > 0)
         {
-            SelectedQuality = MatchQualityByPreference(standardQualities, _pendingQualityPreference);
+            ApplyVideoQualityPreference(standardQualities, _pendingQualityPreference);
             _pendingQualityPreference = ""; // 匹配完成后清除
         }
         else
         {
-            SelectedQuality = selectedQuality;
+            SetAutomaticVideoQuality(selectedQuality);
         }
 
         if (_pendingAudioQualityId is int pendingAudio)
@@ -598,7 +624,7 @@ public partial class DownloadConfigViewModel : ObservableObject, IDisposable
         // 如果清晰度选项已加载，立即匹配
         if (QualityOptions.Count > 0)
         {
-            SelectedQuality = MatchQualityByPreference(QualityOptions.ToList(), preset.QualityPreference);
+            ApplyVideoQualityPreference(QualityOptions.ToList(), preset.QualityPreference);
             _pendingQualityPreference = "";
         }
         if (AudioQualityOptions.Count > 0)
@@ -753,25 +779,58 @@ public partial class DownloadConfigViewModel : ObservableObject, IDisposable
     /// 如果目标清晰度不可用，回退到最高可用。
     /// </para>
     /// </summary>
-    private static BiliQualityOption? MatchQualityByPreference(
+    private BiliQualityOption? MatchQualityByPreference(
         List<BiliQualityOption> qualities, string preference)
     {
         if (qualities.Count == 0) return null;
+        var best = qualities.Where(IsConfirmedVideoQuality).MaxBy(option => option.QualityId);
 
         if (preference.StartsWith("quality:", StringComparison.OrdinalIgnoreCase)
             && int.TryParse(preference[8..], out var qualityId))
             return qualities.FirstOrDefault(q => q.QualityId == qualityId)
-                ?? qualities.OrderByDescending(q => q.QualityId).FirstOrDefault();
+                ?? best;
 
         return preference.ToLowerInvariant() switch
         {
             "720p" => qualities.FirstOrDefault(q => q.QualityId == 64)
-                      ?? qualities.FirstOrDefault(q => q.QualityId == 32)
-                      ?? qualities[0],
-            "1080p" => qualities.FirstOrDefault(q => q.QualityId == 80)
-                       ?? qualities.OrderByDescending(q => q.QualityId).FirstOrDefault(),
-            _ => qualities.OrderByDescending(q => q.QualityId).FirstOrDefault() // highest
+                      ?? qualities.FirstOrDefault(q => q.QualityId == 32 && IsConfirmedVideoQuality(q))
+                      ?? best,
+            "1080p" => qualities.FirstOrDefault(q => q.QualityId == 80) ?? best,
+            _ => best
         };
+    }
+
+    private bool IsConfirmedVideoQuality(BiliQualityOption option)
+    {
+        if (option.IsAvailable != true) return false;
+        var requested = VideoCodecPreference switch
+        {
+            VideoCodecPreference.Avc => VideoCodec.Avc,
+            VideoCodecPreference.Hevc => VideoCodec.Hevc,
+            VideoCodecPreference.Av1 => VideoCodec.Av1,
+            _ => VideoCodec.Unknown,
+        };
+        return requested == VideoCodec.Unknown || option.AvailableCodecs is null || option.AvailableCodecs.Contains(requested);
+    }
+
+    private void ApplyVideoQualityPreference(List<BiliQualityOption> qualities, string preference)
+    {
+        var option = MatchQualityByPreference(qualities, preference);
+        if (string.IsNullOrEmpty(preference) || preference.Equals("highest", StringComparison.OrdinalIgnoreCase))
+            SetAutomaticVideoQuality(option);
+        else
+        {
+            _useAutomaticVideoQuality = false;
+            SelectedQuality = option;
+        }
+    }
+
+    private void SetAutomaticVideoQuality(BiliQualityOption? option)
+    {
+        _useAutomaticVideoQuality = true;
+        _settingAutomaticVideoQuality = true;
+        try { SelectedQuality = option; }
+        finally { _settingAutomaticVideoQuality = false; }
     }
 
     private async Task SelectFolderAsync(CancellationToken cancellationToken)
@@ -852,7 +911,12 @@ public partial class DownloadConfigViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(PresetStatusText));
     }
 
-    partial void OnSelectedQualityChanged(BiliQualityOption? value) => MarkPresetModified();
+    partial void OnSelectedQualityChanged(BiliQualityOption? value)
+    {
+        if (_settingAutomaticVideoQuality) return;
+        _useAutomaticVideoQuality = false;
+        MarkPresetModified();
+    }
     partial void OnSelectedAudioQualityChanged(BiliQualityOption? value) => MarkPresetModified();
     partial void OnUseGroupFolderChanged(bool value) => MarkPresetModified();
     partial void OnAddIndexToTitleChanged(bool value) => MarkPresetModified();

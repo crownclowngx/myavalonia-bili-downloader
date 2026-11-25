@@ -35,4 +35,7 @@ public class BiliVideoCollection
     /// 视频列表（单视频 Count=1）
     /// </summary>
     public List<BiliVideoItem> Items { get; set; } = new();
+
+    // 分 P 使用原视频的页号，合集展示顺序可能与页号不同。
+    internal Dictionary<int, BiliVideoItem> SourceParts { get; } = [];
 }
