@@ -10,4 +10,7 @@ public enum BiliMediaType
 
     /// <summary>番剧 (ep/ss/md)</summary>
     Bangumi = 1,
+
+    /// <summary>已购课程课时。</summary>
+    Course = 2,
 }

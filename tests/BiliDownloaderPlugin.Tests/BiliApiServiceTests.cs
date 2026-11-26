@@ -345,7 +345,7 @@ public sealed class BiliApiServiceTests
                 .RespondWith("""{"code":0,"data":{}}""");
             var ex = await Assert.ThrowsAsync<ResourceUnavailableException>(() =>
                 new BiliApiService().GetDashResultAsync(1, 2, 80, ""));
-            Assert.Contains("DASH", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("播放流", ex.Message, StringComparison.Ordinal);
         }
     }
 

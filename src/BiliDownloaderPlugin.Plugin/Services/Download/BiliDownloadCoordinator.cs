@@ -436,7 +436,7 @@ public sealed class BiliDownloadCoordinator
         DownloadProfileSnapshot profile) =>
         item.Aid > 0 && item.Cid > 0 && profile.VideoQualityId > 0
             ? RenditionFingerprint.Create(
-                new MediaUnitKey(item.Aid, item.Cid), profile.ToRenditionSpecification()).Value
+                new MediaUnitKey(item.Aid, item.Cid), profile.ToRenditionSpecification(), item.MediaType, item.EpId).Value
             : string.Empty;
 
     /// <summary>
@@ -1354,6 +1354,12 @@ public sealed class BiliDownloadCoordinator
         var mode = task.SelectedOutputMediaMode ?? OutputMediaMode.AudioVideo;
         if (mode == OutputMediaMode.AudioOnly)
             throw new InvalidOperationException("仅音频任务没有可重试的合并阶段。");
+        if (SegmentedDownloadState.Read(task.TempDirectory) is { } segmented)
+        {
+            if (!task.VideoIntegrityPassed || !segmented.HasCompleteInputs(task.TempDirectory, task.ExpectedVideoBytes))
+                throw new InvalidOperationException("分段媒体检查点不完整，请执行完整重试。");
+            return;
+        }
         var requiresAudio = mode == OutputMediaMode.AudioVideo;
         if (!task.VideoIntegrityPassed || task.ExpectedVideoBytes <= 0
             || (requiresAudio && (!task.AudioIntegrityPassed || task.ExpectedAudioBytes <= 0)))

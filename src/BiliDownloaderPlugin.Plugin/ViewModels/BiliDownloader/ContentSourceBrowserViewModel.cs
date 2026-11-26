@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using BiliDownloader.Models;
 using BiliDownloader.Models.ContentSources;
 using BiliDownloader.Services.ContentSources;
+using BiliDownloader.Services.Download;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -305,6 +306,9 @@ public partial class ContentSourceBrowserViewModel : ObservableObject, IDisposab
             level.NextToken = page.NextContinuationToken;
             level.HasMore = page.HasMore;
             RebuildVisibleItems(level);
+            if (CourseSourceProvider.IsDirectEpisode(_descriptor) && level.ParentKey.HasValue
+                && Items.Count == 1 && Items[0].CanSelect && request.ContinuationToken is null)
+                Items[0].IsSelected = true;
             Status = level.LoadedItems.Count == 0
                 ? "此来源暂时没有内容。"
                 : Items.Count == 0
@@ -481,10 +485,14 @@ public partial class ContentSourceBrowserViewModel : ObservableObject, IDisposab
             foreach (var item in selected)
                 collections.Add(await resolver!.ResolveItemAsync(_descriptor, item, _resolveCts.Token));
             var result = await _resultFactory.CreateAsync(collections, _descriptor.DisplayName, _resolveCts.Token);
+            if (CourseSourceProvider.IsDirectEpisode(_descriptor) && result.VideoItems.Count == 1)
+                result.PreferredItemId = result.VideoItems[0].ItemId;
             _onResolved(result);
             Status = $"已解析 {result.VideoItems.Count} 个视频单元。";
         }
         catch (ContentSourceException ex) { Status = ex.Message; }
+        catch (MediaAuthorizationException ex) { Status = ex.Message; }
+        catch (ResourceUnavailableException ex) { Status = ex.Message; }
         catch (OperationCanceledException) { Status = "解析已取消。"; }
         catch { Status = "解析所选内容失败，请稍后重试。"; }
         finally

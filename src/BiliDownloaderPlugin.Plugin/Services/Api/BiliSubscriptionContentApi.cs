@@ -170,11 +170,12 @@ public sealed class BiliSubscriptionContentApi :
         return new(items, hasMore ? ContinuationTokenCodec.EncodePage("my-courses", page + 1) : null, hasMore);
     }
 
-    public async Task<BiliCourseDetail> GetCourseAsync(
-        long? seasonId,
-        long? episodeId,
-        string cookie,
-        CancellationToken cancellationToken)
+    public Task<BiliCourseDetail> GetCourseAsync(
+        long? seasonId, long? episodeId, string cookie, CancellationToken cancellationToken)
+        => ReadCourseAsync(seasonId, episodeId, cookie, cancellationToken);
+
+    internal static async Task<BiliCourseDetail> ReadCourseAsync(
+        long? seasonId, long? episodeId, string cookie, CancellationToken cancellationToken)
     {
         if (seasonId is not > 0 && episodeId is not > 0)
             throw new ContentSourceException(ContentSourceErrorCode.InvalidInput, "课程 ss/ep 标识无效。");
@@ -184,20 +185,24 @@ public sealed class BiliSubscriptionContentApi :
             : url.SetQueryParam("ep_id", episodeId!.Value);
         var root = await GetRootAsync(url.ToString(), cookie, Operation.CourseDetail, cancellationToken);
         var data = root["data"] ?? new JsonObject();
-        var purchasedToken = data["user_status"]?["payed"];
-        bool? purchased = purchasedToken?.GetValueKind() switch
+        var paid = data["user_status"]?["payed"];
+        var purchased = paid?.GetValueKind() switch
         {
-            JsonValueKind.True or JsonValueKind.False => purchasedToken.Value<bool>(),
-            JsonValueKind.Number => purchasedToken.Value<int>() != 0,
-            _ => null,
+            JsonValueKind.True => true,
+            JsonValueKind.False => false,
+            JsonValueKind.Number or JsonValueKind.String when paid.ToString() == "1" => true,
+            JsonValueKind.Number or JsonValueKind.String when paid.ToString() == "0" => false,
+            _ => (bool?)null,
         };
+        var episodes = (data["episodes"] as JsonArray)?.OfType<JsonObject>().Select(ReadCourseEpisode).ToArray();
         return new(
             data["season_id"]?.Value<long>() ?? seasonId ?? 0,
             data["title"]?.Value<string>() ?? "未命名课程",
             data["cover"]?.Value<string>(),
             data["up_info"]?["uname"]?.Value<string>(),
             purchased,
-            data["is_expired"]?.Value<bool>() == true || data["expire_status"]?.Value<int>() is > 0);
+            ReadNullableBoolean(data["is_expired"]) == true || data["expire_status"]?.Value<int>() is > 0,
+            episodes);
     }
 
     public async Task<BiliCourseEpisodePage> GetCourseEpisodesAsync(
@@ -216,18 +221,7 @@ public sealed class BiliSubscriptionContentApi :
         var root = await GetRootAsync(url.ToString(), cookie, Operation.CourseEpisodes, cancellationToken);
         var data = root["data"] ?? new JsonObject();
         var list = data["items"] as JsonArray ?? new JsonArray();
-        var items = list.OfType<JsonNode>().Select(item => new BiliCourseEpisode(
-                item["aid"]?.Value<long>() ?? 0,
-                item["cid"]?.Value<long>() ?? 0,
-                item["id"]?.Value<long>() ?? item["ep_id"]?.Value<long>() ?? 0,
-                item["title"]?.Value<string>() ?? "未命名课时",
-                Math.Max(0, item["duration"]?.Value<int>() ?? 0),
-                item["release_date"]?.Value<long>() ?? 0,
-                item["cover"]?.Value<string>(),
-                item["status"]?.Value<int?>(),
-                ReadNullableBoolean(item["is_drm"]),
-                ReadNullableBoolean(item["area_limit"]),
-                ReadNullableBoolean(item["is_release"])))
+        var items = list.OfType<JsonObject>().Select(ReadCourseEpisode)
             .Where(item => item.EpisodeId > 0)
             .ToArray();
         var pageInfo = data["page"];
@@ -235,6 +229,21 @@ public sealed class BiliSubscriptionContentApi :
         var hasMore = items.Length > 0 && checked(page * pageSize) < total;
         return new(items, hasMore ? ContinuationTokenCodec.EncodePage(tokenKind, page + 1) : null, hasMore);
     }
+
+    private static BiliCourseEpisode ReadCourseEpisode(JsonObject item) => new(
+        item["aid"]?.Value<long>() ?? 0,
+        item["cid"]?.Value<long>() ?? 0,
+        item["id"]?.Value<long>() ?? item["ep_id"]?.Value<long>() ?? 0,
+        item["title"]?.Value<string>() ?? "未命名课时",
+        Math.Max(0, item["duration"]?.Value<int>() ?? 0),
+        item["release_date"]?.Value<long>() ?? 0,
+        item["cover"]?.Value<string>(),
+        item["status"]?.Value<int?>(),
+        ReadNullableBoolean(item["is_drm"]),
+        ReadNullableBoolean(item["area_limit"]),
+        item["ep_status"]?.Value<int>() == -1 ? false : ReadNullableBoolean(item["is_release"]),
+        ReadNullableBoolean(item["playable"]),
+        ReadNullableBoolean(item["is_preview"]));
 
     private static IEnumerable<JsonNode> EnumerateBangumiEpisodes(JsonNode data)
     {
@@ -293,6 +302,8 @@ public sealed class BiliSubscriptionContentApi :
         {
             var request = url.WithHeader("User-Agent", HttpConstants.UserAgent)
                 .WithHeader("Referer", HttpConstants.Referer);
+            if (operation is Operation.MyCourses or Operation.CourseDetail or Operation.CourseEpisodes)
+                request = request.WithAutoRedirect(false);
             if (!string.IsNullOrWhiteSpace(cookie))
                 request = request.WithHeader("Cookie", cookie);
             root = JsonNodeReader.ParseObject(await request.GetStringAsync(cancellationToken: cancellationToken));

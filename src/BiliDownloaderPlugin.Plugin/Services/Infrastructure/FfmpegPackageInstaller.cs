@@ -17,7 +17,7 @@ public sealed record FfmpegPackageManifest(string Version, Uri DownloadUri, stri
     /// </summary>
     public static FfmpegPackageManifest GyanReleaseEssentials812 { get; } = new(
         "8.1.2",
-        new Uri("https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-8.1.2-essentials_build.zip"),
+        new Uri("https://github.com/GyanD/codexffmpeg/releases/download/8.1.2/ffmpeg-8.1.2-essentials_build.zip"),
         "db580001caa24ac104c8cb856cd113a87b0a443f7bdf47d8c12b1d740584a2ec");
 }
 

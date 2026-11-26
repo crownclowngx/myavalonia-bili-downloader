@@ -98,9 +98,30 @@ public partial class DownloadSourceWorkflowViewModel : ObservableObject, IDispos
     [RelayCommand] private void UsePersonalSource() => Mode = DownloadCreationMode.PersonalSource;
     [RelayCommand] private void BackToSources() => IsBrowsing = false;
 
-    private async Task OpenDescriptorAsync(ContentSourceDescriptor descriptor)
+    internal async Task<bool> TryOpenCourseLinkAsync(string input, CancellationToken cancellationToken)
     {
-        _documentToken.ThrowIfCancellationRequested();
+        if (!Uri.TryCreate(input.Trim(), UriKind.Absolute, out var url)
+            || url.Scheme is not ("http" or "https")
+            || !(url.Host.Equals("bilibili.com", StringComparison.OrdinalIgnoreCase)
+                || url.Host.EndsWith(".bilibili.com", StringComparison.OrdinalIgnoreCase))
+            || !url.AbsolutePath.StartsWith("/cheese/play/", StringComparison.OrdinalIgnoreCase)
+            || !_registry.TryGet(ContentSourceKind.Course, out var provider))
+            return false;
+
+        var descriptor = await provider!.NormalizeAsync(input, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (IsDisposed) return false;
+        Mode = DownloadCreationMode.PersonalSource;
+        await OpenDescriptorAsync(descriptor, cancellationToken);
+        return true;
+    }
+
+    private Task OpenDescriptorAsync(ContentSourceDescriptor descriptor)
+        => OpenDescriptorAsync(descriptor, _documentToken);
+
+    private async Task OpenDescriptorAsync(ContentSourceDescriptor descriptor, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
         if (IsDisposed) return;
         _persistedSource = ContentSourceSaveDataMapper.FromRuntime(descriptor);
         _persistedFilters = new SourceFilterRulesSaveData();
@@ -111,8 +132,8 @@ public partial class DownloadSourceWorkflowViewModel : ObservableObject, IDispos
         _submissionExpectation = null;
         Comparison.ResetForSourceChange();
         PersistentStateChanged?.Invoke();
-        await Browser.OpenAsync(descriptor, _documentToken);
-        _documentToken.ThrowIfCancellationRequested();
+        await Browser.OpenAsync(descriptor, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
         if (IsDisposed) return;
         Comparison.RefreshCapability();
     }

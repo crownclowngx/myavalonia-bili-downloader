@@ -17,8 +17,10 @@ public sealed class DownloadRecoveryService : IDownloadRecoveryService
 
     public async Task ReconcileAsync(DownloadTaskRecord task)
     {
-        var videoBytes = GetDownloadedLength(task.TempDirectory, "video.tmp", task.ExpectedVideoBytes);
-        var audioBytes = GetDownloadedLength(task.TempDirectory, "audio.tmp", task.ExpectedAudioBytes);
+        var segments = SegmentedDownloadState.Read(task.TempDirectory);
+        var videoBytes = segments?.DownloadedBytes(task.TempDirectory)
+            ?? GetDownloadedLength(task.TempDirectory, "video.tmp", task.ExpectedVideoBytes);
+        var audioBytes = segments is null ? GetDownloadedLength(task.TempDirectory, "audio.tmp", task.ExpectedAudioBytes) : 0;
         if (videoBytes == task.VideoBytesDownloaded && audioBytes == task.AudioBytesDownloaded) return;
 
         task.VideoBytesDownloaded = videoBytes;

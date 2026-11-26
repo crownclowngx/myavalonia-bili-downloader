@@ -106,7 +106,8 @@ public sealed record BiliCourseDetail(
     string? CoverUrl,
     string? Author,
     bool? IsPurchased,
-    bool IsExpired);
+    bool IsExpired,
+    IReadOnlyList<BiliCourseEpisode>? Episodes = null);
 
 public sealed record BiliCourseEpisode(
     long Aid,
@@ -119,7 +120,9 @@ public sealed record BiliCourseEpisode(
     int? AccessStatus,
     bool? IsDrmProtected,
     bool? IsRegionRestricted,
-    bool? IsReleased);
+    bool? IsReleased,
+    bool? IsPlayable = null,
+    bool? IsPreview = null);
 
 public sealed record BiliCourseEpisodePage(
     IReadOnlyList<BiliCourseEpisode> Items,

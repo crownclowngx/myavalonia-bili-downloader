@@ -56,6 +56,7 @@ public enum ContentAccessState
     NotReleased,
     DrmProtected,
     Unknown,
+    PreviewOnly,
 }
 
 /// <summary>来源列表项的稳定业务类型，不与下载执行器的媒体类型耦合。</summary>

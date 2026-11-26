@@ -200,7 +200,8 @@ public class BiliDownloaderViewModel : ObservableObject, IPersistablePluginDocum
             credentialProvider,
             onParsed: HandleParseResult,
             isLoggedInCheck: () => LoginBar.IsLoggedIn,
-            documentToken: _documentCts.Token);
+            documentToken: _documentCts.Token,
+            openCourseLink: (input, token) => SourceWorkflow?.TryOpenCourseLinkAsync(input, token) ?? Task.FromResult(false));
         // G5: 命名模板子 VM
         var namingTemplate = new NamingTemplateViewModel();
         VideoListViewModel? videoListForSubtitleDiscovery = null;

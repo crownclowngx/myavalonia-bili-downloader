@@ -38,9 +38,11 @@ public static class CourseAccessPolicy
         if (episode.IsReleased == false ||
             episode.PublishedUnixSeconds > DateTimeOffset.UtcNow.ToUnixTimeSeconds())
             return ContentAccessState.NotReleased;
-        if (episode.AccessStatus == 1) return ContentAccessState.Available;
-        if (episode.AccessStatus == 2 && course.IsPurchased == false)
+        if (episode.IsPreview == true) return ContentAccessState.PreviewOnly;
+        if (course.IsPurchased == false || (course.IsPurchased == true && episode.IsPlayable == false))
             return ContentAccessState.PurchaseRequired;
+        if (course.IsPurchased == true && (episode.IsPlayable == true || episode.AccessStatus is 1 or 2))
+            return ContentAccessState.Available;
         return ContentAccessState.Unknown;
     }
 }
@@ -452,11 +454,11 @@ public sealed class CollectionSourceProvider : IContentSourceProvider, IContentS
 }
 
 /// <summary>
-/// 课程目录 Provider。
-/// 设计意图：P1-G2 只公开合法可见目录，因此刻意不实现 IContentSourceResolutionProvider。
+/// 课程目录及已购课时解析。
 /// </summary>
-public sealed class CourseSourceProvider : IContentSourceProvider
+public sealed class CourseSourceProvider : IContentSourceProvider, IContentSourceResolutionProvider
 {
+    private const string EpisodeSourcePrefix = "course-episode:";
     private static readonly Regex CourseIdRegex = new(
         @"(?:(?<ep>ep)|(?<ss>ss))(?<id>\d+)",
         RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -512,7 +514,7 @@ public sealed class CourseSourceProvider : IContentSourceProvider
             throw new ContentSourceException(ContentSourceErrorCode.ProtocolViolation, "课程详情缺少稳定 season_id。");
         return new ContentSourceDescriptor(
             Kind,
-            $"course-direct:{detail.SeasonId}",
+            episodeId is long ep ? $"{EpisodeSourcePrefix}{detail.SeasonId}:{ep}" : $"course-direct:{detail.SeasonId}",
             detail.Title,
             new Dictionary<string, string> { ["autoOpen"] = "true" },
             CapabilityVersion);
@@ -527,6 +529,15 @@ public sealed class CourseSourceProvider : IContentSourceProvider
         ValidateParentKind(request);
         if (!request.ParentKey.HasValue)
         {
+            if (descriptor.StableSourceId.StartsWith(EpisodeSourcePrefix, StringComparison.Ordinal))
+            {
+                var (seasonId, episodeId) = ReadEpisodeSource(descriptor);
+                var directDetail = await _api.GetCourseAsync(null, episodeId, _account.GetCookieHeader(), cancellationToken);
+                if (directDetail.SeasonId != seasonId) throw InvalidCourseEpisode();
+                return new ContentPage(
+                    [MapCourseContainer(seasonId, directDetail.Title, directDetail.CoverUrl, 1, directDetail.IsExpired)],
+                    null, false);
+            }
             if (descriptor.StableSourceId.StartsWith("course-direct:", StringComparison.Ordinal))
             {
                 var seasonId = ParseStableId(descriptor.StableSourceId, "course-direct:");
@@ -552,6 +563,15 @@ public sealed class CourseSourceProvider : IContentSourceProvider
 
         var parent = request.ParentKey.Value;
         var courseId = FollowingSourceProviderBase.ParseParentId(parent, "course:");
+        if (IsDirectEpisode(descriptor))
+        {
+            var (seasonId, episodeId) = ReadEpisodeSource(descriptor);
+            if (seasonId != courseId || request.ContinuationToken is not null) throw InvalidCourseEpisode();
+            var course = await _api.GetCourseAsync(null, episodeId, _account.GetCookieHeader(), cancellationToken);
+            var episode = course.Episodes?.FirstOrDefault(item => item.EpisodeId == episodeId);
+            if (course.SeasonId != seasonId || episode is null) throw InvalidCourseEpisode();
+            return new ContentPage([MapEpisode(course, parent, episode)], null, false);
+        }
         var detail = await _api.GetCourseAsync(courseId, null, _account.GetCookieHeader(), cancellationToken);
         var pageResult = await _api.GetCourseEpisodesAsync(
             courseId,
@@ -559,22 +579,68 @@ public sealed class CourseSourceProvider : IContentSourceProvider
             request.ContinuationToken,
             _account.GetCookieHeader(),
             cancellationToken);
-        var items = pageResult.Items.Select(ep => new ContentSourceItem(
-            new ContentItemKey(Kind, $"course:{courseId}/ep:{ep.EpisodeId}"),
-            ep.Title,
-            ContentSourceItemType.Course,
-            detail.Author,
-            ep.PublishedUnixSeconds > 0 ? DateTimeOffset.FromUnixTimeSeconds(ep.PublishedUnixSeconds) : null,
-            ep.CoverUrl ?? detail.CoverUrl,
-            ep.Aid > 0 ? ep.Aid : null,
-            cid: ep.Cid > 0 ? ep.Cid : null,
-            epId: ep.EpisodeId > 0 ? ep.EpisodeId : null,
-            seasonId: courseId,
-            parentKey: parent,
-            accessState: CourseAccessPolicy.Classify(detail, ep),
-            durationSeconds: ep.DurationSeconds)).ToArray();
+        var items = pageResult.Items.Select(episode => MapEpisode(detail, parent, episode)).ToArray();
         return new ContentPage(items, pageResult.NextToken, pageResult.HasMore);
     }
+
+    public Task<BiliVideoCollection> ResolveItemAsync(
+        ContentSourceDescriptor descriptor, ContentSourceItem item, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        Validate(descriptor);
+        RequireAccount();
+        if (item.Key.SourceKind != Kind || item.NodeKind != ContentSourceNodeKind.Media
+            || item.AccessState != ContentAccessState.Available
+            || item.SeasonId is not > 0 || item.EpId is not > 0 || item.Aid is not > 0 || item.Cid is not > 0)
+            throw InvalidCourseEpisode();
+        if (IsDirectEpisode(descriptor) && ReadEpisodeSource(descriptor) != (item.SeasonId.Value, item.EpId.Value))
+            throw InvalidCourseEpisode();
+        if (descriptor.StableSourceId.StartsWith("course-direct:", StringComparison.Ordinal)
+            && ParseStableId(descriptor.StableSourceId, "course-direct:") != item.SeasonId.Value)
+            throw InvalidCourseEpisode();
+
+        return Task.FromResult(ContentCollectionAdapter.Normalize(new BiliVideoCollection
+        {
+            SeriesTitle = descriptor.DisplayName,
+            UpName = item.Author ?? "",
+            Cover = item.CoverSummary ?? "",
+            Items = [new BiliVideoItem
+            {
+                Title = item.Title, Aid = item.Aid.Value, Cid = item.Cid.Value,
+                EpId = item.EpId.Value, SeasonId = item.SeasonId.Value,
+                MediaType = BiliMediaType.Course, Duration = item.DurationSeconds ?? 0,
+            }],
+        }));
+    }
+
+    internal static bool IsDirectEpisode(ContentSourceDescriptor descriptor)
+        => descriptor.Kind == ContentSourceKind.Course && descriptor.StableSourceId.StartsWith(EpisodeSourcePrefix, StringComparison.Ordinal);
+
+    private ContentSourceItem MapEpisode(BiliCourseDetail detail, ContentItemKey parent, BiliCourseEpisode ep)
+    {
+        var access = CourseAccessPolicy.Classify(detail, ep);
+        if (!_account.IsLoggedIn && access is ContentAccessState.Available or ContentAccessState.Unknown or ContentAccessState.PurchaseRequired)
+            access = ContentAccessState.LoginRequired;
+        return new ContentSourceItem(new ContentItemKey(Kind, $"course:{detail.SeasonId}/ep:{ep.EpisodeId}"),
+            ep.Title, ContentSourceItemType.Course, detail.Author,
+            ep.PublishedUnixSeconds > 0 ? DateTimeOffset.FromUnixTimeSeconds(ep.PublishedUnixSeconds) : null,
+            ep.CoverUrl ?? detail.CoverUrl, ep.Aid > 0 ? ep.Aid : null,
+            cid: ep.Cid > 0 ? ep.Cid : null, epId: ep.EpisodeId, seasonId: detail.SeasonId,
+            parentKey: parent, accessState: access, durationSeconds: ep.DurationSeconds);
+    }
+
+    private static (long SeasonId, long EpisodeId) ReadEpisodeSource(ContentSourceDescriptor descriptor)
+    {
+        var parts = descriptor.StableSourceId[EpisodeSourcePrefix.Length..].Split(':');
+        if (parts.Length == 2 && long.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var season)
+            && long.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var episode)
+            && season > 0 && episode > 0)
+            return (season, episode);
+        throw InvalidCourseEpisode();
+    }
+
+    private static ContentSourceException InvalidCourseEpisode() =>
+        new(ContentSourceErrorCode.InvalidInput, "找不到该课时，或当前账号没有可用的课时权限。");
 
     private ContentSourceItem MapCourseContainer(
         long seasonId,
@@ -595,7 +661,8 @@ public sealed class CourseSourceProvider : IContentSourceProvider
     {
         if (descriptor.Kind != Kind || descriptor.CapabilityVersion != CapabilityVersion ||
             !descriptor.StableSourceId.StartsWith("course-library:", StringComparison.Ordinal) &&
-            !descriptor.StableSourceId.StartsWith("course-direct:", StringComparison.Ordinal))
+            !descriptor.StableSourceId.StartsWith("course-direct:", StringComparison.Ordinal) &&
+            !IsDirectEpisode(descriptor))
             throw new ContentSourceException(ContentSourceErrorCode.ProtocolViolation, "课程描述符与 Provider 不一致。");
     }
 
@@ -608,7 +675,7 @@ public sealed class CourseSourceProvider : IContentSourceProvider
     private void RequireAccount()
     {
         if (!_account.IsLoggedIn || _account.UserId is not > 0)
-            throw new ContentSourceException(ContentSourceErrorCode.LoginRequired, "读取我的课程需要登录。");
+            throw new ContentSourceException(ContentSourceErrorCode.LoginRequired, "请登录购买该课程的账号。");
     }
 
     private static long ParseStableId(string value, string prefix)

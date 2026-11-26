@@ -82,14 +82,13 @@ public sealed class DashMediaSizeEstimator : IMediaSizeEstimator
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (item.Duration <= 0) return null;
-        var dash = await _apiService.GetDashResultAsync(
+        var playback = await _apiService.GetPlaybackAsync(
             item.Aid, item.Cid, profile.VideoQualityId, _credentials.GetCookieHeader(),
-            item.MediaType, item.EpId, item.SeasonId);
-        var selection = _selectionPolicy.Select(dash, new MediaSelectionRequest(
+            item.MediaType, item.EpId, item.SeasonId, cancellationToken);
+        var selection = BiliSegmentedMediaPolicy.Select(_selectionPolicy, playback, new MediaSelectionRequest(
             profile.VideoQualityId, profile.AudioQualityId, profile.VideoCodecPreference,
             profile.OutputContainer, profile.OutputMediaMode,
-            profile.VideoDynamicRangePreference, profile.AudioFeaturePreference));
+            profile.VideoDynamicRangePreference, profile.AudioFeaturePreference), item.Duration);
         return selection is { Success: true, OutputPlan: not null }
             ? _sizeCalculator.EstimatePeakBytes(selection.OutputPlan, item.Duration)
             : null;
@@ -221,12 +220,14 @@ public sealed class SubmissionPreflightService : ISubmissionPreflightService
                     {
                         outputPlan = analysis.Selection.OutputPlan;
                         analyzedEstimate = analysis.EstimatedPeakBytes;
-                        fingerprintParts.Add($"OUTPUT|{item.Aid}|{item.Cid}|{outputPlan.ActualVideoCodec}|{outputPlan.ActualAudioCodec}|{outputPlan.OutputContainer}|{outputPlan.OutputMediaMode}|{outputPlan.FileExtension}|{outputPlan.ExpectedMediaFeatures}");
+                        fingerprintParts.Add($"OUTPUT|{item.Aid}|{item.Cid}|{outputPlan.ActualVideoCodec}|{outputPlan.ActualAudioCodec}|{outputPlan.OutputContainer}|{outputPlan.OutputMediaMode}|{outputPlan.FileExtension}|{outputPlan.ExpectedMediaFeatures}|{outputPlan.SegmentedInputBytes}");
                     }
                 }
-                catch (MediaAuthorizationException)
+                catch (MediaAuthorizationException ex)
                 {
-                    issues.Add(Block("login", $"“{item.Title}”需要登录或更高账号权限。", item.ItemId));
+                    issues.Add(Block("login", ex.PreviewOnly
+                        ? $"“{item.Title}”仅返回试看，请确认完整内容权限。"
+                        : $"“{item.Title}”需要登录或更高账号权限。", item.ItemId));
                     mediaBlocked = true;
                 }
                 catch (OperationCanceledException) { throw; }
@@ -244,7 +245,7 @@ public sealed class SubmissionPreflightService : ISubmissionPreflightService
             {
                 rendition = RenditionFingerprint.Create(
                     new Models.ContentSources.MediaUnitKey(item.Aid, item.Cid),
-                    submission.Profile.ToRenditionSpecification());
+                    submission.Profile.ToRenditionSpecification(), item.MediaType, item.EpId);
                 fingerprintParts.Add("RENDITION|" + rendition.Value.Value);
             }
             if (string.IsNullOrWhiteSpace(outputDirectory))
@@ -517,6 +518,9 @@ public sealed class SubmissionPreflightService : ISubmissionPreflightService
         IEnumerable<DownloadTaskRecord> tasks, DownloadSubmission submission, DownloadSubmissionItem item)
         => tasks.FirstOrDefault(task =>
             task.DocumentId == submission.DocumentId && task.Aid == item.Aid && task.Cid == item.Cid
+            && (item.MediaType == BiliMediaType.Course
+                ? string.Equals(task.MediaType, nameof(BiliMediaType.Course), StringComparison.OrdinalIgnoreCase)
+                : !string.Equals(task.MediaType, nameof(BiliMediaType.Course), StringComparison.OrdinalIgnoreCase))
             && task.EpId == item.EpId && task.QualityId == submission.Profile.VideoQualityId
             && task.AudioQualityId == submission.Profile.AudioQualityId
             && (task.SelectedVideoCodec ?? VideoCodecPreference.AutoCompatibility) == submission.Profile.VideoCodecPreference
@@ -545,6 +549,12 @@ public sealed class SubmissionPreflightService : ISubmissionPreflightService
         {
             reason = "临时目录不存在";
             return false;
+        }
+        if (SegmentedDownloadState.Read(task.TempDirectory) is { } segments)
+        {
+            var hasProgress = segments.DownloadedBytes(task.TempDirectory) > 0;
+            reason = hasProgress ? "" : "分段任务没有可恢复的本地进度";
+            return hasProgress;
         }
         var mode = task.SelectedOutputMediaMode ?? OutputMediaMode.AudioVideo;
         var requiresVideo = mode is OutputMediaMode.AudioVideo or OutputMediaMode.VideoOnly;

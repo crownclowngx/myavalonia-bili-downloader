@@ -74,7 +74,10 @@ public sealed record DownloadFailure(
 
 public sealed class MediaAuthorizationException : Exception
 {
-    public MediaAuthorizationException(string message, Exception? inner = null) : base(message, inner) { }
+    public MediaAuthorizationException(string message, Exception? inner = null, bool previewOnly = false) : base(message, inner)
+        => PreviewOnly = previewOnly;
+
+    public bool PreviewOnly { get; }
 }
 
 /// <summary>G0-G6 兼容异常；新 ffmpeg 合并代码应抛出 <see cref="MediaMergeException"/>。</summary>
@@ -117,6 +120,8 @@ internal static class DownloadErrorClassifier
         {
             DownloadProtocolException => Failure(DownloadFailureKind.Protocol, true,
                 "下载节点响应异常，请更换节点后重试。", DownloadFailureActionKind.Retry, "更换节点重试"),
+            MediaAuthorizationException { PreviewOnly: true } => Failure(DownloadFailureKind.Authentication, false,
+                "当前账号只能获取试看，请确认完整内容权限。", DownloadFailureActionKind.LoginAndContinue, "重新登录并继续"),
             MediaAuthorizationException => Failure(DownloadFailureKind.Authentication, false,
                 "登录状态已失效，重新登录后可以继续任务。", DownloadFailureActionKind.LoginAndContinue, "重新登录并继续"),
             FfmpegUnavailableException => Failure(DownloadFailureKind.Ffmpeg, false,

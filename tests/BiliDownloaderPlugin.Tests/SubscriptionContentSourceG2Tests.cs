@@ -38,16 +38,14 @@ public sealed class SubscriptionContentContractG2Tests
     }
 
     [Fact]
-    public void 课程目录无需伪造解析能力且注册表正常启动()
+    public void 课程来源注册课时解析能力()
     {
         var provider = new CourseSourceProvider(new FakeCourseCatalogApi(), new FakeAccount(true, 42));
         var registry = new ContentSourceProviderRegistry([provider]);
 
         Assert.True(registry.TryGet(ContentSourceKind.Course, out _));
-        Assert.False(registry.TryGetResolutionProvider(ContentSourceKind.Course, out _));
-        Assert.Equal(ContentSourceErrorCode.UnsupportedOperation,
-            Assert.Throws<ContentSourceException>(() =>
-                registry.GetRequiredResolutionProvider(ContentSourceKind.Course)).Code);
+        Assert.True(registry.TryGetResolutionProvider(ContentSourceKind.Course, out var resolver));
+        Assert.Same(provider, resolver);
     }
 
     [Fact]
@@ -254,7 +252,7 @@ public sealed class SubscriptionProviderG2Tests
 
     [Theory]
     [InlineData("https://www.bilibili.com/cheese/play/ss7", "course-direct:7")]
-    [InlineData("https://www.bilibili.com/cheese/play/ep9", "course-direct:7")]
+    [InlineData("https://www.bilibili.com/cheese/play/ep9", "course-episode:7:9")]
     [InlineData("7", "course-direct:7")]
     public async Task 课程SsEp和数字ID规范化为稳定课程身份(string input, string expected)
     {
@@ -268,15 +266,15 @@ public sealed class SubscriptionProviderG2Tests
     }
 
     [Fact]
-    public async Task 课程目录展示权限但所有课时保持只读()
+    public async Task 课程目录仅开放可确认的已购课时()
     {
         var api = new FakeCourseCatalogApi
         {
-            Detail = new(7, "课程", null, "讲师", false, false),
+            Detail = new(7, "课程", null, "讲师", true, false),
             Episodes = new(
             [
-                new(1, 2, 10, "免费", 60, 0, null, 1, false, false, true),
-                new(3, 4, 11, "未购买", 60, 0, null, 2, false, false, true),
+                new(1, 2, 10, "已购", 60, 0, null, 1, false, false, true),
+                new(3, 4, 11, "试看", 60, 0, null, 2, false, false, true, IsPreview: true),
                 new(5, 6, 12, "字段未知", 60, 0, null, null, null, null, null),
             ], null, false),
         };
@@ -288,10 +286,14 @@ public sealed class SubscriptionProviderG2Tests
             new ContentPageRequest(parentKey: parent), CancellationToken.None);
 
         Assert.Equal(
-            [ContentAccessState.Available, ContentAccessState.PurchaseRequired, ContentAccessState.Unknown],
+            [ContentAccessState.Available, ContentAccessState.PreviewOnly, ContentAccessState.Unknown],
             page.Items.Select(item => item.AccessState));
         Assert.All(page.Items, item => Assert.Equal(parent, item.ParentKey));
-        Assert.False((object)provider is IContentSourceResolutionProvider);
+        var resolved = await provider.ResolveItemAsync(descriptor, page.Items[0], CancellationToken.None);
+        Assert.Equal(BiliMediaType.Course, Assert.Single(resolved.Items).MediaType);
+        Assert.Equal(10, resolved.Items[0].EpId);
+        await Assert.ThrowsAsync<ContentSourceException>(() =>
+            provider.ResolveItemAsync(descriptor, page.Items[1], CancellationToken.None));
     }
 
     [Fact]
@@ -549,26 +551,40 @@ public sealed class SubscriptionContentUiG2Tests
     }
 
     [Fact]
-    public async Task 课程页面隐藏解析能力且可用课时仍不可勾选()
+    public async Task 课程直达课时只展示并预选目标()
     {
         var api = new FakeCourseCatalogApi
         {
             Courses = new([new(7, "课程", null, 1, false)], null, false),
-            Detail = new(7, "课程", null, null, true, false),
-            Episodes = new([new(1, 2, 3, "课时", 60, 0, null, 1, false, false, true)], null, false),
+            Detail = new(7, "课程", null, null, true, false,
+            [
+                new(1, 2, 3, "第一课", 60, 0, null, 1, false, false, true),
+                new(3, 4, 4, "第二课", 60, 0, null, 1, false, false, true),
+            ]),
         };
         var provider = new CourseSourceProvider(api, new FakeAccount(true, 42));
-        var browser = Browser(new ContentSourceProviderRegistry([provider]));
-        var descriptor = await provider.NormalizeAsync("self", CancellationToken.None);
-        await browser.OpenAsync(descriptor);
-        await browser.Items[0].OpenCommand.ExecuteAsync(null);
+        var registry = new ContentSourceProviderRegistry([provider]);
+        var probe = new StubMediaProbe();
+        var credentials = new StubCredentials("");
+        DownloadSourceWorkflowViewModel? current = null;
+        using var quick = new VideoParseViewModel(registry, probe, credentials, null, () => true,
+            openCourseLink: (input, token) => current!.TryOpenCourseLinkAsync(input, token));
+        using var workflow = new DownloadSourceWorkflowViewModel(registry: registry, quickUrl: quick,
+            favorites: new EmptyFavoriteDiscovery(), resultFactory: new VideoParseResultFactory(probe, credentials),
+            onResolved: _ => { });
+        current = workflow;
+        quick.Url = "https://www.bilibili.com/cheese/play/ep4";
 
+        await quick.ParseCommand.ExecuteAsync(null);
+
+        var browser = workflow.Browser;
+        Assert.Equal(DownloadCreationMode.PersonalSource, workflow.Mode);
         var item = Assert.Single(browser.Items);
-        Assert.True(browser.IsReadOnlySource);
-        Assert.False(browser.CanResolveCurrentSource);
-        Assert.False(item.CanSelect);
-        Assert.False(item.ShowCheckBox);
-        Assert.Contains("仅支持浏览", browser.ReadOnlyMessage);
+        Assert.Equal(4, item.Item.EpId);
+        Assert.False(browser.IsReadOnlySource);
+        Assert.True(browser.CanResolveCurrentSource);
+        Assert.True(item.CanSelect);
+        Assert.True(item.IsSelected);
     }
 
     private static ContentSourceBrowserViewModel Browser(IContentSourceProviderRegistry registry) =>

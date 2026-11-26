@@ -68,7 +68,7 @@ public class BiliDownloadService : IDisposable
     }
 
     /// <summary>
-    /// 下载单个视频项的完整流程：获取DASH流 -> 下载视频 -> 下载音频 -> ffmpeg合并 -> 清理
+    /// 下载单个媒体项，验证输入和成品后发布并清理临时文件。
     /// </summary>
     /// <param name="task">任务记录（从 SQLite 加载，含所有参数）</param>
     /// <param name="apiService">API 服务（获取 DASH 流）</param>
@@ -144,22 +144,22 @@ public class BiliDownloadService : IDisposable
             });
         }
 
-        // 1. 获取 DASH 流
+        // 1. 获取播放流
         ReportProgress("fetching");
         var mediaType = Enum.TryParse<BiliMediaType>(task.MediaType, true, out var mt) ? mt : BiliMediaType.Video;
         var request = new MediaSelectionRequest(
             task.QualityId, task.AudioQualityId, codecPreference, container, mode,
             dynamicRangePreference, audioFeaturePreference);
 
-        async Task<MediaSelectionResult> ResolveSelectionAsync()
+        async Task<(MediaSelectionResult Selection, BiliSegmentedMedia? Segmented)> ResolvePlaybackAsync()
         {
-            var dash = await apiService.GetDashResultAsync(
+            var playback = await apiService.GetPlaybackAsync(
                 task.Aid, task.Cid, task.QualityId, cookieHeader,
                 mediaType, task.EpId, task.SeasonId, ct);
-            return _selectionPolicy.Select(dash, request);
+            return (BiliSegmentedMediaPolicy.Select(_selectionPolicy, playback, request, task.DurationSeconds), playback.Segmented);
         }
 
-        var selection = await ResolveSelectionAsync();
+        var (selection, segmentedMedia) = await ResolvePlaybackAsync();
         if (!selection.Success || selection.OutputPlan is null)
             throw new ResourceUnavailableException(selection.Message);
         var outputPlan = selection.OutputPlan;
@@ -177,7 +177,8 @@ public class BiliDownloadService : IDisposable
                 var urls = CdnUrlHelper.FilterAndSortUrls(resolved.BaseUrl, resolved.BackupUrls);
                 if (urls.Count == 0)
                     throw new ResourceUnavailableException("媒体没有可用的下载地址。");
-                return await _multiDownloader.DownloadAsync(urls, staging, cookieHeader, task.TaskId, progress, ct,
+                return await _multiDownloader.DownloadAsync(urls, staging,
+                    mediaType == BiliMediaType.Course ? "" : cookieHeader, task.TaskId, progress, ct,
                     () =>
                     {
                         currentSpeed = "正在切换下载节点";
@@ -193,7 +194,7 @@ public class BiliDownloadService : IDisposable
             {
                 currentSpeed = "正在刷新下载地址";
                 ReportProgress(stage);
-                var refreshed = await ResolveSelectionAsync();
+                var (refreshed, _) = await ResolvePlaybackAsync();
                 var replacement = video ? refreshed.SelectedVideo : refreshed.SelectedAudio;
                 if (!refreshed.Success || refreshed.OutputPlan != outputPlan || replacement is null
                     || !SameRendition(stream, replacement))
@@ -202,9 +203,41 @@ public class BiliDownloadService : IDisposable
             }
         }
 
-        // 2. 下载视频流（多连接加速）
+        // 分段输入已包含所需轨道，进度和检查点使用唯一一份媒体字节计数。
+        SegmentedDownloadState? segmentedState = null;
         var videoTransfer = new DownloadTransferResult(0, 0, false);
-        if (outputPlan.RequiresVideo)
+        if (segmentedMedia is not null)
+        {
+            (videoTransfer, segmentedState) = await DownloadSegmentsAsync(
+                task, segmentedMedia, outputPlan, async () =>
+                {
+                    currentSpeed = "正在刷新分段地址";
+                    ReportProgress("video");
+                    var (refreshed, replacement) = await ResolvePlaybackAsync();
+                    return refreshed.Success && refreshed.OutputPlan == outputPlan ? replacement : null;
+                },
+                (total, downloaded, speed) =>
+                {
+                    task.VideoBytesDownloaded = downloaded;
+                    task.AudioBytesDownloaded = 0;
+                    videoProgress = (double)downloaded / total * 100;
+                    audioProgress = outputPlan.RequiresAudio ? videoProgress : 0;
+                    currentSpeed = speed;
+                    ReportProgress("video");
+                    onBytesUpdate?.Invoke(downloaded, 0);
+                }, ct);
+            videoProgress = 100;
+            if (outputPlan.RequiresAudio) audioProgress = 100;
+            currentSpeed = "";
+            ReportProgress("video");
+            EnsureSufficientSpace(task, actualOutputDir);
+        }
+        else
+        {
+            SegmentedDownloadState.Reset(task.TempDirectory);
+        }
+
+        if (segmentedState is null && outputPlan.RequiresVideo)
         {
             videoTransfer = await DownloadTrackAsync(selection.SelectedVideo!, video: true, videoTmp,
                 (total, downloaded, speed) =>
@@ -225,7 +258,7 @@ public class BiliDownloadService : IDisposable
 
         // 3. 下载音频流（多连接加速）
         var audioTransfer = new DownloadTransferResult(0, 0, false);
-        if (outputPlan.RequiresAudio)
+        if (segmentedState is null && outputPlan.RequiresAudio)
         {
             audioTransfer = await DownloadTrackAsync(selection.SelectedAudio!, video: false, audioTmp,
                 (total, downloaded, speed) =>
@@ -262,10 +295,13 @@ public class BiliDownloadService : IDisposable
         {
             mergeProgress = 10;
             ReportProgress("merging");
-            await _mediaMuxer.MuxAsync(new MediaMuxRequest(
-                outputPlan.RequiresVideo ? videoTmp : null,
-                outputPlan.RequiresAudio ? audioTmp : null,
-                stagingPath, container, mode), ct);
+            if (segmentedState is not null)
+                await MuxAndVerifySegmentsAsync(segmentedState, task.TempDirectory, stagingPath, container, mode, ct);
+            else
+                await _mediaMuxer.MuxAsync(new MediaMuxRequest(
+                    outputPlan.RequiresVideo ? videoTmp : null,
+                    outputPlan.RequiresAudio ? audioTmp : null,
+                    stagingPath, container, mode), ct);
             mergeProgress = 100;
         }
         else
@@ -365,12 +401,16 @@ public class BiliDownloadService : IDisposable
             AudioProgress = mode == OutputMediaMode.AudioVideo ? 100 : 0,
             MergeProgress = 10,
         });
-        await _mediaMuxer.MuxAsync(new MediaMuxRequest(
-            videoTmp,
-            mode == OutputMediaMode.AudioVideo ? audioTmp : null,
-            stagingPath,
-            container,
-            mode), ct);
+        var segmentedState = SegmentedDownloadState.Read(task.TempDirectory);
+        if (segmentedState is not null)
+            await MuxAndVerifySegmentsAsync(segmentedState, task.TempDirectory, stagingPath, container, mode, ct);
+        else
+            await _mediaMuxer.MuxAsync(new MediaMuxRequest(
+                videoTmp,
+                mode == OutputMediaMode.AudioVideo ? audioTmp : null,
+                stagingPath,
+                container,
+                mode), ct);
         if ((task.ExpectedMediaFeatures ?? MediaFeatureFlags.None) != MediaFeatureFlags.None)
         {
             try
@@ -405,6 +445,100 @@ public class BiliDownloadService : IDisposable
         CleanupVerifiedInputs(task.TempDirectory,
             mode == OutputMediaMode.AudioVideo ? [videoTmp, audioTmp] : [videoTmp]);
         return outputPath;
+    }
+
+    private async Task<(DownloadTransferResult Transfer, SegmentedDownloadState State)> DownloadSegmentsAsync(
+        DownloadTaskRecord task,
+        BiliSegmentedMedia media,
+        MediaOutputPlan outputPlan,
+        Func<Task<BiliSegmentedMedia?>> refresh,
+        Action<long, long, string> progress,
+        CancellationToken ct)
+    {
+        var proposed = SegmentedDownloadState.Create(task, media, outputPlan.ActualVideoCodec);
+        var state = SegmentedDownloadState.Read(task.TempDirectory);
+        var directory = SegmentedDownloadState.DirectoryFor(task.TempDirectory);
+        if (state is null || state.MediaIdentity != proposed.MediaIdentity)
+        {
+            SegmentedDownloadState.Reset(task.TempDirectory);
+            state = proposed;
+            Directory.CreateDirectory(directory);
+            await state.SaveAsync(directory, ct);
+        }
+
+        var downloaded = 0L;
+        var total = state.TotalBytes;
+        var refreshed = false;
+        for (var index = 0; index < state.Files.Length; index++)
+        {
+            var file = state.Files[index];
+            var path = SegmentedDownloadState.FileFor(directory, index);
+            if (!await SegmentedDownloadState.MatchesAsync(path, file, ct))
+            {
+                if (file.Sha256 is not null)
+                {
+                    File.Delete(path);
+                    File.Delete(path + ".range-state");
+                    state.Files[index] = file with { Sha256 = null };
+                    await state.SaveAsync(directory, ct);
+                }
+
+                async Task<DownloadTransferResult> TransferAsync(BiliMediaSegment segment)
+                {
+                    var urls = CdnUrlHelper.FilterAndSortUrls(segment.Url, segment.BackupUrls);
+                    return await _multiDownloader.DownloadAsync(urls, path, "", task.TaskId,
+                        (_, bytes, speed) => progress(total, downloaded + Math.Min(bytes, file.Length), speed), ct,
+                        () => progress(total, downloaded, "正在切换分段下载节点"));
+                }
+
+                DownloadTransferResult transfer;
+                try
+                {
+                    transfer = await TransferAsync(media.Segments[index]);
+                }
+                catch (HttpRequestException ex) when (!refreshed && MultiConnectionDownloader.IsExpiredAddress(ex))
+                {
+                    refreshed = true;
+                    var replacement = await refresh();
+                    if (replacement is null
+                        || SegmentedDownloadState.Create(task, replacement, outputPlan.ActualVideoCodec).MediaIdentity != state.MediaIdentity)
+                        throw new ResourceUnavailableException("分段媒体已变化，请重新获取播放流后继续。");
+                    media = replacement;
+                    transfer = await TransferAsync(media.Segments[index]);
+                }
+                if (transfer.ActualBytes != file.Length || !File.Exists(path) || new FileInfo(path).Length != file.Length)
+                {
+                    File.Delete(path);
+                    File.Delete(path + ".range-state");
+                    throw new DownloadProtocolException($"第 {index + 1} 个分段的下载长度与播放信息不一致。");
+                }
+
+                state.Files[index] = file with { Sha256 = await SegmentedDownloadState.HashAsync(path, ct) };
+                await state.SaveAsync(directory, ct);
+            }
+
+            downloaded += file.Length;
+            progress(total, downloaded, "");
+        }
+
+        return (new DownloadTransferResult(total, downloaded, IntegrityPassed: true), state);
+    }
+
+    private async Task MuxAndVerifySegmentsAsync(
+        SegmentedDownloadState state, string tempDirectory, string stagingPath,
+        OutputContainer container, OutputMediaMode mode, CancellationToken ct)
+    {
+        var inputs = await state.VerifyCompleteInputsAsync(tempDirectory, ct);
+        await _mediaMuxer.MuxAsync(new MediaMuxRequest(null, null, stagingPath, container, mode, inputs), ct);
+        try
+        {
+            await _mediaOutputVerifier.VerifySegmentedAsync(stagingPath, mode, state.VideoCodec, state.DurationMilliseconds, ct);
+        }
+        catch
+        {
+            TryDeleteUntrustedStaging(stagingPath);
+            throw;
+        }
     }
 
     private static async Task CopyToStagingAsync(
@@ -503,7 +637,8 @@ public class BiliDownloadService : IDisposable
                 File.Delete(file);
                 File.Delete(file + ".range-state");
             }
-            if (Directory.Exists(tempDirectory) && Directory.GetFiles(tempDirectory).Length == 0)
+            SegmentedDownloadState.Reset(tempDirectory);
+            if (Directory.Exists(tempDirectory) && !Directory.EnumerateFileSystemEntries(tempDirectory).Any())
                 Directory.Delete(tempDirectory);
         }
         catch

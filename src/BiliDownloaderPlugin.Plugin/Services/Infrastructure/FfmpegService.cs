@@ -71,8 +71,57 @@ public sealed class FfmpegService : IFfmpegService
             videoPath, audioPath, outputPath, OutputContainer.Mp4, OutputMediaMode.AudioVideo),
             legacyArguments: true, ct);
 
-    public async Task MuxAsync(MediaMuxRequest request, CancellationToken ct = default)
-        => await MuxCoreAsync(request, legacyArguments: false, ct);
+    public Task MuxAsync(MediaMuxRequest request, CancellationToken ct = default)
+        => request.Segments is null
+            ? MuxCoreAsync(request, legacyArguments: false, ct)
+            : MuxSegmentsAsync(request, ct);
+
+    private async Task MuxSegmentsAsync(MediaMuxRequest request, CancellationToken ct)
+    {
+        var segments = request.Segments!;
+        if (segments.Count == 0 || request.VideoPath is not null || request.AudioPath is not null
+            || request.OutputMediaMode is not (OutputMediaMode.AudioVideo or OutputMediaMode.VideoOnly)
+            || request.OutputContainer is not (OutputContainer.Mp4 or OutputContainer.Mkv))
+            throw new ArgumentException("无效的分段媒体封装请求。", nameof(request));
+
+        var runtime = _lastStatus?.IsReady == true ? _lastStatus : await DetectAsync(ct);
+        if (!runtime.IsReady || string.IsNullOrWhiteSpace(runtime.ExecutablePath))
+            throw new FfmpegUnavailableException("ffmpeg 未就绪，无法封装分段媒体。");
+
+        var directory = Path.GetDirectoryName(Path.GetFullPath(segments[0]))!;
+        var inputs = new List<string>(segments.Count);
+        foreach (var segment in segments)
+        {
+            var name = Path.GetFileName(segment);
+            if (!string.Equals(Path.GetDirectoryName(Path.GetFullPath(segment)), directory, StringComparison.Ordinal)
+                || !string.Equals(name, $"part-{inputs.Count + 1:D5}.media", StringComparison.Ordinal)
+                || !File.Exists(segment))
+                throw new MediaMergeException("分段文件缺失或顺序无效。");
+            inputs.Add($"file {name}");
+        }
+
+        var inputList = Path.Combine(directory, "concat.ffconcat");
+        try
+        {
+            await File.WriteAllLinesAsync(inputList, inputs, new UTF8Encoding(false), ct);
+            var startInfo = CreateProcessStartInfo(runtime.ExecutablePath);
+            foreach (var argument in new[] { "-protocol_whitelist", "file", "-f", "concat", "-safe", "1",
+                "-i", inputList, "-map", "0:v:0" })
+                startInfo.ArgumentList.Add(argument);
+            if (request.OutputMediaMode == OutputMediaMode.AudioVideo)
+            {
+                startInfo.ArgumentList.Add("-map");
+                startInfo.ArgumentList.Add("0:a:0");
+            }
+            foreach (var argument in new[] { "-c", "copy", request.OutputPath })
+                startInfo.ArgumentList.Add(argument);
+            await RunMediaProcessAsync(startInfo, request.OutputPath, "分段封装", ct);
+        }
+        finally
+        {
+            DeleteIncompleteOutput(inputList);
+        }
+    }
 
     /// <inheritdoc />
     public async Task MuxSubtitlesAsync(

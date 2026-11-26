@@ -18,6 +18,7 @@ public static class ContentAccessPresentationPolicy
         ContentAccessState.Expired => "已失效",
         ContentAccessState.NotReleased => "尚未发布",
         ContentAccessState.DrmProtected => "DRM 保护",
+        ContentAccessState.PreviewOnly => "仅试看",
         _ => "权限未知",
     };
 }

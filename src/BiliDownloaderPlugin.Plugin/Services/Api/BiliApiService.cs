@@ -6,12 +6,13 @@ using System.Text.RegularExpressions;
 using System.Web;
 using BiliDownloader.Models;
 using BiliDownloader.Services.Download;
+using BiliDownloader.Services.ContentSources;
 using Flurl.Http;
 
 namespace BiliDownloader.Services.Api;
 
 /// <summary>
-/// B站 API 封装：URL解析、视频信息获取、wbi签名、DASH流获取
+/// B 站视频与课程播放 API，含 URL 解析、媒体信息和 WBI 签名。
 /// </summary>
 public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IBiliSubtitleApi, IBiliDanmakuApi
 {
@@ -516,60 +517,172 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
         BiliMediaType mediaType = BiliMediaType.Video,
         long epId = 0, long seasonId = 0,
         CancellationToken cancellationToken = default)
+        => (await GetPlaybackAsync(aid, cid, qualityId, cookie, mediaType, epId, seasonId, cancellationToken)).Dash
+            ?? throw new ResourceUnavailableException("该媒体当前没有可用的 DASH 资源。");
+
+    public async Task<BiliPlaybackResult> GetPlaybackAsync(
+        long aid, long cid, int qualityId, string cookie,
+        BiliMediaType mediaType = BiliMediaType.Video,
+        long epId = 0, long seasonId = 0,
+        CancellationToken cancellationToken = default)
     {
-        string url;
-        var paramsDict = new Dictionary<string, string>();
+        var isCourse = mediaType == BiliMediaType.Course;
+        var isBangumi = mediaType == BiliMediaType.Bangumi;
+        if (isCourse) await VerifyCourseAccessAsync(aid, cid, epId, seasonId, cookie, cancellationToken);
 
-        if (mediaType == BiliMediaType.Bangumi)
+        var parameters = new Dictionary<string, string>
         {
-            url = "https://api.bilibili.com/pgc/player/web/v2/playurl";
-            paramsDict["ep_id"] = epId.ToString();
-            paramsDict["season_id"] = seasonId.ToString();
-            paramsDict["qn"] = qualityId.ToString();
-            paramsDict["fnval"] = "4048";
-            paramsDict["fnver"] = "0";
-            paramsDict["fourk"] = "1";
+            ["qn"] = qualityId.ToString(),
+            ["fnval"] = "4048",
+            ["fnver"] = "0",
+            ["fourk"] = "1",
+        };
+        if (isCourse || !isBangumi)
+        {
+            parameters["avid"] = aid.ToString();
+            parameters["cid"] = cid.ToString();
         }
-        else
+        if (isCourse || isBangumi)
         {
-            url = "https://api.bilibili.com/x/player/wbi/playurl";
-            paramsDict["avid"] = aid.ToString();
-            paramsDict["cid"] = cid.ToString();
-            paramsDict["qn"] = qualityId.ToString();
-            paramsDict["fnval"] = "4048";
-            paramsDict["fnver"] = "0";
-            paramsDict["fourk"] = "1";
+            parameters["ep_id"] = epId.ToString();
+            parameters["season_id"] = seasonId.ToString();
         }
 
-        var signedQuery = await WbiSignAsync(paramsDict, cookie, cancellationToken);
-        var fullUrl = $"{url}?{signedQuery}";
+        var prefix = isCourse ? "pugv" : "pgc";
+        var route = isCourse || isBangumi
+            ? $"https://api.bilibili.com/{prefix}/player/web/v2/playurl"
+            : "https://api.bilibili.com/x/player/wbi/playurl";
 
-        var request = fullUrl
-            .WithHeader("User-Agent", HttpConstants.UserAgent)
-            .WithHeader("Referer", HttpConstants.Referer);
-        var json = await WithCookie(request, cookie)
-            .GetStringAsync(cancellationToken: cancellationToken);
-
-        var resp = JsonNodeReader.ParseObject(json);
-        if (resp["code"]?.Value<int>() != 0)
+        async Task<JsonObject> FetchAsync(string endpoint, bool sign)
         {
-            var code = resp["code"]?.Value<int>() ?? -1;
-            var msg = resp["message"]?.Value<string>() ?? "未知错误";
-            // 番剧大会员检测
-            if (mediaType == BiliMediaType.Bangumi && (code == -403 || code == -10403))
-                throw new MediaAuthorizationException($"该番剧需要有效的大会员登录状态（code: {code}）");
-            if (code is -101 or -400)
-                throw new MediaAuthorizationException($"登录状态无效，无法获取播放地址（code: {code}）");
-            throw new ResourceUnavailableException($"获取播放地址失败：{msg}（code: {code}）");
+            var request = sign
+                ? WithCookie((endpoint + "?" + await WbiSignAsync(parameters, cookie, cancellationToken))
+                    .WithHeader("User-Agent", HttpConstants.UserAgent).WithHeader("Referer", HttpConstants.Referer), cookie)
+                : BuildRequest(endpoint, parameters, cookie);
+            if (isCourse) request = request.WithAutoRedirect(false);
+            var json = await request.GetStringAsync(cancellationToken: cancellationToken);
+            return JsonNodeReader.ParseObject(json);
         }
 
-        // 兼容普通视频（data）和番剧（result.video_info）两种响应格式
-        var data = resp["data"] ?? resp["result"]?["video_info"];
-        if (data == null)
-            throw new ResourceUnavailableException("播放数据缺失或已失效。");
-        if (ReadBoolean(data, "is_preview") || (resp["result"] is JsonObject resultData && ReadBoolean(resultData, "is_preview")))
-            throw new MediaAuthorizationException("当前账号只能获取试看片段，请确认该内容的播放权限。");
+        var response = await FetchAsync(route, sign: !isCourse);
+        var data = ReadPlaybackData(response, mediaType);
+        if (!HasPlaybackStreams(data)
+            && (isCourse || (isBangumi && !string.IsNullOrWhiteSpace(cookie)
+                && response["result"]?["user_status"] is JsonObject status && ReadBoolean(status, "can_watch"))))
+        {
+            // Only an authorized, successful response with an empty stream list can try the alternate Web route.
+            response = await FetchAsync($"https://api.bilibili.com/{prefix}/player/web/playurl", sign: false);
+            data = ReadPlaybackData(response, mediaType);
+        }
 
+        if (data?["dash"] is JsonObject dash)
+        {
+            var parsed = ParseDashResult(data, dash);
+            if (parsed.VideoStreams.Count + parsed.AudioStreams.Count > 0)
+                return new(parsed);
+        }
+        if (data?["durl"] is JsonArray { Count: > 0 } durl)
+            return new(null, ParseSegmentedMedia(data, durl));
+        throw new ResourceUnavailableException("该媒体当前没有可用的播放流。");
+    }
+
+    private static async Task VerifyCourseAccessAsync(
+        long aid, long cid, long epId, long seasonId, string cookie, CancellationToken cancellationToken)
+    {
+        if (epId <= 0 || seasonId <= 0 || aid <= 0 || cid <= 0)
+            throw new ResourceUnavailableException("课时的稳定媒体标识不完整。");
+        if (string.IsNullOrWhiteSpace(cookie))
+            throw new MediaAuthorizationException("请登录购买该课程的账号。");
+
+        BiliCourseDetail detail;
+        try
+        {
+            detail = await BiliSubscriptionContentApi.ReadCourseAsync(null, epId, cookie, cancellationToken);
+        }
+        catch (ContentSourceException ex) when (ex.Code == ContentSourceErrorCode.LoginRequired)
+        {
+            throw new MediaAuthorizationException("课程登录状态已失效。");
+        }
+        if (detail.SeasonId != seasonId || detail.IsExpired || detail.IsPurchased != true)
+            throw new MediaAuthorizationException("当前账号的已购课程权限无法确认，或课程已过期。");
+        var episode = detail.Episodes?.FirstOrDefault(item => item.EpisodeId == epId);
+        if (episode is null || episode.Aid != aid || episode.Cid != cid || episode.IsPlayable == false || episode.IsPreview == true
+            || episode.IsReleased == false || episode.PublishedUnixSeconds > DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            || episode.IsDrmProtected == true || episode.IsRegionRestricted == true)
+            throw new MediaAuthorizationException("当前课时不可下载或课时权限无法确认。");
+    }
+
+    private static JsonObject? ReadPlaybackData(JsonObject response, BiliMediaType mediaType)
+    {
+        var code = response["code"]?.Value<int>() ?? -1;
+        if (code is -101 || (code == -400 && mediaType == BiliMediaType.Video))
+            throw new MediaAuthorizationException("登录状态无效，无法获取播放地址。");
+        if (code is -403 or -10403)
+            throw new MediaAuthorizationException(mediaType == BiliMediaType.Bangumi
+                ? "该番剧需要有效的大会员登录状态或播放权限。"
+                : "当前账号无法访问该媒体，请检查登录和播放权限。");
+        if (code != 0)
+            throw new ResourceUnavailableException($"获取播放地址失败（code: {code}）。");
+
+        var result = response["result"] as JsonObject;
+        var data = (response["data"] as JsonObject) ?? (result?["video_info"] as JsonObject) ?? result;
+        foreach (var node in new[] { response, result, data?["video_info"] as JsonObject, data })
+        {
+            if (node is null) continue;
+            if (ReadBoolean(node, "is_preview"))
+                throw new MediaAuthorizationException("当前账号只能获取试看片段，请确认该内容的播放权限。", previewOnly: true);
+            if (ReadBoolean(node, "is_drm") || ReadBoolean(node, "drm") || ReadBoolean(node, "area_limit")
+                || (node["rights"] is JsonObject rights
+                    && (ReadBoolean(rights, "is_drm") || ReadBoolean(rights, "area_limit"))))
+                throw new ResourceUnavailableException("该媒体的区域或 DRM 权限限制了下载。");
+        }
+        return (data?["video_info"] as JsonObject) ?? data;
+    }
+
+    private static bool HasPlaybackStreams(JsonObject? data)
+        => data?["durl"] is JsonArray { Count: > 0 }
+           || (data?["dash"] is JsonObject dash
+               && (dash["video"] is JsonArray { Count: > 0 } || dash["audio"] is JsonArray { Count: > 0 }
+                   || dash["dolby"]?["audio"] is JsonArray { Count: > 0 } || dash["flac"]?["audio"] is JsonObject));
+
+    private static BiliSegmentedMedia ParseSegmentedMedia(JsonObject data, JsonArray durl)
+    {
+        var quality = data["quality"]?.Value<int>() ?? 0;
+        var duration = data["timelength"]?.Value<long>() ?? 0;
+        if (quality <= 0 || duration <= 0 || durl.Count > 10_000)
+            throw new ResourceUnavailableException("分段媒体缺少实际画质或完整时长。");
+        var segments = new List<BiliMediaSegment>(durl.Count);
+        foreach (var item in durl)
+        {
+            if (item is not JsonObject segment || ReadBoolean(segment, "is_drm") || ReadBoolean(segment, "is_preview"))
+                throw new ResourceUnavailableException("分段媒体含有不可用或受保护的片段。");
+            var order = segment["order"]?.Value<int>() ?? 0;
+            var length = segment["size"]?.Value<long>() ?? 0;
+            var milliseconds = segment["length"]?.Value<long>() ?? 0;
+            var url = segment["url"]?.Value<string>() ?? "";
+            var backups = (segment["backup_url"] ?? segment["backupUrl"]) as JsonArray;
+            var urls = CdnUrlHelper.FilterAndSortUrls(url,
+                backups?.OfType<JsonValue>().Select(value => value.Value<string>()).OfType<string>().ToList());
+            if (order <= 0 || length is <= 0 or > long.MaxValue / 10_000 || milliseconds <= 0 || urls.Count == 0)
+                throw new ResourceUnavailableException("分段媒体的顺序、大小或下载地址无效。");
+            segments.Add(new(order, length, milliseconds, urls[0], urls.Skip(1).ToList()));
+        }
+        segments.Sort((first, second) => first.Number.CompareTo(second.Number));
+        if (segments.Where((segment, index) => segment.Number != index + 1).Any()
+            || !BiliSegmentedMediaPolicy.DurationsMatch(duration, segments.Sum(segment => segment.DurationMilliseconds)))
+            throw new ResourceUnavailableException("分段媒体不完整，无法确认是完整内容。");
+
+        var accepted = (data["accept_quality"] as JsonArray)?.ToList();
+        var index = accepted?.FindIndex(value => value?.Value<int>() == quality) ?? -1;
+        var descriptions = data["accept_description"] as JsonArray;
+        var name = index >= 0 && descriptions is not null && index < descriptions.Count
+            ? descriptions[index]?.Value<string>()
+            : null;
+        return new(quality, name ?? $"画质 {quality}", data["video_codecid"]?.Value<int>() ?? 0, duration, segments);
+    }
+
+    private static BiliDashResult ParseDashResult(JsonObject data, JsonObject dash)
+    {
         var result = new BiliDashResult();
 
         // 解析可用清晰度
@@ -590,11 +703,6 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
                 });
             }
         }
-
-        // 解析 DASH 流
-        var dash = data["dash"];
-        if (dash is not JsonObject)
-            throw new ResourceUnavailableException("该媒体当前没有可用的 DASH 资源。");
 
         var capabilityEvidence = new List<MediaFeatureEvidence>();
 
@@ -691,8 +799,10 @@ public partial class BiliApiService : IBiliContentSourceApi, IBiliMediaProbe, IB
     /// </summary>
     public async Task<List<BiliQualityOption>> GetAvailableQualitiesAsync(long aid, long cid, string cookie)
     {
-        var dashResult = await GetDashResultAsync(aid, cid, 80, cookie); // 用 1080P 试探
-        return dashResult.AcceptQualities;
+        var playback = await GetPlaybackAsync(aid, cid, 80, cookie);
+        return playback.Segmented is { } segmented
+            ? BiliSegmentedMediaPolicy.GetQualities(segmented)
+            : playback.Dash!.AcceptQualities;
     }
 
     #endregion

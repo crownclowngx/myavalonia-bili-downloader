@@ -96,13 +96,18 @@ public readonly record struct RenditionFingerprint
 
     public string Value { get; }
 
-    public static RenditionFingerprint Create(MediaUnitKey mediaUnitKey, RenditionSpecification specification)
+    public static RenditionFingerprint Create(
+        MediaUnitKey mediaUnitKey, RenditionSpecification specification,
+        BiliMediaType mediaType = BiliMediaType.Video, long episodeId = 0)
     {
         specification = specification.Canonicalize();
         specification.Validate();
+        var key = mediaType == BiliMediaType.Course
+            ? FormattableString.Invariant($"course:{episodeId}|{mediaUnitKey.ToStorageKey()}")
+            : mediaUnitKey.ToStorageKey();
         var canonical = string.Join('|',
             "rf2",
-            mediaUnitKey.ToStorageKey(),
+            key,
             $"vq={specification.VideoQualityId}",
             $"aq={specification.AudioQualityId}",
             $"codec={(int)specification.VideoCodecPreference}",

@@ -57,12 +57,12 @@ public sealed class VideoParseResultFactory
         CancellationToken cancellationToken)
     {
         var item = preferredItem ?? collection.Items.FirstOrDefault();
-        BiliDashResult? dash = null;
+        BiliPlaybackResult? playback = null;
         if (item is not null)
         {
             try
             {
-                dash = await _mediaProbe.GetDashResultAsync(
+                playback = await _mediaProbe.GetPlaybackAsync(
                     item.Aid, item.Cid, 80, _credentials.GetCookieHeader(),
                     item.MediaType, item.EpId, item.SeasonId, cancellationToken);
             }
@@ -70,15 +70,18 @@ public sealed class VideoParseResultFactory
                 (preferredItem is not null || collection.Items.Count > 1) &&
                 ex is MediaAuthorizationException or ResourceUnavailableException or Flurl.Http.FlurlHttpException)
             {
-                item.StageText = ex is MediaAuthorizationException
-                    ? "当前分集需要登录或播放权限"
-                    : "当前分集暂时无法获取播放规格";
+                item.StageText = ex switch
+                {
+                    MediaAuthorizationException { PreviewOnly: true } => "当前分集仅返回试看",
+                    MediaAuthorizationException => "当前分集需要登录或播放权限",
+                    _ => "当前分集暂时无法获取播放规格",
+                };
             }
         }
 
         cancellationToken.ThrowIfCancellationRequested();
-        var qualities = dash is null ? [] : GetVideoQualityOptions(dash);
-        var audio = (dash?.AudioStreams ?? [])
+        var qualities = playback is null ? [] : GetVideoQualityOptions(playback);
+        var audio = (playback?.Dash?.AudioStreams ?? [])
             .Where(stream => stream.AudioFeature == BiliAudioFeature.Standard)
             .GroupBy(stream => stream.Id)
             .Select(group => group.OrderByDescending(stream => stream.Bandwidth).First())
@@ -103,8 +106,10 @@ public sealed class VideoParseResultFactory
         };
     }
 
-    internal static List<BiliQualityOption> GetVideoQualityOptions(BiliDashResult dash)
+    internal static List<BiliQualityOption> GetVideoQualityOptions(BiliPlaybackResult playback)
     {
+        if (playback.Segmented is { } segmented) return BiliSegmentedMediaPolicy.GetQualities(segmented);
+        var dash = playback.Dash!;
         var available = dash.VideoStreams
             .Where(stream => stream.Id > 0 && stream.Id is not (125 or 126)
                 && (!string.IsNullOrWhiteSpace(stream.BaseUrl) || stream.BackupUrls.Count > 0))

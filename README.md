@@ -1,9 +1,9 @@
 # BiliDownloader 独立插件
 
-> 当前构建基线：插件 `3.0.2`，Core/UI SDK `3.4.2`，Build `3.4.2`。
+> 当前构建基线：插件 `3.1.0`，Core/UI SDK `3.4.2`，Build `3.4.2`。
 > 图标映射、兼容边界与验证命令见 [专用说明](docs/plan-history/v6.1-plugin-icons.md)。
 
-由 MyAvaloniaManagement 内置 BiliDownloader 完整迁出的 Managed Plugin。业务、界面、命名空间和程序集名保持原样，正式插件 ID 为 `myavalonia.plugin.bili-downloader`，版本为 `3.0.2`。
+由 MyAvaloniaManagement 内置 BiliDownloader 完整迁出的 Managed Plugin。业务、界面、命名空间和程序集名保持原样，正式插件 ID 为 `myavalonia.plugin.bili-downloader`，版本为 `3.1.0`。
 
 ## 开始开发
 
@@ -37,7 +37,7 @@ dotnet msbuild src/BiliDownloaderPlugin.Plugin/BiliDownloaderPlugin.Plugin.cspro
 .\scripts\Test-HostIntegration.ps1 -HostRepositoryRoot D:\code\bishe\common\avalonia_dock_simple_test
 ```
 
-正式 ZIP 和配对清单位于 `src/BiliDownloaderPlugin.Plugin/artifacts/managed-plugin-packages/`，ZIP 为 `BiliDownloader-3.0.2-win-x64.zip`，内部目录保持 `Controls/BiliDownloader`。独立构建使用 SDK/UI 3.4.2 和 Build 3.4.2 NuGet 包，不需要宿主源码。
+正式 ZIP 和配对清单位于 `src/BiliDownloaderPlugin.Plugin/artifacts/managed-plugin-packages/`，ZIP 为 `BiliDownloader-3.1.0-win-x64.zip`，内部目录保持 `Controls/BiliDownloader`。独立构建使用 SDK/UI 3.4.2 和 Build 3.4.2 NuGet 包，不需要宿主源码。
 
 要部署到已退出的宿主，显式指定其 Controls 目录：
 

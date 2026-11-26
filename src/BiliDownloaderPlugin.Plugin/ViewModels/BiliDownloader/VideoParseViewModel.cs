@@ -34,6 +34,7 @@ public partial class VideoParseViewModel : ObservableObject, IDisposable
     private readonly IContentSourceProviderRegistry _providerRegistry;
     private readonly VideoParseResultFactory _resultFactory;
     private readonly Action<VideoParseResult>? _onParsed;
+    private readonly Func<string, CancellationToken, Task<bool>>? _openCourseLink;
     private bool _restoringSource;
     // URL 解析、媒体能力探测和字幕发现都产生只服务于当前页面的临时结果，必须绑定 Document。
     // 父级令牌负责宿主关闭，本地 CTS 负责子对象独立释放；成功回调前还会检查关闭状态，防止
@@ -78,11 +79,13 @@ public partial class VideoParseViewModel : ObservableObject, IDisposable
         IBiliCredentialProvider credentialProvider,
         Action<VideoParseResult>? onParsed,
         Func<bool> isLoggedInCheck,
-        CancellationToken documentToken = default)
+        CancellationToken documentToken = default,
+        Func<string, CancellationToken, Task<bool>>? openCourseLink = null)
     {
         _providerRegistry = providerRegistry;
         _resultFactory = new VideoParseResultFactory(mediaProbe, credentialProvider);
         _onParsed = onParsed;
+        _openCourseLink = openCourseLink;
         _documentToken = documentToken;
         // 保留该参数以兼容已有调用方；鉴权现在以远端实际响应为准，不再依赖本地预判。
         _ = isLoggedInCheck;
@@ -126,10 +129,15 @@ public partial class VideoParseViewModel : ObservableObject, IDisposable
 
         try
         {
-            var provider = _providerRegistry.GetRequired(ContentSourceKind.DirectLink);
             IsLoading = true;
             DownloadInfo = "正在解析视频信息...";
+            if (_openCourseLink is not null && await _openCourseLink(input, cancellationToken))
+            {
+                DownloadInfo = "已打开课程来源";
+                return;
+            }
 
+            var provider = _providerRegistry.GetRequired(ContentSourceKind.DirectLink);
             var descriptor = await provider.NormalizeAsync(input, cancellationToken);
             var request = new ContentPageRequest();
             var page = await provider.GetPageAsync(descriptor, request, cancellationToken);

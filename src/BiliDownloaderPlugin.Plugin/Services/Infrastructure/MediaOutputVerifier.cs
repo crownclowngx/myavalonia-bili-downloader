@@ -18,6 +18,10 @@ public interface IMediaOutputVerifier
         string mediaPath,
         MediaFeatureFlags expectedFeatures,
         CancellationToken cancellationToken = default);
+
+    Task VerifySegmentedAsync(string mediaPath, OutputMediaMode mode, VideoCodec videoCodec,
+        long expectedMilliseconds, CancellationToken cancellationToken = default)
+        => Task.FromException(new MediaValidationException("当前运行时没有可用的分段媒体成品验证器。"));
 }
 
 /// <summary>ffprobe 无法证明成品与预期一致时的结构化异常。</summary>
@@ -59,13 +63,67 @@ public sealed class FfprobeMediaOutputVerifier(
         CancellationToken cancellationToken = default)
     {
         if (expectedFeatures == MediaFeatureFlags.None) return MediaFeatureFlags.None;
+        var response = await ProbeAsync(mediaPath, includeFormat: false, cancellationToken);
+        MediaFeatureFlags actual;
+        try { actual = ParseFeatures(response); }
+        catch (JsonException ex)
+        {
+            throw new MediaValidationException("ffprobe 返回了无法解析的 JSON，已阻止发布。", ex);
+        }
+        if (actual != expectedFeatures)
+            throw new MediaValidationException($"发布前媒体特征冲突：预期 {expectedFeatures}，实际 {actual}。已阻止发布。");
+        return actual;
+    }
+
+    public async Task VerifySegmentedAsync(string mediaPath, OutputMediaMode mode, VideoCodec videoCodec,
+        long expectedMilliseconds, CancellationToken cancellationToken = default)
+    {
+        var output = await ProbeAsync(mediaPath, includeFormat: true, cancellationToken);
+        VerifySegmentedOutput(output, mode, videoCodec, expectedMilliseconds);
+    }
+
+    internal static void VerifySegmentedOutput(string output, OutputMediaMode mode, VideoCodec videoCodec, long expectedMilliseconds)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(output);
+            var root = document.RootElement;
+            var streams = root.GetProperty("streams").EnumerateArray().ToArray();
+            var video = streams.FirstOrDefault(stream => ReadString(stream, "codec_type") == "video");
+            var audioPresent = streams.Any(stream => ReadString(stream, "codec_type") == "audio");
+            if (video.ValueKind == JsonValueKind.Undefined || audioPresent != (mode == OutputMediaMode.AudioVideo))
+                throw new MediaValidationException("分段成品的音视频轨与选择不一致。");
+            var codec = ReadString(video, "codec_name") switch
+            {
+                "h264" => VideoCodec.Avc,
+                "hevc" => VideoCodec.Hevc,
+                "av1" => VideoCodec.Av1,
+                _ => VideoCodec.Unknown,
+            };
+            if (videoCodec != VideoCodec.Unknown && codec != videoCodec)
+                throw new MediaValidationException("分段成品的视频编码与播放响应不一致。");
+            var duration = ReadString(root.GetProperty("format"), "duration");
+            if (!double.TryParse(duration, System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out var seconds)
+                || !double.IsFinite(seconds) || seconds <= 0 || seconds > long.MaxValue / 1000d
+                || !BiliDownloader.Services.Download.BiliSegmentedMediaPolicy.DurationsMatch(expectedMilliseconds, (long)(seconds * 1000)))
+                throw new MediaValidationException("分段成品的时长与完整播放响应不一致。");
+        }
+        catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException)
+        {
+            throw new MediaValidationException("ffprobe 返回的分段成品信息不完整。", ex);
+        }
+    }
+
+    private async Task<string> ProbeAsync(string mediaPath, bool includeFormat, CancellationToken cancellationToken)
+    {
         if (string.IsNullOrWhiteSpace(mediaPath) || !File.Exists(mediaPath))
             throw new MediaValidationException("发布前媒体验证失败：staging 文件不存在。");
 
         var ffprobePath = ResolveFfprobePath();
         using var timeoutCts = new CancellationTokenSource(_timeout);
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
-        using var process = processFactory.Start(new ProcessStartInfo
+        var startInfo = new ProcessStartInfo
         {
             FileName = ffprobePath,
             UseShellExecute = false,
@@ -77,9 +135,16 @@ public sealed class FfprobeMediaOutputVerifier(
                 "-v", "error",
                 "-print_format", "json",
                 "-show_streams",
-                mediaPath,
             },
-        });
+        };
+        if (includeFormat)
+        {
+            startInfo.ArgumentList.Add("-show_format");
+            startInfo.ArgumentList.Add("-protocol_whitelist");
+            startInfo.ArgumentList.Add("file");
+        }
+        startInfo.ArgumentList.Add(mediaPath);
+        using var process = processFactory.Start(startInfo);
 
         try
         {
@@ -92,11 +157,7 @@ public sealed class FfprobeMediaOutputVerifier(
                 throw new MediaValidationException(
                     $"ffprobe 无法读取 staging 媒体（退出码 {process.ExitCode}）：{SanitizeDiagnostic(error)}");
 
-            var actual = ParseFeatures(output);
-            if (actual != expectedFeatures)
-                throw new MediaValidationException(
-                    $"发布前媒体特征冲突：预期 {expectedFeatures}，实际 {actual}。已阻止发布。");
-            return actual;
+            return output;
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {

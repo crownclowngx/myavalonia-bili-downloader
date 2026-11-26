@@ -123,10 +123,11 @@ public sealed class MediaCapabilityInspectionService(
         await _concurrency.WaitAsync(cancellationToken);
         try
         {
-            var dash = await mediaProbe.GetDashResultAsync(
+            var playback = await mediaProbe.GetPlaybackAsync(
                 item.Aid, item.Cid, qualityId, credentials.GetCookieHeader(),
                 item.MediaType, item.EpId, item.SeasonId, cancellationToken);
-            return new ItemSnapshot(dash.Capabilities, VideoParseResultFactory.GetVideoQualityOptions(dash));
+            return new ItemSnapshot(playback.Dash?.Capabilities ?? MediaCapabilitySnapshot.Unknown,
+                VideoParseResultFactory.GetVideoQualityOptions(playback));
         }
         catch (MediaAuthorizationException)
         {

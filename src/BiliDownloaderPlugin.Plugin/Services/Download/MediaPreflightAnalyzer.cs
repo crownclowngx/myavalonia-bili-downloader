@@ -5,12 +5,12 @@ using BiliDownloader.Services.Auth;
 namespace BiliDownloader.Services.Download;
 
 /// <summary>
-/// 单项媒体预检分析边界。实现必须只返回不含鉴权信息的选择结果；DASH URL 只能停留在方法内部。
+/// 单项媒体预检分析边界。实现必须只返回不含鉴权信息的选择结果；临时播放地址只能停留在方法内部。
 /// </summary>
 public interface IMediaPreflightAnalyzer
 {
     /// <summary>
-    /// 对单个提交项完成一次 DASH 探测、流选择和空间估算。返回值不得携带签名 URL、Cookie
+    /// 对单个提交项探测播放流、选择规格并估算空间。返回值不得携带签名 URL、Cookie
     /// 或请求头，以便 Coordinator 可以安全地构造预检指纹与任务快照。
     /// </summary>
     Task<MediaPreflightResult> AnalyzeAsync(
@@ -38,6 +38,7 @@ public sealed class MediaSizeCalculator : IMediaSizeCalculator
     /// <inheritdoc />
     public long? EstimatePeakBytes(MediaOutputPlan plan, int durationSeconds)
     {
+        if (plan.SegmentedInputBytes is long bytes) return checked(bytes * 22L / 10L);
         if (durationSeconds <= 0) return null;
         var bandwidth = checked(plan.VideoBandwidth + plan.AudioBandwidth);
         if (bandwidth <= 0) return null;
@@ -47,7 +48,7 @@ public sealed class MediaSizeCalculator : IMediaSizeCalculator
 }
 
 /// <summary>
-/// 生产媒体预检分析器。一次调用只请求一次 DASH，并立即丢弃选择结果中的临时 URL；
+/// 生产媒体预检分析器。按当前账号探测播放流，并立即丢弃选择结果中的临时 URL；
 /// 返回给调用方的 OutputPlan 只含编码、带宽、模式和扩展名等稳定公开元数据。
 /// </summary>
 public sealed class DashMediaPreflightAnalyzer(
@@ -63,7 +64,7 @@ public sealed class DashMediaPreflightAnalyzer(
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var dash = await mediaProbe.GetDashResultAsync(
+        var playback = await mediaProbe.GetPlaybackAsync(
             item.Aid,
             item.Cid,
             profile.VideoQualityId,
@@ -72,16 +73,16 @@ public sealed class DashMediaPreflightAnalyzer(
             item.EpId,
             item.SeasonId,
             cancellationToken);
-        var selection = selectionPolicy.Select(dash, new MediaSelectionRequest(
+        var selection = BiliSegmentedMediaPolicy.Select(selectionPolicy, playback, new MediaSelectionRequest(
             profile.VideoQualityId,
             profile.AudioQualityId,
             profile.VideoCodecPreference,
             profile.OutputContainer,
             profile.OutputMediaMode,
             profile.VideoDynamicRangePreference,
-            profile.AudioFeaturePreference));
+            profile.AudioFeaturePreference), item.Duration);
         return new MediaPreflightResult(
-            selection,
+            selection with { SelectedVideo = null, SelectedAudio = null },
             selection.OutputPlan is null ? null : sizeCalculator.EstimatePeakBytes(selection.OutputPlan, item.Duration));
     }
 }

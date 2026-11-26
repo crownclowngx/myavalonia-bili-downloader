@@ -25,6 +25,12 @@ public interface IBiliContentSourceApi
 /// <summary>解析界面探测可用音视频质量所需的最小 API。</summary>
 public interface IBiliMediaProbe
 {
+    async Task<BiliPlaybackResult> GetPlaybackAsync(
+        long aid, long cid, int qualityId, string cookie,
+        BiliMediaType mediaType = BiliMediaType.Video, long epId = 0, long seasonId = 0,
+        CancellationToken cancellationToken = default)
+        => new(await GetDashResultAsync(aid, cid, qualityId, cookie, mediaType, epId, seasonId, cancellationToken));
+
     Task<BiliDashResult> GetDashResultAsync(
         long aid,
         long cid,

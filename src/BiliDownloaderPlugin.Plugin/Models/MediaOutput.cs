@@ -102,7 +102,8 @@ public sealed record MediaOutputPlan(
     string FileExtension,
     long VideoBandwidth,
     long AudioBandwidth,
-    MediaFeatureFlags ExpectedMediaFeatures = MediaFeatureFlags.None)
+    MediaFeatureFlags ExpectedMediaFeatures = MediaFeatureFlags.None,
+    long? SegmentedInputBytes = null)
 {
     /// <summary>当前模式是否必须选择并下载视频流。</summary>
     public bool RequiresVideo => OutputMediaMode is OutputMediaMode.AudioVideo or OutputMediaMode.VideoOnly;
@@ -166,7 +167,8 @@ public sealed record MediaMuxRequest(
     string? AudioPath,
     string OutputPath,
     OutputContainer OutputContainer,
-    OutputMediaMode OutputMediaMode);
+    OutputMediaMode OutputMediaMode,
+    IReadOnlyList<string>? Segments = null);
 
 /// <summary>一次成功提交后，Document 会话项与独立任务事实之间的关联。</summary>
 public sealed record CommittedTaskReference(string SubmissionItemId, string TaskId);
